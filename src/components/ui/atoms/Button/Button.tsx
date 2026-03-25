@@ -1,12 +1,13 @@
 import type { ButtonProps } from './types.ts';
+import { clsx } from 'clsx';
 
 const baseClasses =
-    'uppercase font-semibold px-6 py-2 transition-all duration-300 active:scale-[0.98] cursor-pointer text-ui-background bg-brand-primary brightness-80';
-const hoverClasses = 'hover:brightness-100';
+    'uppercase font-semibold px-6 py-2 transition-all duration-300 cursor-pointer text-brand-primary bg-transparent border border-brand-primary';
+const hoverClasses = 'hover:bg-brand-primary hover:text-white';
 
 export const Button = ({ text, onClick }: ButtonProps) => {
     return (
-        <button onClick={onClick} className={[baseClasses, hoverClasses].join(' ')}>
+        <button onClick={onClick} className={clsx(baseClasses, hoverClasses)}>
             {text}
         </button>
     );
