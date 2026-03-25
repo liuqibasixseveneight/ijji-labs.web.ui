@@ -1,0 +1,30 @@
+/**
+  FONTS:
+  NEWSREADER      - HEADINGS
+  SPACE GROTESK   - BODY TEXT
+ */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Grotesk:wght@300..700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* FONTS */
+  --font-newsreader: 'Newsreader', serif;        /* HEADINGS */
+  --font-space-grotesk: "Space Grotesk", sans-serif;   /* BODY TEXT */
+
+  /* BRAND */
+  --color-brand-primary: #8B5CF6;
+  --color-brand-primary2: #A078FF;
+  --color-brand-secondary: #06B6D4;
+  --color-brand-tertiary: #B06B00;
+
+  /* UI */
+  --color-ui-background-primary: #121212;
+  --color-ui-background-secondary: #0D0F0F;
+  --color-ui-border: #1C1B1B;
+  --color-ui-text-secondary: #929093;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+}
