@@ -13,7 +13,10 @@ export const Navbar = ({ items }: NavbarProps) => {
             setIsScrolled(window.scrollY > 0);
         };
 
+        handleScroll();
+
         window.addEventListener('scroll', handleScroll, { passive: true });
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -21,11 +24,11 @@ export const Navbar = ({ items }: NavbarProps) => {
         <nav className='sticky top-10 z-50 w-full'>
             <div className='flex justify-center'>
                 <div
-                    className={`flex h-20 items-center justify-between w-full max-w-376 px-8 transition-colors duration-300 ${isScrolled ? 'bg-ui-background-secondary/80 backdrop-blur-md' : ''}`}
+                    className={`flex h-20 items-center justify-between w-full max-w-376 px-8 transition-colors duration-300 ${isScrolled ? 'bg-ui-background-secondary/60 backdrop-blur-md' : ''}`}
                 >
                     <div className='flex-1 flex items-center'>
-                        <Link to='/' className='text-4xl font-newsreader italic'>
-                            ijji Labs
+                        <Link to='/' className='text-4xl font-newsreader font-extrabold'>
+                            ijji labs
                         </Link>
                     </div>
 
