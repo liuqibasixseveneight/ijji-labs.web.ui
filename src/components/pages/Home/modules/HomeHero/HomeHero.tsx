@@ -7,14 +7,14 @@ export const HomeHero = () => {
 
             <div
                 className={
-                    'font-newsreader font-extrabold text-[50vw] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ui-background-secondary/5'
+                    'font-newsreader font-extrabold text-[clamp(10rem,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ui-background-secondary/5 select-none'
                 }
                 aria-hidden={'true'}
             >
                 ijji
             </div>
 
-            <div className='z-10 text-center px-6 relative'>
+            <div className='z-10 text-center px-6 relative max-w-360'>
                 <h1 className='font-extrabold leading-tight text-[clamp(2.5rem,8vw,6rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw]'>
                     Designing websites that convert
                 </h1>
