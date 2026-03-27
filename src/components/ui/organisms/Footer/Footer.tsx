@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { navbarItems } from '../Navbar/navbarItems.ts';
 import { NavbarLink } from '../../atoms';
 import type { NavbarItem } from '../Navbar';
@@ -7,9 +9,12 @@ export const Footer = () => {
         <footer className={'min-h-60 max-h-60 bg-ui-background-secondary px-30 py-10 flex-1 z-10'}>
             <div className={'flex-1 max-w-360 mx-auto'}>
                 <div className='flex-1 flex-col mb-6'>
-                    <div className={'text-4xl font-newsreader text-white mb-6 font-extrabold'}>
+                    <Link
+                        to='/'
+                        className={'text-4xl font-newsreader text-white mb-6 font-extrabold'}
+                    >
                         ijji labs
-                    </div>
+                    </Link>
                 </div>
 
                 <div className='flex-1 flex items center justify-between'>

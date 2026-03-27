@@ -20,7 +20,7 @@ export const HomeServices = () => {
                                 Website development
                             </div>
                             <div className={'text-xl text-ui-text-secondary'}>
-                                Full websites from start to finish
+                                Full websites from start to finish.
                             </div>
                         </div>
 
@@ -30,7 +30,7 @@ export const HomeServices = () => {
                                 Landing pages
                             </div>
                             <div className={'text-xl text-ui-text-secondary'}>
-                                Pages designed to convert visitors
+                                Pages designed to convert visitors.
                             </div>
                         </div>
 
@@ -40,7 +40,18 @@ export const HomeServices = () => {
                                 Brand-focused development
                             </div>
                             <div className={'text-xl text-ui-text-secondary'}>
-                                Built to match and enhance your brand
+                                Built to match and enhance your brand.
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className={'text-brand-primary2'}>04.</span>
+                            <div className={'font-newsreader italic text-5xl font-light mt-4 mb-6'}>
+                                Informed handover
+                            </div>
+                            <div className={'text-xl text-ui-text-secondary'}>
+                                After launch, we'll ensure that you're confident and ready to take
+                                over.
                             </div>
                         </div>
                     </div>
