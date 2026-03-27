@@ -37,7 +37,7 @@ export const HomeServices = () => {
                         <div>
                             <span className={'text-brand-primary2'}>03.</span>
                             <div className={'font-newsreader italic text-5xl font-light mt-4 mb-6'}>
-                                Brand focused-development
+                                Brand-focused development
                             </div>
                             <div className={'text-xl text-ui-text-secondary'}>
                                 Built to match and enhance your brand
