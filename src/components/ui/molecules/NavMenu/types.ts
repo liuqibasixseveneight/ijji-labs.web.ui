@@ -4,5 +4,7 @@ export interface NavMenuProps {
     links?: {
         label: string;
         to: string;
+        num: string;
+        description: string;
     }[];
 }
