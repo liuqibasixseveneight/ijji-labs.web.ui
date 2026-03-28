@@ -1,42 +1,30 @@
-import { Link } from 'react-router-dom';
-
 import { navbarItems } from '../Navbar/navbarItems.ts';
-import { NavbarLink } from '../../atoms';
+import { Logo, NavbarLink } from '../../atoms';
 import type { NavbarItem } from '../Navbar';
 
 export const Footer = () => {
     return (
-        <footer className={'min-h-60 max-h-60 bg-ui-background-secondary px-30 py-10 flex-1 z-8'}>
-            <div className={'flex-1 max-w-360 mx-auto'}>
-                <div className='flex-1 flex-col mb-6'>
-                    <Link
-                        to='/'
-                        className={'text-4xl font-newsreader text-white mb-6 font-extrabold'}
-                    >
-                        ijji labs
-                    </Link>
+        <footer className='bg-ui-background-secondary py-10'>
+            <div className='max-w-360 mx-auto flex flex-col md:flex-row justify-between items-start md:items-center'>
+                <div className='flex flex-col items-start text-ui-text-secondary text-sm'>
+                    <Logo isWhite />
+                    <div className='uppercase mt-2 mb-0'>
+                        &copy; 2026 ijji labs. All rights reserved.
+                    </div>
+                    <div className='italic text-xs'>Built by a human.</div>
                 </div>
 
-                <div className='flex-1 flex items center justify-between'>
-                    <div className='flex-1 flex flex-col items-start justify-center text-ui-text-secondary text-sm'>
-                        <div className={'mb-2 uppercase'}>
-                            &copy; 2026 ijji labs. All rights reserved.
-                        </div>
-                        <div className={'italic text-xs'}>Built by a human.</div>
-                    </div>
-
-                    <div className={'flex-1'}>
-                        <ul className={'flex items-center justify-end gap-10'}>
-                            {navbarItems?.map((item: NavbarItem, index: number) => (
-                                <NavbarLink
-                                    text={item?.text}
-                                    to={item?.to}
-                                    key={`${item?.text}-${index}`}
-                                    className={'text-sm text-ui-text-secondary'}
-                                />
-                            ))}
-                        </ul>
-                    </div>
+                <div className='flex justify-start md:justify-end mt-4 md:mt-0'>
+                    <ul className='flex items-center gap-6 md:gap-10'>
+                        {navbarItems?.map((item: NavbarItem, index: number) => (
+                            <NavbarLink
+                                text={item?.text}
+                                to={item?.to}
+                                key={`${item?.text}-${index}`}
+                                className='text-sm text-ui-text-secondary'
+                            />
+                        ))}
+                    </ul>
                 </div>
             </div>
         </footer>
