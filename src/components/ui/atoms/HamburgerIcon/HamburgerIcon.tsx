@@ -8,13 +8,17 @@ export const HamburgerIcon = ({ isOpen, setIsOpen, isWhite }: HamburgerIconProps
             aria-label='Toggle menu'
         >
             <span
-                className={`absolute h-0.5 w-6 transition-all duration-300 ease-in-out ${
-                    isOpen ? 'rotate-45 bg-white' : '-translate-y-1.5 bg-ui-background-secondary'
+                className={`absolute h-1 w-6 transition-all duration-300 ease-in-out ${
+                    isOpen
+                        ? 'h-2 rotate-45 bg-white'
+                        : '-translate-y-1.5 bg-ui-background-secondary'
                 } ${isWhite && 'bg-white'}`}
             />
             <span
-                className={`absolute h-0.5 w-6 transition-all duration-300 ease-in-out ${
-                    isOpen ? '-rotate-45 bg-white' : 'translate-y-1.5 bg-ui-background-secondary'
+                className={`absolute h-1 w-6 transition-all duration-300 ease-in-out ${
+                    isOpen
+                        ? 'h-2 -rotate-45 bg-white'
+                        : 'translate-y-1.5 bg-ui-background-secondary'
                 } ${isWhite && 'bg-white'}`}
             />
         </button>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { HamburgerIcon, Logo } from '../../atoms';
 import { NavMenu } from '../../molecules';
+import { navbarItems } from './navbarItems.ts';
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,7 @@ export const Navbar = () => {
                 </div>
             </nav>
 
-            <NavMenu isOpen={isOpen} setIsOpen={setIsOpen} />
+            <NavMenu isOpen={isOpen} setIsOpen={setIsOpen} links={navbarItems} />
         </>
     );
 };

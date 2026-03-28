@@ -1,6 +1,6 @@
-import { navbarItems } from '../Navbar/navbarItems.ts';
 import { Logo, NavbarLink } from '../../atoms';
 import type { NavbarItem } from '../Navbar';
+import { footerLinks } from './footerLinks.ts';
 
 export const Footer = () => {
     return (
@@ -16,7 +16,7 @@ export const Footer = () => {
 
                 <div className='flex justify-start md:justify-end mt-4 md:mt-0'>
                     <ul className='flex items-center gap-6 md:gap-10'>
-                        {navbarItems?.map((item: NavbarItem, index: number) => (
+                        {footerLinks?.map((item: NavbarItem, index: number) => (
                             <NavbarLink
                                 text={item?.text}
                                 to={item?.to}
