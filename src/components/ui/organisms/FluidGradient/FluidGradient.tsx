@@ -17,7 +17,7 @@ export const FluidGradient = () => {
     useEffect(() => {
         if (!canvasRef.current) return;
 
-        const canvasElement = canvasRef.current; // ✅ copy ref locally
+        const canvasElement = canvasRef.current;
         const scene = initializeScene(canvasElement);
         sceneRef.current = scene;
 
