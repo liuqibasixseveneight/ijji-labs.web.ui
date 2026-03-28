@@ -2,7 +2,7 @@ import { FluidGradient } from '../../../../ui';
 
 export const HomeHero = () => {
     return (
-        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-[95vh]'>
+        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-screen'>
             <FluidGradient />
 
             <div
@@ -14,7 +14,7 @@ export const HomeHero = () => {
                 ijji
             </div>
 
-            <div className='z-10 text-center px-6 relative max-w-360'>
+            <div className='z-2 text-center px-6 relative max-w-360'>
                 <h1 className='font-extrabold leading-tight text-[clamp(2.5rem,8vw,6rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw]'>
                     Designing websites that convert
                 </h1>

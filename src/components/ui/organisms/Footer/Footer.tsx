@@ -6,7 +6,7 @@ import type { NavbarItem } from '../Navbar';
 
 export const Footer = () => {
     return (
-        <footer className={'min-h-60 max-h-60 bg-ui-background-secondary px-30 py-10 flex-1 z-10'}>
+        <footer className={'min-h-60 max-h-60 bg-ui-background-secondary px-30 py-10 flex-1 z-8'}>
             <div className={'flex-1 max-w-360 mx-auto'}>
                 <div className='flex-1 flex-col mb-6'>
                     <Link

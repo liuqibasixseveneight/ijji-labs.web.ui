@@ -61,9 +61,18 @@ export const HomeAbout = () => {
                     <h3 className={'text-4xl font-medium mb-10'}>What are our values?</h3>
 
                     <div className='flex-1 flex flex-col gap-8'>
-                        <p className={'text-xl'}>1. Quality</p>
-                        <p className={'text-xl'}>2. Collaboration</p>
-                        <p className={'text-xl'}>3. Confidence</p>
+                        <p className={'text-xl'}>
+                            Quality: We build fast, reliable websites with attention to detail and
+                            thoughtful design - delivering results that last.
+                        </p>
+                        <p className={'text-xl'}>
+                            Collaboration: We work closely with you from start to finish, ensuring
+                            every decision is clear, aligned, and purposeful.
+                        </p>
+                        <p className={'text-xl'}>
+                            Confidence: After launch, we provide a smooth handover and guidance,
+                            giving you the confidence to manage and grow your website independently.
+                        </p>
                     </div>
                 </div>
             </div>
