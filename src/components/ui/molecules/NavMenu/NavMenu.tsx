@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import type { NavMenuProps } from './types';
 import { disableScrollLock, enableScrollLock } from './utils.ts';
 
-const STAGGER = ['0ms', '60ms', '120ms', '180ms', '240ms'];
-
 export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
     const [hovered, setHovered] = useState<number | null>(null);
 
@@ -42,13 +40,16 @@ export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
                     {menuLinks.map((link, i) => (
                         <li
                             key={link.label}
-                            className='flex min-h-24 border-t first:border-t-0 border-white/5'
+                            className='relative flex min-h-24 border-t first:border-t-0 border-white/5 px-10 group'
                             style={{
                                 opacity: isOpen ? 1 : 0,
                                 transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
-                                transition: `opacity 0.5s ease ${STAGGER[i]}, transform 0.5s ease ${STAGGER[i]}`,
+                                transition: `opacity 0.5s ease, transform 0.5s ease`,
                             }}
                         >
+                            {/* Hover background covers full li including padding */}
+                            <span className='absolute inset-0 bg-white/5 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100 pointer-events-none' />
+
                             <Link
                                 to={link.to}
                                 onClick={() => setIsOpen(false)}
@@ -56,10 +57,8 @@ export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
                                 onMouseLeave={() => setHovered(null)}
                                 onFocus={() => setHovered(i)}
                                 onBlur={() => setHovered(null)}
-                                className='relative w-full flex-1 grid grid-cols-[3rem_1fr_auto] items-center gap-4 text-white no-underline overflow-hidden group'
+                                className='relative w-full flex-1 grid grid-cols-[3rem_1fr_auto] items-center gap-4 text-white no-underline overflow-hidden'
                             >
-                                <span className='absolute inset-0 bg-white/5 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100 pointer-events-none' />
-
                                 <span className='text-xs font-sans text-white/30'>{link.num}</span>
 
                                 <span className='font-thin text-4xl md:text-6xl transition-transform duration-300 group-hover:italic group-hover:translate-x-2'>
