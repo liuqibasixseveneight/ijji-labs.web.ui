@@ -20,19 +20,19 @@ export const NavMenuItem = ({ link, isHovered, onHover, onLeave, setIsOpen }: Na
                 className='relative w-full flex-1 grid grid-cols-[3rem_1fr_auto] items-center gap-4 text-white no-underline overflow-hidden'
             >
                 <span
-                    className={`text-xs font-sans transition-colors duration-300 relative z-10 ${isHovered ? 'text-brand-primary' : 'text-[rgba(255,255,255,0.3)]'}`}
+                    className={`text-xs transition-all duration-300 relative z-10 ${isHovered ? 'text-brand-primary font-bold' : 'text-[rgba(255,255,255,0.3)]'}`}
                 >
                     {link.num}
                 </span>
 
                 <span
-                    className={`font-normal text-4xl md:text-6xl transition-transform duration-300 relative z-10 ${isHovered ? 'text-brand-primary italic translate-x-2' : 'text-white translate-x-0'}`}
+                    className={`font-normal text-4xl md:text-6xl transition-all duration-300 relative z-10 ${isHovered ? 'text-brand-primary italic translate-x-2' : 'text-white translate-x-0'}`}
                 >
                     {link.label}
                 </span>
 
                 <span
-                    className={`flex items-center gap-2 text-xs font-sans uppercase transition-colors duration-300 relative z-10 ${isHovered ? 'text-brand-primary' : 'text-[rgba(255,255,255,0.4)]'}`}
+                    className={`flex items-center gap-2 text-xs uppercase transition-colors duration-300 relative z-10 ${isHovered ? 'text-brand-primary' : 'text-[rgba(255,255,255,0.4)]'}`}
                 >
                     {link.description}
                     <svg

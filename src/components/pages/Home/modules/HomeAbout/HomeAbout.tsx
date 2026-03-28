@@ -62,16 +62,19 @@ export const HomeAbout = () => {
 
                     <div className='flex-1 flex flex-col gap-8'>
                         <p className={'text-xl'}>
-                            Quality: We build fast, reliable websites with attention to detail and
-                            thoughtful design - delivering results that last.
+                            <span className='font-bold'>Quality:</span> We build fast, reliable
+                            websites with attention to detail and thoughtful design - delivering
+                            results that last.
                         </p>
                         <p className={'text-xl'}>
-                            Collaboration: We work closely with you from start to finish, ensuring
-                            every decision is clear, aligned, and purposeful.
+                            <span className='font-bold'>Collaboration:</span> We work closely with
+                            you from start to finish, ensuring every decision is clear, aligned, and
+                            purposeful.
                         </p>
                         <p className={'text-xl'}>
-                            Confidence: After launch, we provide a smooth handover and guidance,
-                            giving you the confidence to manage and grow your website independently.
+                            <span className='font-bold'>Confidence:</span> After launch, we provide
+                            a smooth handover and guidance, giving you the confidence to manage and
+                            grow your website independently.
                         </p>
                     </div>
                 </div>
