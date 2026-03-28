@@ -17,17 +17,17 @@ export const FluidGradient = () => {
     useEffect(() => {
         if (!canvasRef.current) return;
 
-        const scene = initializeScene(canvasRef.current);
+        const canvasElement = canvasRef.current; // ✅ copy ref locally
+        const scene = initializeScene(canvasElement);
         sceneRef.current = scene;
 
         const handleMouseMove = createMouseMoveHandler(scene);
         const handleMouseLeave = createMouseLeaveHandler(scene);
-        const handleResize = createResizeHandler(scene, canvasRef.current);
+        const handleResize = createResizeHandler(scene, canvasElement);
         const animate = createAnimationLoop(scene);
 
-        const canvas = scene.renderer.domElement;
-        canvas.addEventListener('mousemove', handleMouseMove, { passive: true });
-        canvas.addEventListener('mouseleave', handleMouseLeave);
+        canvasElement.addEventListener('mousemove', handleMouseMove, { passive: true });
+        canvasElement.addEventListener('mouseleave', handleMouseLeave);
         window.addEventListener('resize', handleResize, { passive: true });
 
         animate();
@@ -37,12 +37,10 @@ export const FluidGradient = () => {
                 cancelAnimationFrame(sceneRef.current.animationId);
                 window.removeEventListener('resize', handleResize);
 
-                if (canvas) {
-                    canvas.removeEventListener('mousemove', handleMouseMove);
-                    canvas.removeEventListener('mouseleave', handleMouseLeave);
-                }
+                canvasElement.removeEventListener('mousemove', handleMouseMove);
+                canvasElement.removeEventListener('mouseleave', handleMouseLeave);
 
-                cleanupScene(sceneRef.current, canvasRef.current);
+                cleanupScene(sceneRef.current, canvasElement);
                 sceneRef.current = null;
             }
         };
