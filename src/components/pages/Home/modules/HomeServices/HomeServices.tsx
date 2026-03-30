@@ -16,15 +16,15 @@ const services = [
             'Every project ends with a thorough handover. We provide documentation and a walkthrough session so you can manage your own content confidently — no ongoing dependency on us required.',
         included: [
             'Content management training',
-            'Written documentation',
+            'Usage and maintenance documentation',
             'Walkthrough session',
             'Q&A before sign-off',
         ],
     },
     {
-        title: 'Ongoing Support',
+        title: 'Post-Launch Support',
         description:
-            "If you'd rather not manage updates yourself, we offer a flexible support package. Maintenance, content changes, and future development available at an agreed rate.",
+            "If you'd rather not manage updates yourself, we offer a flexible support package. Maintenance and content changes are included with any post-launch support packages.",
         included: ['Content & copy updates', 'Software & plugin updates', 'Performance monitoring'],
         optional: true,
     },
@@ -71,7 +71,7 @@ const steps = [
         number: '07',
         title: 'Handover & Training',
         description:
-            'Full documentation, a walkthrough session, and your questions answered — so you leave confident, not dependent.',
+            'Usage and maintenance documentation, a walkthrough session, and your questions answered — so you leave confident, not dependent.',
     },
     {
         number: '08',
@@ -129,14 +129,16 @@ export const HomeServices = () => {
                             </div>
                         ))}
                     </div>
+
+                    <em className={'text-neutral-400 mt-40'}>
+                        <span className={'text-brand-primary'}>*</span> Any additional features can
+                        be developed at an agreed extra cost.
+                    </em>
                 </div>
             </div>
 
             <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-white'>
                 <div className='max-w-360 w-full flex-1 py-[10vh] flex flex-col px-4 sm:px-6 lg:px-0'>
-                    <p className='text-xs font-bold tracking-[0.25em] uppercase text-neutral-400 mb-5'>
-                        How we work
-                    </p>
                     <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-black mb-10 leading-none'>
                         Our process
                     </h2>
@@ -162,7 +164,7 @@ export const HomeServices = () => {
                             <div
                                 key={step.number}
                                 className={`
-                                    border-b py-6 md:py-7
+                                    border-b last:border-b-0 py-6 md:py-7
                                     grid grid-cols-[3.5rem_1fr] md:grid-cols-[3.5rem_1fr_1.6fr]
                                     gap-x-6 md:gap-x-10 gap-y-2
                                     ${i === 0 ? 'border-t border-t-neutral-200' : ''}
