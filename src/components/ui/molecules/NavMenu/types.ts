@@ -1,4 +1,4 @@
-export interface NavMenuItemProps {
+interface NavMenuItemProps {
     label: string;
     to: string;
     num: string;
