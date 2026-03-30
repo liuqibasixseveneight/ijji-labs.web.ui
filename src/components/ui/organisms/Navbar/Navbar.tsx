@@ -32,7 +32,7 @@ export const Navbar = () => {
                     isScrolled ? 'bg-ui-background-secondary' : 'bg-transparent'
                 }`}
             >
-                <div className='flex-1 flex items-center justify-between h-full w-full max-w-360 mx-auto px-4'>
+                <div className='flex-1 flex items-center justify-between h-full w-full max-w-360 mx-auto'>
                     <Logo isMenuOpen={isOpen} isWhite={isScrolled} />
                     <HamburgerIcon
                         isOpen={isOpen}

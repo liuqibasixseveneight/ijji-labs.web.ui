@@ -56,10 +56,10 @@ export const HomeAbout = () => {
                     </ArtisticFrame>
                 </div>
 
-                <div className={'max-w-260 w-full flex-1 flex flex-col mb-[5vh]'}>
+                <div className={'max-w-7xl w-full flex-1 flex flex-col my-[5vh]'}>
                     <h3 className={'text-4xl font-medium mb-10'}>What are our values?</h3>
 
-                    <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                    <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                         {valueCards.map((card, index: number) => (
                             <InfoCard key={`${card?.title}-${index}`} {...card} />
                         ))}
