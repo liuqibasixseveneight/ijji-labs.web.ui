@@ -14,7 +14,7 @@ const PROJECT_TYPES = [
     'Other',
 ] as const;
 
-const CONTACT_METHODS = ['Email', 'Phone', 'SMS', 'No preference'] as const;
+const CONTACT_METHODS = ['Email', 'Phone', 'SMS'] as const;
 
 const contactSchema = z.object({
     name: z
@@ -40,7 +40,10 @@ const contactSchema = z.object({
         .string()
         .min(10, 'Message must be at least 10 characters')
         .max(2000, 'Message must be under 2000 characters'),
-    preferredContact: z.enum([...CONTACT_METHODS]).optional(),
+    preferredContact: z
+        .enum([...CONTACT_METHODS])
+        .optional()
+        .or(z.literal('')),
     referral: z
         .string()
         .max(200, 'Please keep this under 200 characters')
@@ -115,7 +118,7 @@ const FieldWrapper = ({
     children: ReactNode;
 }) => (
     <div className='flex flex-col gap-2'>
-        <label className='text-xs font-semibold tracking-widest uppercase text-neutral-400'>
+        <label className='text-xs font-bold tracking-widest uppercase text-neutral-500'>
             {label}
             {required && <span className='text-brand-primary ml-1'>*</span>}
         </label>
