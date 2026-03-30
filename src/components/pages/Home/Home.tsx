@@ -1,4 +1,4 @@
-import { HomeAbout, HomeHero, HomeServices } from './modules';
+import { HomeAbout, HomeHero, HomeProjects, HomeServices } from './modules';
 
 export const Home = () => {
     return (
@@ -6,6 +6,7 @@ export const Home = () => {
             <HomeHero />
             <HomeAbout />
             <HomeServices />
+            <HomeProjects />
         </>
     );
 };
