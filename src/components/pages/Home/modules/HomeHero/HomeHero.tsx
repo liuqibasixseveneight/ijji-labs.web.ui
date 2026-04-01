@@ -1,18 +1,26 @@
+import { FluidGradient } from '../../../../ui';
+
 export const HomeHero = () => {
     return (
-        <div className={'flex flex-col flex-1 w-full p-30 min-h-[75vh]'}>
-            <div className={'flex-1 max-w-350 flex items-start justify-center flex-col'}>
-                <div className={'uppercase text-brand-primary mb-20'}>
-                    Digital design &amp; development
-                </div>
-                <h1 className={'font-newsreader text-[8vw] leading-none font-light mb-20'}>
-                    We craft <span className={'italic'}>elevated</span> digital experiences for{' '}
-                    <span className={'font-normal'}>the web.</span>
+        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-screen'>
+            <FluidGradient />
+
+            <div
+                className={
+                    'font-newsreader font-extrabold text-[clamp(10rem,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ui-background-secondary/5 select-none mt-10'
+                }
+                aria-hidden={'true'}
+            >
+                ijji
+            </div>
+
+            <div className='z-2 text-center px-8 relative max-w-380'>
+                <h1 className='font-extrabold leading-tight text-[clamp(2.5rem,8vw,6rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw]'>
+                    Designing websites that convert
                 </h1>
-                <div className={'max-w-162.5 text-xl leading-relaxed'}>
-                    An independent studio specialising in premium web design, creating thoughtful
-                    digital products with purpose and soul.
-                </div>
+                <p className='mt-4 text-[clamp(1.25rem,4vw,2rem)] max-w-[90vw] md:max-w-[60vw] lg:max-w-[50vw] mx-auto'>
+                    Beautiful, user-friendly digital experiences for your business
+                </p>
             </div>
         </div>
     );
