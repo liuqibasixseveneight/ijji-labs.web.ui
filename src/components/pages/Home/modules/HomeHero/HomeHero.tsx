@@ -14,7 +14,7 @@ export const HomeHero = () => {
                 ijji
             </div>
 
-            <div className='z-2 text-center px-6 relative max-w-360'>
+            <div className='z-2 text-center px-8 relative max-w-380'>
                 <h1 className='font-extrabold leading-tight text-[clamp(2.5rem,8vw,6rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw]'>
                     Designing websites that convert
                 </h1>

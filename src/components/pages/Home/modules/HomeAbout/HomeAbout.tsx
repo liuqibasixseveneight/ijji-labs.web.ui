@@ -6,7 +6,7 @@ export const HomeAbout = () => {
     return (
         <>
             <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-ui-background-primary'>
-                <div className={'max-w-360 w-full flex-1 py-[10vh] flex flex-col'}>
+                <div className={'max-w-380 px-8 w-full flex-1 py-[10vh] flex flex-col'}>
                     <h2 className={'text-8xl font-extrabold text-white mb-10'}>About us</h2>
                     <ArtisticFrame className='flex-1 max-h-[65vh] w-full'>
                         <img
@@ -46,7 +46,7 @@ export const HomeAbout = () => {
                     </div>
                 </div>
 
-                <div className={'max-w-300 w-full flex-1 flex flex-col mb-[5vh]'}>
+                <div className={'max-w-300 w-full flex-1 flex flex-col mb-10'}>
                     <ArtisticFrame className='flex-1 max-h-[65vh] w-full'>
                         <img
                             src={aboutImageTwo}
@@ -56,7 +56,7 @@ export const HomeAbout = () => {
                     </ArtisticFrame>
                 </div>
 
-                <div className={'max-w-7xl w-full flex-1 flex flex-col my-[5vh]'}>
+                <div className={'max-w-7xl w-full flex-1 flex flex-col my-10'}>
                     <h3 className={'text-4xl font-medium mb-10'}>What are our values?</h3>
 
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>

@@ -5,7 +5,7 @@ import { footerLinks } from './footerLinks.ts';
 export const Footer = () => {
     return (
         <footer className='bg-ui-background-secondary py-10'>
-            <div className='max-w-360 mx-auto flex flex-col md:flex-row justify-between items-start md:items-center'>
+            <div className='max-w-380 px-8 mx-auto flex flex-col md:flex-row justify-between items-start md:items-center'>
                 <div className='flex flex-col items-start text-ui-text-secondary text-sm'>
                     <Logo isWhite />
                     <div className='uppercase mt-2 mb-0'>
