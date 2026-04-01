@@ -1,9 +1,12 @@
 export const PROJECT_TYPES = [
-    'Marketing website',
-    'E-commerce',
-    'Web application',
-    'Rebrand & website',
+    'New website project',
+    'Website redesign',
     'Landing page',
+    'Website maintenance & support',
+    'Ongoing partnership / collaboration',
+    'E-commerce website',
+    'Web application',
+    'Branding + website',
     'Other',
 ] as const;
 

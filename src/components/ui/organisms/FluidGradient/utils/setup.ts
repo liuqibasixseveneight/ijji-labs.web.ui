@@ -4,7 +4,7 @@ import { config } from './config';
 import { hexToRgb } from './hexToRgb';
 import type { SceneState } from './types';
 import { vertexShader, fluidShader, displayShader } from '../shaders';
-import { getPixelRatio } from './handlers.ts';
+import { getPixelRatio } from './handlers';
 
 export const getCanvasSize = (container: HTMLElement | null): { width: number; height: number } => {
     if (!container) {
@@ -15,6 +15,32 @@ export const getCanvasSize = (container: HTMLElement | null): { width: number; h
         width: rect.width > 0 ? rect.width : window.innerWidth,
         height: rect.height > 0 ? rect.height : window.innerHeight,
     };
+};
+
+/**
+ * The fluid simulation does not need to run at display resolution.
+ * It's a velocity/density field that gets sampled by the display shader,
+ * which upscales it via bilinear filtering. Running it at full res is the
+ * single biggest GPU cost in this component.
+ *
+ * We cap the fluid texture at 512px on the longest side. This is enough
+ * fidelity for the fluid physics while cutting GPU fill-rate by 4–16x
+ * depending on the user's screen size.
+ */
+const FLUID_MAX_RESOLUTION = 512;
+
+export const getFluidResolution = (
+    displayWidth: number,
+    displayHeight: number,
+): { width: number; height: number } => {
+    const aspect = displayWidth / displayHeight;
+    if (displayWidth >= displayHeight) {
+        const w = Math.min(displayWidth, FLUID_MAX_RESOLUTION);
+        return { width: Math.round(w), height: Math.round(w / aspect) };
+    } else {
+        const h = Math.min(displayHeight, FLUID_MAX_RESOLUTION);
+        return { width: Math.round(h * aspect), height: Math.round(h) };
+    }
 };
 
 export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
@@ -44,7 +70,7 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     canvas.style.pointerEvents = 'auto';
     canvas.style.touchAction = 'none';
     canvas.style.zIndex = '1';
-    canvas.style.willChange = 'contents';
+    canvas.style.willChange = 'transform';
 
     container.appendChild(canvas);
 
@@ -52,11 +78,11 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
 };
 
 export const getFloatTextureType = (gl: WebGLRenderingContext): THREE.TextureDataType => {
-    const hasFloat = !!gl.getExtension('OES_texture_float');
     const hasHalfFloat = !!gl.getExtension('OES_texture_half_float');
+    const hasFloat = !!gl.getExtension('OES_texture_float');
 
-    if (hasFloat) return THREE.FloatType;
     if (hasHalfFloat) return THREE.HalfFloatType;
+    if (hasFloat) return THREE.FloatType;
     return THREE.UnsignedByteType;
 };
 
@@ -70,6 +96,9 @@ export const createRenderTargets = (
         magFilter: THREE.LinearFilter,
         format: THREE.RGBAFormat,
         type: floatType,
+        generateMipmaps: false,
+        depthBuffer: false,
+        stencilBuffer: false,
     };
 
     const fluidTarget1 = new THREE.WebGLRenderTarget(width, height, options);
@@ -79,15 +108,15 @@ export const createRenderTargets = (
 };
 
 export const createMaterials = (
-    renderWidth: number,
-    renderHeight: number,
+    displayWidth: number,
+    displayHeight: number,
+    fluidWidth: number,
+    fluidHeight: number,
 ): [THREE.ShaderMaterial, THREE.ShaderMaterial] => {
     const fluidMaterial = new THREE.ShaderMaterial({
         uniforms: {
             iTime: { value: 0 },
-            iResolution: {
-                value: new THREE.Vector2(renderWidth, renderHeight),
-            },
+            iResolution: { value: new THREE.Vector2(fluidWidth, fluidHeight) },
             iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
             iFrame: { value: 0 },
             iPreviousFrame: { value: null },
@@ -104,9 +133,7 @@ export const createMaterials = (
     const displayMaterial = new THREE.ShaderMaterial({
         uniforms: {
             iTime: { value: 0 },
-            iResolution: {
-                value: new THREE.Vector2(renderWidth, renderHeight),
-            },
+            iResolution: { value: new THREE.Vector2(displayWidth, displayHeight) },
             iFluid: { value: null },
             uDistortionAmount: { value: config.distortionAmount },
             uColor1: { value: new THREE.Vector3(...hexToRgb(config.color1)) },
@@ -133,19 +160,30 @@ export const initializeScene = (container: HTMLElement): SceneState => {
 
     const { width, height } = getCanvasSize(container);
     const pixelRatio = getPixelRatio(width, height);
-    const renderWidth = width * pixelRatio;
-    const renderHeight = height * pixelRatio;
+    const displayWidth = Math.round(width * pixelRatio);
+    const displayHeight = Math.round(height * pixelRatio);
+
+    const { width: fluidWidth, height: fluidHeight } = getFluidResolution(
+        displayWidth,
+        displayHeight,
+    );
 
     const gl = renderer.getContext() as WebGLRenderingContext;
     const floatType = getFloatTextureType(gl);
 
-    const [fluidTarget1, fluidTarget2] = createRenderTargets(renderWidth, renderHeight, floatType);
+    const [fluidTarget1, fluidTarget2] = createRenderTargets(fluidWidth, fluidHeight, floatType);
 
-    const [fluidMaterial, displayMaterial] = createMaterials(renderWidth, renderHeight);
+    const [fluidMaterial, displayMaterial] = createMaterials(
+        displayWidth,
+        displayHeight,
+        fluidWidth,
+        fluidHeight,
+    );
 
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const fluidPlane = new THREE.Mesh(geometry, fluidMaterial);
-    const displayPlane = new THREE.Mesh(geometry, displayMaterial);
+    const fluidGeometry = new THREE.PlaneGeometry(2, 2);
+    const displayGeometry = new THREE.PlaneGeometry(2, 2);
+    const fluidPlane = new THREE.Mesh(fluidGeometry, fluidMaterial);
+    const displayPlane = new THREE.Mesh(displayGeometry, displayMaterial);
 
     fluidMaterial.uniforms.iPreviousFrame.value = null;
 
@@ -170,6 +208,8 @@ export const initializeScene = (container: HTMLElement): SceneState => {
         displayMaterial,
         fluidPlane,
         displayPlane,
+        fluidWidth,
+        fluidHeight,
         frameCount: 0,
         mouseX: 0,
         mouseY: 0,

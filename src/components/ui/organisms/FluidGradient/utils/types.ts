@@ -7,10 +7,12 @@ export type SceneState = {
     currentFluidTarget: THREE.WebGLRenderTarget;
     displayMaterial: THREE.ShaderMaterial;
     displayPlane: THREE.Mesh;
+    fluidHeight: number;
     fluidMaterial: THREE.ShaderMaterial;
     fluidPlane: THREE.Mesh;
     fluidTarget1: THREE.WebGLRenderTarget;
     fluidTarget2: THREE.WebGLRenderTarget;
+    fluidWidth: number;
     frameCount: number;
     lastMoveTime: number;
     mouseX: number;
