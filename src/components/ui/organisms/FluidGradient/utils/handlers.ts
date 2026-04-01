@@ -48,7 +48,6 @@ export const createMouseMoveHandler = (scene: SceneState) => {
 
         const mouseUniform = scene.fluidMaterial.uniforms.iMouse.value;
         mouseUniform.set(mouseX, mouseY, prevMouseX, prevMouseY);
-        scene.fluidMaterial.needsUpdate = true;
     };
 };
 
@@ -64,20 +63,22 @@ export const createMouseLeaveHandler = (scene: SceneState) => {
 };
 
 export const createResizeHandler = (scene: SceneState, container: HTMLElement) => {
-    let timeoutId: number | null = null;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     return () => {
-        if (timeoutId !== null) {
-            cancelAnimationFrame(timeoutId);
+        if (debounceTimer !== null) {
+            clearTimeout(debounceTimer);
         }
 
-        timeoutId = requestAnimationFrame(() => {
+        debounceTimer = setTimeout(() => {
+            debounceTimer = null;
+
             const rect = container.getBoundingClientRect();
             const newWidth = rect.width || window.innerWidth;
             const newHeight = rect.height || window.innerHeight;
             const newPixelRatio = getPixelRatio(newWidth, newHeight);
-            const newRenderWidth = newWidth * newPixelRatio;
-            const newRenderHeight = newHeight * newPixelRatio;
+            const newRenderWidth = Math.round(newWidth * newPixelRatio);
+            const newRenderHeight = Math.round(newHeight * newPixelRatio);
 
             scene.renderer.setPixelRatio(newPixelRatio);
             scene.renderer.setSize(newWidth, newHeight);
@@ -86,7 +87,8 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
 
             scene.fluidTarget1.setSize(newRenderWidth, newRenderHeight);
             scene.fluidTarget2.setSize(newRenderWidth, newRenderHeight);
+
             scene.frameCount = 0;
-        });
+        }, 150);
     };
 };

@@ -35,8 +35,10 @@ export const FluidGradient = () => {
         return () => {
             if (sceneRef.current) {
                 cancelAnimationFrame(sceneRef.current.animationId);
-                window.removeEventListener('resize', handleResize);
 
+                sceneRef.current.cleanupVisibility?.();
+
+                window.removeEventListener('resize', handleResize);
                 canvasElement.removeEventListener('mousemove', handleMouseMove);
                 canvasElement.removeEventListener('mouseleave', handleMouseLeave);
 
