@@ -1,16 +1,13 @@
-import { HomeHero, HomeServices } from './modules';
+import { HomeAbout, HomeContact, HomeHero, HomeProjects, HomeServices } from './modules';
 
 export const Home = () => {
     return (
         <>
-            {/* HERO */}
             <HomeHero />
-
-            {/* SERVICES */}
+            <HomeAbout />
             <HomeServices />
-
-            {/* PROJECTS */}
-            {/* CONTACT */}
+            <HomeProjects />
+            <HomeContact />
         </>
     );
 };
