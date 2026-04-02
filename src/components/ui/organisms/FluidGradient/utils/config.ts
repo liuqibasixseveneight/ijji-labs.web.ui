@@ -1,10 +1,10 @@
 export const config = {
-    brushSize: 35.0,
-    brushStrength: 2.0,
-    distortionAmount: 1.2,
-    fluidDecay: 0.94,
-    trailLength: 0.8,
-    stopDecay: 0.85,
+    brushSize: 40.0,
+    brushStrength: 4.0,
+    distortionAmount: 3.0,
+    fluidDecay: 0.97,
+    trailLength: 0.92,
+    stopDecay: 0.92,
     // Light
     // color1: '#0f0f14',
     // color2: '#1b1b2b',
@@ -51,24 +51,34 @@ export const config = {
     // color7: '#31405a',
     // color8: '#11151d',
     // AAAAAAND
-    // 8 - FAVOURITE
-    color1: '#faf9f6',
-    color2: '#f5f3f0',
-    color3: '#e8e4df',
-    color4: '#d9d5d0',
-    color5: '#c9c5c0',
-    color6: '#bfbbb8',
-    color7: '#d4cfc9',
-    color8: '#ebe6e0',
+    // // 8 - FAVOURITE
+    // color1: '#faf9f6',
+    // color2: '#f5f3f0',
+    // color3: '#e8e4df',
+    // color4: '#d9d5d0',
+    // color5: '#c9c5c0',
+    // color6: '#bfbbb8',
+    // color7: '#d4cfc9',
+    // color8: '#ebe6e0',
     // 10 - PEARL
-    // color1: '#fff5f7',
-    // color2: '#ffe4e9',
-    // color3: '#ffc9d9',
-    // color4: '#ffa8c5',
-    // color5: '#c9b7eb',
-    // color6: '#b8e6f0',
-    // color7: '#e8f9fd',
-    // color8: '#ffffff',
+    color1: '#fff5f7',
+    color2: '#ffe4e9',
+    color3: '#ffc9d9',
+    color4: '#ffa8c5',
+    color5: '#c9b7eb',
+    color6: '#b8e6f0',
+    color7: '#e8f9fd',
+    color8: '#ffffff',
+
+    //
+    // color1: '#2e0219', // Deep dark magenta (Base)
+    // color2: '#4a044e', // Deep fuchsia (Base)
+    // color3: '#9f1239', // Dark rose (Base)
+    // color4: '#be123c', // Crimson (Base)
+    // color5: '#f59e0b', // Amber (Highlight)
+    // color6: '#fb923c', // Orange (Highlight)
+    // color7: '#fcd34d', // Bright yellow (Highlight)
+    // color8: '#fffbeb', // Light amber (Peak highlight)
     colorIntensity: 1.0,
-    softness: 1.0,
+    softness: 0.4,
 };

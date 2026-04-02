@@ -7,7 +7,7 @@ export const vertexShader = `
 `;
 
 export const fluidShader = `
-  precision mediump float;
+  precision highp float;
 
   uniform float iTime;
   uniform vec2 iResolution;
@@ -85,6 +85,13 @@ export const fluidShader = `
       float vort = (ne.z + sw.z - nw.z - se.z) * 0.25;
       me.xy += vec2(-vort, vort) * 12.0;
 
+      vec2 autoFlow = vec2(
+        sin(iTime * 0.3 + vUv.y * 4.0) * 0.003,
+        cos(iTime * 0.25 + vUv.x * 3.0) * 0.003
+      );
+      me.xy += autoFlow;
+      me.z  += sin(iTime * 0.4 + vUv.x * 5.0 + vUv.y * 3.0) * 0.008;
+
       float spatialVar = (vUv.x + vUv.y) * 3.14159;
       me.xy *= uFluidDecay * (0.82 + 0.18*sin(iTime*0.6 + spatialVar));
       me.z  *= uTrailLength * (0.89 + 0.11*cos(iTime*0.35 + spatialVar));
@@ -126,7 +133,7 @@ export const fluidShader = `
 `;
 
 export const displayShader = `
-  precision mediump float;
+  precision highp float;
 
   uniform float iTime;
   uniform vec2 iResolution;
@@ -148,51 +155,55 @@ export const displayShader = `
     vec4 fluid = texture2D(iFluid, vUv);
     float fluidDensity = fluid.z;
 
-    float mr = min(iResolution.x, iResolution.y);
     vec2 fragCoord = vUv * iResolution;
-    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / mr;
+
+    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.xy;
+    float aspect = iResolution.x / iResolution.y;
+    vec2 uvOsc = vec2(uv.x * aspect, uv.y);
 
     float d = -iTime * 0.5;
     float a = 0.0;
     for (float i = 0.0; i < 5.0; ++i) {
-      a += cos(i - d - a * uv.x);
-      d += sin(uv.y * i + a);
+      a += cos(i - d - a * uvOsc.x);
+      d += sin(uvOsc.y * i + a);
     }
     d += iTime * 0.5;
 
     float globalPhase = iTime * 0.4;
 
-    float noise = fract(sin(dot(uv, vec2(127.1, 311.7))) * 43758.5453) * 2.0 - 1.0;
-
-    float mixer1 = clamp(cos(uv.x * d) * 0.5 + 0.5 + 0.08*noise, 0.0, 1.0);
-    float mixer2 = clamp(cos(uv.y * a) * 0.5 + 0.5 + 0.06*noise, 0.0, 1.0);
-    float mixer3 = clamp(sin(d + a)    * 0.5 + 0.5 + 0.04*noise, 0.0, 1.0);
+    float mixer1 = clamp(cos(uvOsc.x * d) * 0.5 + 0.5, 0.0, 1.0);
+    float mixer2 = clamp(cos(uvOsc.y * a) * 0.5 + 0.5, 0.0, 1.0);
+    float mixer3 = clamp(sin(d + a)       * 0.5 + 0.5, 0.0, 1.0);
 
     float smoothAmount = clamp(uSoftness * 0.1, 0.0, 0.9);
     mixer1 = mix(mixer1, 0.5, smoothAmount);
     mixer2 = mix(mixer2, 0.5, smoothAmount);
     mixer3 = mix(mixer3, 0.5, smoothAmount);
 
-    float rippleWave = fluidDensity * uDistortionAmount;
-    mixer1 = clamp(mixer1 + rippleWave * 0.42, 0.0, 1.0);
-    mixer2 = clamp(mixer2 + rippleWave * 0.35, 0.0, 1.0);
-    mixer3 = clamp(mixer3 + rippleWave * 0.28, 0.0, 1.0);
+    float rippleWave = fluidDensity * uDistortionAmount * 3.0;
+    mixer1 = clamp(mixer1 + rippleWave * 0.65, 0.0, 1.0);
+    mixer2 = clamp(mixer2 + rippleWave * 0.55, 0.0, 1.0);
+    mixer3 = clamp(mixer3 + rippleWave * 0.45, 0.0, 1.0);
 
     vec3 col = uColor1;
-    col = mix(col, uColor2, pow(mixer1, 1.4));
-    col = mix(col, uColor3, pow(mixer2, 1.8));
-    col = mix(col, uColor4, pow(mixer3, 1.15));
+    col = mix(col, uColor2, pow(mixer1, 1.0));
+    col = mix(col, uColor3, pow(mixer2, 1.2));
+    col = mix(col, uColor4, pow(mixer3, 0.9));
 
     float breath     = sin(globalPhase) * 0.5 + 0.5;
-    float sinPhase12 = sin(globalPhase * 1.2);
-    float cosPhase15 = cos(globalPhase * 1.5);
+    float sinPhase12 = sin(globalPhase * 1.2) * 0.5 + 0.5;
+    float cosPhase15 = cos(globalPhase * 1.5) * 0.5 + 0.5;
 
-    col = mix(col, uColor5, clamp(mixer1*0.5 + mixer2*0.5 + 0.06*breath,    0.0, 1.0));
-    col = mix(col, uColor6, clamp(mixer2*0.6 + mixer3*0.4 + 0.05*sinPhase12, 0.0, 1.0));
-    col = mix(col, uColor7, clamp(mixer1*0.7 + mixer3*0.3 + 0.04*cosPhase15, 0.0, 1.0));
-    col = mix(col, uColor8, clamp(mixer1*0.3 + mixer2*0.7 + 0.04*breath,     0.0, 1.0));
+    col = mix(col, uColor5, clamp(mixer2 * (0.4 + 0.25*breath),       0.0, 0.65));
+    col = mix(col, uColor6, clamp(mixer3 * (0.45 + 0.2*sinPhase12),   0.0, 0.65));
+    col = mix(col, uColor7, clamp(mixer1 * (0.35 + 0.2*cosPhase15),   0.0, 0.55));
+    col = mix(col, uColor8, clamp((1.0 - mixer2) * (0.3 + 0.2*breath), 0.0, 0.5));
 
     col *= uColorIntensity;
+
+    // Apply the noise dithering here at the very end to break up color banding
+    float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453) * 2.0 - 1.0;
+    col += noise * 0.015;
 
     gl_FragColor = vec4(col, 1.0);
   }

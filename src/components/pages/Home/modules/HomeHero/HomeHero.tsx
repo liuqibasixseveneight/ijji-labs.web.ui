@@ -7,7 +7,7 @@ export const HomeHero = () => {
 
             <div
                 className={
-                    'font-newsreader font-extrabold text-[clamp(10rem,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ui-background-secondary/5 select-none mt-10'
+                    'font-newsreader font-extrabold text-[clamp(10rem,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ui-background-secondary/5 mt-10'
                 }
                 aria-hidden={'true'}
             >
