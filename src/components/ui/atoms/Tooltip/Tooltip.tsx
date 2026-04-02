@@ -11,7 +11,7 @@ const clipPath = `polygon(
 
 export const Tooltip = ({ label, x }: TooltipProps) => (
     <div
-        className='absolute bottom-full mb-2 -translate-x-1/2 px-4 py-2 rounded-l-xl text-xs font-extrabold whitespace-nowrap pointer-events-none bg-black/75 text-white uppercase'
+        className='absolute bottom-full mb-2 -translate-x-1/2 px-4 py-2 rounded-l-xl text-xs font-extrabold whitespace-nowrap bg-black/75 text-white uppercase'
         style={{ left: x, clipPath }}
     >
         {label}

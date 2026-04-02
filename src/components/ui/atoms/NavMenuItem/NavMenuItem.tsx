@@ -7,7 +7,7 @@ export const NavMenuItem = ({ link, isHovered, onHover, onLeave, setIsOpen }: Na
         <li className='relative flex min-h-24 border-t first:border-t-0 border-white/5 px-10 transition-opacity duration-500 ease-in-out'>
             <span
                 aria-hidden='true'
-                className={`absolute inset-0 bg-white/5 origin-left transition-transform duration-300 pointer-events-none ${isHovered ? 'scale-x-100' : 'scale-x-0'} transform transition-transform duration-500 ease-in-out`}
+                className={`absolute inset-0 bg-white/5 origin-left transition-transform duration-300 ${isHovered ? 'scale-x-100' : 'scale-x-0'} transform transition-transform duration-500 ease-in-out`}
             />
 
             <Link

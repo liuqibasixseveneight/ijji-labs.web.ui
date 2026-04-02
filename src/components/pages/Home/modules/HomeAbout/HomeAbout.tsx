@@ -12,7 +12,7 @@ export const HomeAbout = () => {
                         <img
                             src={aboutImageOne}
                             alt='Shared computer office working space'
-                            className='w-full h-full object-cover select-none pointer-events-none [-webkit-user-drag:none]'
+                            className='w-full h-full object-cover select-none [-webkit-user-drag:none]'
                         />
                     </ArtisticFrame>
                 </div>
@@ -51,7 +51,7 @@ export const HomeAbout = () => {
                         <img
                             src={aboutImageTwo}
                             alt='Two designers collaborating with laptops'
-                            className='w-full h-full object-cover select-none pointer-events-none [-webkit-user-drag:none]'
+                            className='w-full h-full object-cover select-none [-webkit-user-drag:none]'
                         />
                     </ArtisticFrame>
                 </div>
