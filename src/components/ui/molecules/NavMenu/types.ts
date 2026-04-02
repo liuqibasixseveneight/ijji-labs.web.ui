@@ -1,4 +1,4 @@
-interface NavMenuItemProps {
+export interface NavBarMenuItemProps {
     label: string;
     to: string;
     num: string;
@@ -8,5 +8,5 @@ interface NavMenuItemProps {
 export interface NavMenuProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    links: NavMenuItemProps[];
+    links: NavBarMenuItemProps[];
 }
