@@ -15,7 +15,4 @@ export const cleanupScene = (scene: SceneState | null, container: HTMLElement | 
     scene.displayMaterial.dispose();
     scene.fluidTarget1.dispose();
     scene.fluidTarget2.dispose();
-
-    scene.fluidPlane.geometry.dispose();
-    scene.displayPlane.geometry.dispose();
 };

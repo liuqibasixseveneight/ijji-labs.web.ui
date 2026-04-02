@@ -1,16 +1,12 @@
 import type { SceneState } from './types';
 
-export type AnimationControl = {
-    isIntersecting: boolean;
-};
-
-export const createAnimationLoop = (scene: SceneState, control: AnimationControl) => {
+export const createAnimationLoop = (scene: SceneState) => {
     let isPaused = false;
 
     const handleVisibilityChange = () => {
         isPaused = document.hidden;
 
-        if (!isPaused && control.isIntersecting) {
+        if (!isPaused) {
             if (scene.lastMoveTime > 0) {
                 scene.lastMoveTime = performance.now();
             }
@@ -26,7 +22,7 @@ export const createAnimationLoop = (scene: SceneState, control: AnimationControl
     const animate = () => {
         scene.animationId = requestAnimationFrame(animate);
 
-        if (isPaused || !control.isIntersecting) return;
+        if (isPaused) return;
 
         const time = performance.now() * 0.001;
         scene.fluidMaterial.uniforms.iTime.value = time;

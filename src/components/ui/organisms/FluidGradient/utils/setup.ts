@@ -17,7 +17,17 @@ export const getCanvasSize = (container: HTMLElement | null): { width: number; h
     };
 };
 
-const FLUID_MAX_RESOLUTION = 640;
+/**
+ * The fluid simulation does not need to run at display resolution.
+ * It's a velocity/density field that gets sampled by the display shader,
+ * which upscales it via bilinear filtering. Running it at full res is the
+ * single biggest GPU cost in this component.
+ *
+ * We cap the fluid texture at 512px on the longest side. This is enough
+ * fidelity for the fluid physics while cutting GPU fill-rate by 4–16x
+ * depending on the user's screen size.
+ */
+const FLUID_MAX_RESOLUTION = 512;
 
 export const getFluidResolution = (
     displayWidth: number,

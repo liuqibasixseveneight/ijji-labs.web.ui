@@ -3,9 +3,9 @@ import { getFluidResolution } from './setup';
 
 export const getPixelRatio = (width: number, height: number): number => {
     const basePixelRatio = window.devicePixelRatio || 1;
-    const maxResolution = 2560 * 1440;
+    const maxResolution = 1920 * 1080;
     const screenPixels = width * height;
-    const ratio = Math.min(basePixelRatio, 1.5);
+    const ratio = Math.min(basePixelRatio, 1);
 
     if (screenPixels * ratio * ratio > maxResolution) {
         return Math.sqrt(maxResolution / screenPixels);
@@ -16,18 +16,16 @@ export const getPixelRatio = (width: number, height: number): number => {
 
 export const createMouseMoveHandler = (scene: SceneState) => {
     return (e: MouseEvent) => {
-        const mouseXInCanvas = e.offsetX;
-        const mouseYInCanvas = e.offsetY;
+        const rect = scene.renderer.domElement.getBoundingClientRect();
+        const mouseXInCanvas = e.clientX - rect.left;
+        const mouseYInCanvas = e.clientY - rect.top;
 
-        const width = scene.renderer.domElement.clientWidth || window.innerWidth;
-        const height = scene.renderer.domElement.clientHeight || window.innerHeight;
-
-        if (width === 0 || height === 0) return;
+        if (rect.width === 0 || rect.height === 0) return;
 
         const fluidRes = scene.fluidMaterial.uniforms.iResolution.value;
 
-        const mouseX = (mouseXInCanvas / width) * fluidRes.x;
-        const mouseY = ((height - mouseYInCanvas) / height) * fluidRes.y;
+        const mouseX = (mouseXInCanvas / rect.width) * fluidRes.x;
+        const mouseY = ((rect.height - mouseYInCanvas) / rect.height) * fluidRes.y;
 
         const oldMouseX = scene.mouseX;
         const oldMouseY = scene.mouseY;
@@ -68,21 +66,17 @@ export const createMouseLeaveHandler = (scene: SceneState) => {
 export const createResizeHandler = (scene: SceneState, container: HTMLElement) => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const observer = new ResizeObserver((entries) => {
+    return () => {
         if (debounceTimer !== null) {
             clearTimeout(debounceTimer);
         }
 
         debounceTimer = setTimeout(() => {
             debounceTimer = null;
-            const entry = entries[0];
-            if (!entry) return;
 
-            const newWidth = entry.contentRect.width;
-            const newHeight = entry.contentRect.height;
-
-            if (newWidth === 0 || newHeight === 0) return;
-
+            const rect = container.getBoundingClientRect();
+            const newWidth = rect.width || window.innerWidth;
+            const newHeight = rect.height || window.innerHeight;
             const newPixelRatio = getPixelRatio(newWidth, newHeight);
             const newDisplayWidth = Math.round(newWidth * newPixelRatio);
             const newDisplayHeight = Math.round(newHeight * newPixelRatio);
@@ -103,8 +97,5 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
 
             scene.frameCount = 0;
         }, 150);
-    });
-
-    observer.observe(container);
-    return observer;
+    };
 };

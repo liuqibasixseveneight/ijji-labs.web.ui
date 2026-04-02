@@ -17,6 +17,9 @@ export const submitForm = async (data: ContactFormData): Promise<SubmitResult> =
         return { success: true };
     } catch (error) {
         console.error('Fetch error:', error);
-        return { success: false, error: 'Failed to send — please try again or email us directly.' };
+        return {
+            success: false,
+            error: 'Failed to send — please try again or email us directly at hello@ijji-labs.com.',
+        };
     }
 };
