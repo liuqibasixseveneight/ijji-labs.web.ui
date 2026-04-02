@@ -3,7 +3,7 @@ import type { HomeHeroProps } from './types.ts';
 
 export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps) => {
     return (
-        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-screen'>
+        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-dvh'>
             <FluidGradient showPalettePicker onPaletteChange={handlePaletteChange} />
 
             <div

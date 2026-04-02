@@ -50,8 +50,8 @@ export const FluidGradient = ({
         const handleResize = createResizeHandler(scene, canvasElement);
         const animate = createAnimationLoop(scene);
 
-        canvasElement.addEventListener('mousemove', handleMouseMove, { passive: true });
-        canvasElement.addEventListener('mouseleave', handleMouseLeave);
+        canvasElement.addEventListener('pointermove', handleMouseMove, { passive: true });
+        canvasElement.addEventListener('pointerleave', handleMouseLeave);
         window.addEventListener('resize', handleResize, { passive: true });
 
         animate();
@@ -62,8 +62,8 @@ export const FluidGradient = ({
             cancelAnimationFrame(sceneRef.current.animationId);
             sceneRef.current.cleanupVisibility?.();
             window.removeEventListener('resize', handleResize);
-            canvasElement.removeEventListener('mousemove', handleMouseMove);
-            canvasElement.removeEventListener('mouseleave', handleMouseLeave);
+            canvasElement.removeEventListener('pointermove', handleMouseMove);
+            canvasElement.removeEventListener('pointerleave', handleMouseLeave);
             cleanupScene(sceneRef.current, canvasElement);
             sceneRef.current = null;
         };
@@ -85,11 +85,11 @@ export const FluidGradient = ({
     );
 
     return (
-        <div className='absolute top-0 left-0 w-full h-full z-0'>
-            <div ref={canvasRef} className='w-full h-full' />
+        <div className='absolute inset-0 z-0 pointer-events-none'>
+            <div ref={canvasRef} className='w-full h-full touch-pan-y pointer-events-auto' />
 
             {showPalettePicker && (
-                <nav className='absolute bottom-0 left-0 right-0 h-[10vh] z-10'>
+                <nav className='absolute bottom-0 left-0 right-0 h-[10vh] z-10 pointer-events-auto'>
                     <div className='flex items-center justify-end h-full w-full max-w-380 mx-auto px-8'>
                         <PalettePicker
                             activeKey={activePaletteKey}
