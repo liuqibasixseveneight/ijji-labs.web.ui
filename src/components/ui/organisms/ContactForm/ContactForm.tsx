@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, FieldWrapper, TextInput, SelectInput, TextareaInput } from '../../atoms';
 import { FormRow } from '../../molecules';
 import { contactSchema } from './schema';
-import { submitContactForm } from './submitForm';
+import { submitForm } from './submitForm';
 import { PROJECT_TYPES, CONTACT_METHODS } from './constants';
 import type { ContactFormData } from './types';
 
@@ -23,7 +23,7 @@ export const ContactForm = () => {
 
     const onSubmit = async (data: ContactFormData) => {
         setSubmitState('idle');
-        const result = await submitContactForm(data);
+        const result = await submitForm(data);
         if (result.success) {
             setSubmitState('success');
             reset();
