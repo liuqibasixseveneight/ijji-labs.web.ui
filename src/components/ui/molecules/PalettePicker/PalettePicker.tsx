@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 
 import { ArtisticFrame, Tooltip, type TooltipProps } from '../../atoms';
 import { SwatchGroup } from '../SwatchGroup';
-
 import { lightKeys, darkKeys } from './utils.ts';
 import type { PalettePickerProps } from './types.ts';
 

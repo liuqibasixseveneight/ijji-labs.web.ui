@@ -1,5 +1,4 @@
 import { palettes } from '../../organisms/FluidGradient/utils';
-
 import type { SwatchGroupProps } from './types.ts';
 import { SwatchItem } from '../../atoms';
 
