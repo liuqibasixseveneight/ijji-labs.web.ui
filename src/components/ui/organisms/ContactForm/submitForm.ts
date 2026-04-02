@@ -1,7 +1,19 @@
 import type { ContactFormData, SubmitResult } from './types.ts';
 import { Resend } from 'resend';
 
-const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY); // TODO: Migrate to server
+import { RESEND_API_KEY, CONTACT_EMAIL_FROM, CONTACT_EMAIL_TO } from '../../../../config.ts';
+
+const resend = new Resend(RESEND_API_KEY);
+
+if (!CONTACT_EMAIL_FROM || !CONTACT_EMAIL_TO) {
+    throw new Error(
+        '[Contact Form] Missing required email environment variables: CONTACT_EMAIL_FROM or CONTACT_EMAIL_TO. ' +
+            'Please ensure they are set in your environment.',
+    );
+}
+
+const fromEmail: string = CONTACT_EMAIL_FROM;
+const toEmail: string = CONTACT_EMAIL_TO;
 
 export const submitContactForm = async (data: ContactFormData): Promise<SubmitResult> => {
     try {
@@ -21,8 +33,8 @@ export const submitContactForm = async (data: ContactFormData): Promise<SubmitRe
     `;
 
         await resend.emails.send({
-            from: 'Contact Form <onboarding@resend.dev>', // TODO: change to your email
-            to: import.meta.env.VITE_CONTACT_EMAIL_TO,
+            from: `Contact Form <${fromEmail}>`,
+            to: toEmail,
             replyTo: data.email,
             subject,
             html: htmlBody,
@@ -31,6 +43,9 @@ export const submitContactForm = async (data: ContactFormData): Promise<SubmitRe
         return { success: true };
     } catch (error) {
         console.error('Resend error:', error);
-        return { success: false, error: 'Failed to send — please try again or email us directly.' };
+        return {
+            success: false,
+            error: 'Failed to send — please try again or email us directly.',
+        };
     }
 };
