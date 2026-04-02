@@ -6,5 +6,7 @@ export * from './Logo';
 export * from './NavbarLink';
 export * from './NavMenuItem';
 export * from './SelectInput';
+export * from './SwatchItem';
 export * from './TextareaInput';
 export * from './TextInput';
+export * from './Tooltip';

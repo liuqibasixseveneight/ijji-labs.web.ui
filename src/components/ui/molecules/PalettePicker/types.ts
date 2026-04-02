@@ -1,8 +1,8 @@
-import { palettes } from '../../organisms/FluidGradient/utils';
+import type { palettes } from '../../organisms/FluidGradient/utils';
 
 export type PaletteKey = keyof typeof palettes;
 
-export interface PalettePickerProps {
+export type PalettePickerProps = {
     activeKey: PaletteKey;
     onChange: (key: PaletteKey) => void;
-}
+};
