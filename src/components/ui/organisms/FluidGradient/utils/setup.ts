@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { config } from './config';
+import { config, palettes, defaultPaletteKey, type Palette } from './config';
 import { hexToRgb } from './hexToRgb';
 import type { SceneState } from './types';
 import { vertexShader, fluidShader, displayShader } from '../shaders';
@@ -17,16 +17,6 @@ export const getCanvasSize = (container: HTMLElement | null): { width: number; h
     };
 };
 
-/**
- * The fluid simulation does not need to run at display resolution.
- * It's a velocity/density field that gets sampled by the display shader,
- * which upscales it via bilinear filtering. Running it at full res is the
- * single biggest GPU cost in this component.
- *
- * We cap the fluid texture at 512px on the longest side. This is enough
- * fidelity for the fluid physics while cutting GPU fill-rate by 4–16x
- * depending on the user's screen size.
- */
 const FLUID_MAX_RESOLUTION = 512;
 
 export const getFluidResolution = (
@@ -112,6 +102,7 @@ export const createMaterials = (
     displayHeight: number,
     fluidWidth: number,
     fluidHeight: number,
+    palette: Palette,
 ): [THREE.ShaderMaterial, THREE.ShaderMaterial] => {
     const fluidMaterial = new THREE.ShaderMaterial({
         uniforms: {
@@ -136,14 +127,14 @@ export const createMaterials = (
             iResolution: { value: new THREE.Vector2(displayWidth, displayHeight) },
             iFluid: { value: null },
             uDistortionAmount: { value: config.distortionAmount },
-            uColor1: { value: new THREE.Vector3(...hexToRgb(config.color1)) },
-            uColor2: { value: new THREE.Vector3(...hexToRgb(config.color2)) },
-            uColor3: { value: new THREE.Vector3(...hexToRgb(config.color3)) },
-            uColor4: { value: new THREE.Vector3(...hexToRgb(config.color4)) },
-            uColor5: { value: new THREE.Vector3(...hexToRgb(config.color5)) },
-            uColor6: { value: new THREE.Vector3(...hexToRgb(config.color6)) },
-            uColor7: { value: new THREE.Vector3(...hexToRgb(config.color7)) },
-            uColor8: { value: new THREE.Vector3(...hexToRgb(config.color8)) },
+            uColor1: { value: new THREE.Vector3(...hexToRgb(palette.color1)) },
+            uColor2: { value: new THREE.Vector3(...hexToRgb(palette.color2)) },
+            uColor3: { value: new THREE.Vector3(...hexToRgb(palette.color3)) },
+            uColor4: { value: new THREE.Vector3(...hexToRgb(palette.color4)) },
+            uColor5: { value: new THREE.Vector3(...hexToRgb(palette.color5)) },
+            uColor6: { value: new THREE.Vector3(...hexToRgb(palette.color6)) },
+            uColor7: { value: new THREE.Vector3(...hexToRgb(palette.color7)) },
+            uColor8: { value: new THREE.Vector3(...hexToRgb(palette.color8)) },
             uColorIntensity: { value: config.colorIntensity },
             uSoftness: { value: config.softness },
         },
@@ -154,7 +145,20 @@ export const createMaterials = (
     return [fluidMaterial, displayMaterial];
 };
 
-export const initializeScene = (container: HTMLElement): SceneState => {
+export const applyPaletteToScene = (scene: SceneState, palette: Palette): void => {
+    const u = scene.displayMaterial.uniforms;
+    u.uColor1.value.set(...hexToRgb(palette.color1));
+    u.uColor2.value.set(...hexToRgb(palette.color2));
+    u.uColor3.value.set(...hexToRgb(palette.color3));
+    u.uColor4.value.set(...hexToRgb(palette.color4));
+    u.uColor5.value.set(...hexToRgb(palette.color5));
+    u.uColor6.value.set(...hexToRgb(palette.color6));
+    u.uColor7.value.set(...hexToRgb(palette.color7));
+    u.uColor8.value.set(...hexToRgb(palette.color8));
+};
+
+export const initializeScene = (container: HTMLElement, palette?: Palette): SceneState => {
+    const activePalette = palette ?? palettes[defaultPaletteKey];
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = createRenderer(container);
 
@@ -178,6 +182,7 @@ export const initializeScene = (container: HTMLElement): SceneState => {
         displayHeight,
         fluidWidth,
         fluidHeight,
+        activePalette,
     );
 
     const fluidGeometry = new THREE.PlaneGeometry(2, 2);

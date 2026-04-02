@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { HamburgerIcon, Logo } from '../../atoms';
 import { NavMenu } from '../../molecules';
 import { navbarItems } from './navbarItems.ts';
+import type { NavbarProps } from './types.ts';
 
-export const Navbar = () => {
+export const Navbar = ({ isGradientDark }: NavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
 
@@ -33,11 +34,11 @@ export const Navbar = () => {
                 }`}
             >
                 <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-8'>
-                    <Logo isMenuOpen={isOpen} isWhite={isScrolled} />
+                    <Logo isMenuOpen={isOpen} isWhite={isScrolled || isGradientDark} />
                     <HamburgerIcon
                         isOpen={isOpen}
                         setIsOpen={handleOpenNavMenu}
-                        isWhite={isScrolled}
+                        isWhite={isScrolled || isGradientDark}
                     />
                 </div>
             </nav>
