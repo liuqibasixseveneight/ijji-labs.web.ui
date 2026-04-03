@@ -7,7 +7,8 @@ export const vertexShader = `
 `;
 
 export const fluidShader = `
-  precision mediump float;
+  precision highp float;
+  precision highp int;
 
   uniform float iTime;
   uniform vec2 iResolution;
@@ -76,6 +77,11 @@ export const fluidShader = `
     float vort = (ne.z + sw.z - nw.z - se.z) * 0.25;
     me.xy += vec2(-vort, vort) * 12.0;
 
+    float velLen = length(me.xy);
+    if (velLen > 0.4) {
+      me.xy = (me.xy / velLen) * 0.4;
+    }
+
     float t = mod(iTime, 628.318);
     float spatialVar = (vUv.x + vUv.y) * 3.14159;
     me.xy *= uFluidDecay  * (0.82 + 0.18 * sin(t * 0.6  + spatialVar));
@@ -86,7 +92,7 @@ export const fluidShader = `
 `;
 
 export const displayShader = `
-  precision mediump float;
+  precision highp float;
 
   uniform float iTime;
   uniform vec2 iResolution;

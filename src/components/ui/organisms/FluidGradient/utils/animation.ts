@@ -22,7 +22,7 @@ export const createAnimationLoop = (scene: SceneState) => {
         scene.fluidMaterial.uniforms.iTime.value = time;
         scene.displayMaterial.uniforms.iTime.value = time;
 
-        scene.fluidMaterial.uniforms.iFrame.value = scene.frameCount;
+        scene.fluidMaterial.uniforms.iFrame.value = Math.min(scene.frameCount, 2);
 
         scene.fluidMaterial.uniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
         scene.renderer.setRenderTarget(scene.currentFluidTarget);
@@ -36,7 +36,7 @@ export const createAnimationLoop = (scene: SceneState) => {
         scene.currentFluidTarget = scene.previousFluidTarget;
         scene.previousFluidTarget = temp;
 
-        scene.frameCount++;
+        if (scene.frameCount < 3) scene.frameCount++;
     };
 
     return animate;
