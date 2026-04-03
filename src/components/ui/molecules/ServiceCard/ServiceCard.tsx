@@ -15,7 +15,7 @@ export const ServiceCard = ({ title, description, included, optional }: ServiceC
                 )}
             </div>
 
-            <p className='text-sm sm:text-base text-neutral-400 leading-relaxed min-h-0 sm:min-h-28'>
+            <p className='text-sm sm:text-base text-neutral-400 leading-relaxed min-h-0 lg:min-h-28'>
                 {description}
             </p>
 

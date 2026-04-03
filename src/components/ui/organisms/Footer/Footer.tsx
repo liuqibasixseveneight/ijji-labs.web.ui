@@ -11,7 +11,7 @@ export const Footer = () => {
                     <div className='uppercase mt-2 mb-0'>
                         &copy; 2026 ijji labs. All rights reserved.
                     </div>
-                    <div className='italic text-xs'>Built by a human.</div>
+                    <div className='italic text-xs'>Built by humans.</div>
                 </div>
 
                 <div className='flex justify-start md:justify-end mt-4 md:mt-0'>
