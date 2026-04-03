@@ -108,7 +108,6 @@ export const createMaterials = (
         uniforms: {
             iTime: { value: 0 },
             iResolution: { value: new THREE.Vector2(fluidWidth, fluidHeight) },
-            iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
             iFrame: { value: 0 },
             iPreviousFrame: { value: null },
             uBrushSize: { value: config.brushSize },
@@ -216,11 +215,6 @@ export const initializeScene = (container: HTMLElement, palette?: Palette): Scen
         fluidWidth,
         fluidHeight,
         frameCount: 0,
-        mouseX: 0,
-        mouseY: 0,
-        prevMouseX: 1.0,
-        prevMouseY: 1.0,
-        lastMoveTime: 0,
         animationId: 0,
     };
 };

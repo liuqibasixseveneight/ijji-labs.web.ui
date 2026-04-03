@@ -14,11 +14,6 @@ export type SceneState = {
     fluidTarget2: THREE.WebGLRenderTarget;
     fluidWidth: number;
     frameCount: number;
-    lastMoveTime: number;
-    mouseX: number;
-    mouseY: number;
-    prevMouseX: number;
-    prevMouseY: number;
     previousFluidTarget: THREE.WebGLRenderTarget;
     renderer: THREE.WebGLRenderer;
 };

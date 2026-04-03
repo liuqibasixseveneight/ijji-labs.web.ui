@@ -3,8 +3,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
     cleanupScene,
     createAnimationLoop,
-    createMouseLeaveHandler,
-    createMouseMoveHandler,
     createResizeHandler,
     initializeScene,
     applyPaletteToScene,
@@ -45,13 +43,9 @@ export const FluidGradient = ({
         const scene = initializeScene(canvasElement, activePalette);
         sceneRef.current = scene;
 
-        const handleMouseMove = createMouseMoveHandler(scene);
-        const handleMouseLeave = createMouseLeaveHandler(scene);
         const handleResize = createResizeHandler(scene, canvasElement);
         const animate = createAnimationLoop(scene);
 
-        canvasElement.addEventListener('pointermove', handleMouseMove, { passive: true });
-        canvasElement.addEventListener('pointerleave', handleMouseLeave);
         window.addEventListener('resize', handleResize, { passive: true });
 
         animate();
@@ -62,8 +56,6 @@ export const FluidGradient = ({
             cancelAnimationFrame(sceneRef.current.animationId);
             sceneRef.current.cleanupVisibility?.();
             window.removeEventListener('resize', handleResize);
-            canvasElement.removeEventListener('pointermove', handleMouseMove);
-            canvasElement.removeEventListener('pointerleave', handleMouseLeave);
             cleanupScene(sceneRef.current, canvasElement);
             sceneRef.current = null;
         };
