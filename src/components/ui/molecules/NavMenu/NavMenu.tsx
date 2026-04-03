@@ -21,14 +21,15 @@ export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
             }`}
         >
             <nav className='relative flex flex-col justify-center h-full max-w-380 px-6 md:px-8 mx-auto'>
+                {/* Ghost number — hidden on small screens where it would collide with content */}
                 <span
                     aria-hidden='true'
-                    className='absolute right-8 top-1/2 -translate-y-1/2 text-[20vw] font-thin text-white/5 select-none'
+                    className='hidden md:block absolute right-8 top-1/2 -translate-y-1/2 text-[20vw] font-thin text-white/5 select-none pointer-events-none'
                 >
                     {hoveredItem !== null ? links[hoveredItem].num : ''}
                 </span>
 
-                <ul className='flex flex-col gap-8 pb-8 list-none p-0 m-0'>
+                <ul className='flex flex-col list-none p-0 m-0'>
                     {links.map((link, index: number) => (
                         <NavMenuItem
                             key={`${link.label}-${index}`}
