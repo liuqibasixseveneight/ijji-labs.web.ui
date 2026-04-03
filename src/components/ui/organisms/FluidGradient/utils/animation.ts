@@ -22,7 +22,7 @@ export const createAnimationLoop = (scene: SceneState) => {
         scene.fluidMaterial.uniforms.iTime.value = time;
         scene.displayMaterial.uniforms.iTime.value = time;
 
-        scene.fluidMaterial.uniforms.iFrame.value = scene.frameCount % 100000;
+        scene.fluidMaterial.uniforms.iFrame.value = scene.frameCount;
 
         scene.fluidMaterial.uniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
         scene.renderer.setRenderTarget(scene.currentFluidTarget);

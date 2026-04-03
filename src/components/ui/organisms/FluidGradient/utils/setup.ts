@@ -36,9 +36,11 @@ export const getFluidResolution = (
 export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     const renderer = new THREE.WebGLRenderer({
         antialias: false,
-        alpha: true,
+        alpha: false,
         preserveDrawingBuffer: false,
         powerPreference: 'high-performance',
+        stencil: false,
+        depth: false,
     });
 
     const { width, height } = getCanvasSize(container);
@@ -58,7 +60,7 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     canvas.style.right = '0';
     canvas.style.bottom = '0';
     canvas.style.pointerEvents = 'auto';
-    canvas.style.touchAction = 'none';
+    canvas.style.touchAction = 'pan-y';
     canvas.style.zIndex = '1';
     canvas.style.willChange = 'transform';
 
@@ -110,11 +112,8 @@ export const createMaterials = (
             iResolution: { value: new THREE.Vector2(fluidWidth, fluidHeight) },
             iFrame: { value: 0 },
             iPreviousFrame: { value: null },
-            uBrushSize: { value: config.brushSize },
-            uBrushStrength: { value: config.brushStrength },
             uFluidDecay: { value: config.fluidDecay },
             uTrailLength: { value: config.trailLength },
-            uStopDecay: { value: config.stopDecay },
         },
         vertexShader,
         fragmentShader: fluidShader,
