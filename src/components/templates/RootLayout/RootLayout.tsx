@@ -15,7 +15,7 @@ export const RootLayout = () => {
         <div className='flex flex-col min-h-screen relative'>
             <Navbar isGradientDark={isGradientDark} />
 
-            <main className='flex-1 flex flex-col -mt-[10vh]'>
+            <main className='flex-1 flex flex-col -mt-16 md:-mt-[10dvh]'>
                 <Outlet context={{ isGradientDark, handlePaletteChange }} />
             </main>
 

@@ -2,7 +2,7 @@ import type { ProcessTableProps } from './types.ts';
 
 export const ProcessTable = ({ steps }: ProcessTableProps) => {
     return (
-        <div className='w-full max-w-7xl mx-auto'>
+        <div className='w-full mx-auto'>
             <div className='hidden md:grid md:grid-cols-[3.5rem_1fr_1.6fr] gap-x-10 pb-4 border-b border-neutral-200'>
                 <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-400'>
                     Step

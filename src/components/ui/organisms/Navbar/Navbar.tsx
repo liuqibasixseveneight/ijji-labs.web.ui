@@ -29,11 +29,11 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
     return (
         <>
             <nav
-                className={`sticky top-0 left-0 w-full z-20 h-[10vh] transition-colors duration-300 ease-in-out ${
+                className={`sticky top-0 left-0 w-full z-20 h-16 md:h-[10dvh] transition-colors duration-300 ease-in-out ${
                     isScrolled ? 'bg-ui-background-secondary' : 'bg-transparent'
                 }`}
             >
-                <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-8'>
+                <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-6 md:px-8'>
                     <Logo isMenuOpen={isOpen} isWhite={isScrolled || isGradientDark} />
                     <HamburgerIcon
                         isOpen={isOpen}

@@ -7,15 +7,15 @@ export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps)
             <FluidGradient showPalettePicker onPaletteChange={handlePaletteChange} />
 
             <div
-                className={`font-newsreader font-extrabold text-[clamp(20vw,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  ${isGradientDark ? 'text-white/2' : 'text-ui-background-secondary/5'}`}
+                className={`font-newsreader font-extrabold text-[60vw] md:text-[clamp(20vw,50vw,50rem)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none ${isGradientDark ? 'text-white/5' : 'text-ui-background-secondary/5'}`}
                 aria-hidden={'true'}
             >
                 ijji
             </div>
 
-            <div className='z-2 text-center px-8 relative max-w-360'>
+            <div className='z-2 text-center px-6 md:px-8 relative max-w-360'>
                 <h1
-                    className={`font-extrabold leading-tight text-[clamp(2.5rem,8vw,6rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw] ${isGradientDark ? 'text-white' : 'text-ui-background-secondary'}`}
+                    className={`font-extrabold leading-tight text-5xl md:text-[clamp(2.5rem,10vw,8rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw] ${isGradientDark ? 'text-white' : 'text-ui-background-secondary'}`}
                 >
                     Designing websites that convert
                 </h1>
