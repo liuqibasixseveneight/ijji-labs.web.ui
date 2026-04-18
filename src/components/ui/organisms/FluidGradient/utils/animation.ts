@@ -7,47 +7,7 @@ export const createAnimationLoop = (scene: SceneState) => {
     let pausedAt: number | null = null;
     let rafHandle: number | null = null;
 
-    let animate: () => void;
-
-    const stop = () => {
-        if (rafHandle !== null) {
-            cancelAnimationFrame(rafHandle);
-            rafHandle = null;
-            scene.animationId = 0;
-        }
-        pausedAt = performance.now();
-    };
-
-    const start = () => {
-        if (pausedAt !== null) {
-            totalPausedTime += performance.now() - pausedAt;
-            pausedAt = null;
-        }
-        scene.frameCount = 0;
-        if (rafHandle === null) {
-            animate();
-        }
-    };
-
-    const handleVisibilityChange = () => {
-        if (document.hidden) {
-            stop();
-        } else {
-            start();
-        }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    scene.cleanupVisibility = () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        if (rafHandle !== null) {
-            cancelAnimationFrame(rafHandle);
-            rafHandle = null;
-        }
-    };
-
-    animate = () => {
+    const animate = () => {
         rafHandle = requestAnimationFrame(animate);
         scene.animationId = rafHandle;
 
@@ -72,6 +32,41 @@ export const createAnimationLoop = (scene: SceneState) => {
         scene.previousFluidTarget = temp;
 
         if (scene.frameCount < 3) scene.frameCount++;
+    };
+
+    const stop = () => {
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+            scene.animationId = 0;
+        }
+        pausedAt = performance.now();
+    };
+
+    const start = () => {
+        if (pausedAt !== null) {
+            totalPausedTime += performance.now() - pausedAt;
+            pausedAt = null;
+        }
+        scene.frameCount = 0;
+        if (rafHandle === null) {
+            animate();
+        }
+    };
+
+    const handleVisibilityChange = () => {
+        if (document.hidden) stop();
+        else start();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    scene.cleanupVisibility = () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+        }
     };
 
     return animate;
