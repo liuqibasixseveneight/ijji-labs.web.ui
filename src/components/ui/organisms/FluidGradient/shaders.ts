@@ -82,7 +82,7 @@ export const fluidShader = `
       me.xy = (me.xy / velLen) * 0.4;
     }
 
-    float t = mod(iTime, 628.318);
+    float t = iTime;
     float spatialVar = (vUv.x + vUv.y) * 3.14159;
     me.xy *= uFluidDecay  * (0.82 + 0.18 * sin(t * 0.6  + spatialVar));
     me.z  *= uTrailLength * (0.89 + 0.11 * cos(t * 0.35 + spatialVar));
@@ -118,7 +118,7 @@ export const displayShader = `
     vec2 fragCoord = vUv * iResolution;
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / mr;
 
-    float t = mod(iTime, 628.318);
+    float t = iTime;
 
     float d = -t * 0.5;
     float a = 0.0;

@@ -38,7 +38,7 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
         antialias: false,
         alpha: false,
         preserveDrawingBuffer: false,
-        powerPreference: 'high-performance',
+        powerPreference: 'default',
         stencil: false,
         depth: false,
     });

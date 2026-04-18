@@ -1,24 +1,59 @@
 import type { SceneState } from './types';
 
+const TIME_WRAP = Math.PI * 2 * 100;
+
 export const createAnimationLoop = (scene: SceneState) => {
-    let isPaused = false;
+    let totalPausedTime = 0;
+    let pausedAt: number | null = null;
+    let rafHandle: number | null = null;
+
+    let animate: () => void;
+
+    const stop = () => {
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+            scene.animationId = 0;
+        }
+        pausedAt = performance.now();
+    };
+
+    const start = () => {
+        if (pausedAt !== null) {
+            totalPausedTime += performance.now() - pausedAt;
+            pausedAt = null;
+        }
+        scene.frameCount = 0;
+        if (rafHandle === null) {
+            animate();
+        }
+    };
 
     const handleVisibilityChange = () => {
-        isPaused = document.hidden;
+        if (document.hidden) {
+            stop();
+        } else {
+            start();
+        }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     scene.cleanupVisibility = () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+        }
     };
 
-    const animate = () => {
-        scene.animationId = requestAnimationFrame(animate);
+    animate = () => {
+        rafHandle = requestAnimationFrame(animate);
+        scene.animationId = rafHandle;
 
-        if (isPaused) return;
+        const rawTime = (performance.now() - totalPausedTime) * 0.001;
+        const time = rawTime % TIME_WRAP;
 
-        const time = performance.now() * 0.001;
         scene.fluidMaterial.uniforms.iTime.value = time;
         scene.displayMaterial.uniforms.iTime.value = time;
 

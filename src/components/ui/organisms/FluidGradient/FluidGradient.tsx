@@ -51,10 +51,7 @@ export const FluidGradient = ({
         animate();
 
         return () => {
-            if (!sceneRef.current) return;
-
-            cancelAnimationFrame(sceneRef.current.animationId);
-            sceneRef.current.cleanupVisibility?.();
+            sceneRef.current?.cleanupVisibility?.();
             window.removeEventListener('resize', handleResize);
             cleanupScene(sceneRef.current, canvasElement);
             sceneRef.current = null;

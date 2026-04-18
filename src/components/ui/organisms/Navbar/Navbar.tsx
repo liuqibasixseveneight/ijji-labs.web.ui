@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { HamburgerIcon, Logo } from '../../atoms';
 import { NavMenu } from '../../molecules';
@@ -8,23 +9,28 @@ import type { NavbarProps } from './types.ts';
 export const Navbar = ({ isGradientDark }: NavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const location = useLocation();
 
     const handleOpenNavMenu = () => {
         setIsOpen((prev) => !prev);
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsOpen(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY >= window.innerHeight * 0.8) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
+            setIsScrolled(window.scrollY >= window.innerHeight * 0.8);
         };
+
+        handleScroll();
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [location.pathname]);
 
     return (
         <>

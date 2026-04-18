@@ -17,36 +17,47 @@ export const getPixelRatio = (width: number, height: number): number => {
 export const createResizeHandler = (scene: SceneState, container: HTMLElement) => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const applyResize = () => {
+        debounceTimer = null;
+
+        const rect = container.getBoundingClientRect();
+        const newWidth = rect.width || window.innerWidth;
+        const newHeight = rect.height || window.innerHeight;
+        const newPixelRatio = getPixelRatio(newWidth, newHeight);
+        const newDisplayWidth = Math.round(newWidth * newPixelRatio);
+        const newDisplayHeight = Math.round(newHeight * newPixelRatio);
+
+        const { width: newFluidWidth, height: newFluidHeight } = getFluidResolution(
+            newDisplayWidth,
+            newDisplayHeight,
+        );
+
+        scene.renderer.setPixelRatio(newPixelRatio);
+        scene.renderer.setSize(newWidth, newHeight);
+
+        scene.fluidMaterial.uniforms.iResolution.value.set(newFluidWidth, newFluidHeight);
+        scene.displayMaterial.uniforms.iResolution.value.set(newDisplayWidth, newDisplayHeight);
+
+        scene.fluidTarget1.setSize(newFluidWidth, newFluidHeight);
+        scene.fluidTarget2.setSize(newFluidWidth, newFluidHeight);
+
+        scene.frameCount = 0;
+    };
+
     return () => {
         if (debounceTimer !== null) {
             clearTimeout(debounceTimer);
         }
 
-        debounceTimer = setTimeout(() => {
-            debounceTimer = null;
+        if (document.hidden) {
+            const onVisible = () => {
+                document.removeEventListener('visibilitychange', onVisible);
+                applyResize();
+            };
+            document.addEventListener('visibilitychange', onVisible);
+            return;
+        }
 
-            const rect = container.getBoundingClientRect();
-            const newWidth = rect.width || window.innerWidth;
-            const newHeight = rect.height || window.innerHeight;
-            const newPixelRatio = getPixelRatio(newWidth, newHeight);
-            const newDisplayWidth = Math.round(newWidth * newPixelRatio);
-            const newDisplayHeight = Math.round(newHeight * newPixelRatio);
-
-            const { width: newFluidWidth, height: newFluidHeight } = getFluidResolution(
-                newDisplayWidth,
-                newDisplayHeight,
-            );
-
-            scene.renderer.setPixelRatio(newPixelRatio);
-            scene.renderer.setSize(newWidth, newHeight);
-
-            scene.fluidMaterial.uniforms.iResolution.value.set(newFluidWidth, newFluidHeight);
-            scene.displayMaterial.uniforms.iResolution.value.set(newDisplayWidth, newDisplayHeight);
-
-            scene.fluidTarget1.setSize(newFluidWidth, newFluidHeight);
-            scene.fluidTarget2.setSize(newFluidWidth, newFluidHeight);
-
-            scene.frameCount = 0;
-        }, 150);
+        debounceTimer = setTimeout(applyResize, 150);
     };
 };

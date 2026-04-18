@@ -15,7 +15,7 @@ export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps)
 
             <div className='z-2 text-center px-6 md:px-8 relative max-w-360'>
                 <h1
-                    className={`font-extrabold leading-tight text-5xl md:text-[clamp(2.5rem,10vw,8rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw] ${isGradientDark ? 'text-white' : 'text-ui-background-secondary'}`}
+                    className={`font-extrabold leading-tight text-5xl md:text-[clamp(2.5rem,8vw,8rem)] max-w-[90vw] md:max-w-[70vw] lg:max-w-[60vw] ${isGradientDark ? 'text-white' : 'text-ui-background-secondary'}`}
                 >
                     Designing websites that convert
                 </h1>
