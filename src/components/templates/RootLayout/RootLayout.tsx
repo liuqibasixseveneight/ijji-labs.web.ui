@@ -1,14 +1,25 @@
-import { Outlet } from 'react-router-dom';
-import { useCallback, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 
 import { Footer, Navbar } from '../../ui';
 import type { Palette } from '../../ui/organisms/FluidGradient/utils';
 
 export const RootLayout = () => {
-    const [isGradientDark, setIsGradientDark] = useState(false);
+    const [isPaletteDark, setIsPaletteDark] = useState(false);
+    const { pathname } = useLocation();
+
+    const isGradientDark = pathname === '/' && isPaletteDark;
+
+    const onPathnameChange = useEffectEvent((path: string) => {
+        if (path !== '/') setIsPaletteDark(false);
+    });
+
+    useEffect(() => {
+        onPathnameChange(pathname);
+    }, [pathname]);
 
     const handlePaletteChange = useCallback((palette: Palette) => {
-        setIsGradientDark(palette.isDark);
+        setIsPaletteDark(palette.isDark);
     }, []);
 
     return (
