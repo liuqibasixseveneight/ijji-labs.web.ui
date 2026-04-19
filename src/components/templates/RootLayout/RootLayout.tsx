@@ -29,7 +29,7 @@ export const RootLayout = () => {
         <div className='flex flex-col min-h-screen relative'>
             <Navbar isGradientDark={isNavInitiallyWhite} />
 
-            <main className='flex-1 flex flex-col -mt-16 md:-mt-[10dvh]'>
+            <main className='flex-1 flex flex-col -mt-16 md:-mt-[clamp(64px,10vh,100px)]'>
                 <Outlet context={{ isGradientDark, handlePaletteChange }} />
             </main>
 

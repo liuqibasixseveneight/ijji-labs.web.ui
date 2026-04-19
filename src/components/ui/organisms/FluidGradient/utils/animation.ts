@@ -3,22 +3,26 @@ import type { SceneState } from './types';
 const TIME_WRAP = Math.PI * 2 * 100;
 
 export const createAnimationLoop = (scene: SceneState) => {
-    let totalPausedTime = 0;
-    let pausedAt: number | null = null;
+    let shaderTime = 0;
+    let lastRafTime: number | null = null;
     let rafHandle: number | null = null;
 
     const animate = () => {
         rafHandle = requestAnimationFrame(animate);
         scene.animationId = rafHandle;
 
-        const rawTime = (performance.now() - totalPausedTime) * 0.001;
-        const time = rawTime % TIME_WRAP;
+        const now = performance.now();
+        if (lastRafTime !== null) {
+            const delta = Math.min((now - lastRafTime) * 0.001, 0.1);
+            shaderTime = (shaderTime + delta) % TIME_WRAP;
+        }
+        lastRafTime = now;
 
         const fluidUniforms = scene.fluidMaterial.uniforms;
         const displayUniforms = scene.displayMaterial.uniforms;
 
-        fluidUniforms.iTime.value = time;
-        displayUniforms.iTime.value = time;
+        fluidUniforms.iTime.value = shaderTime;
+        displayUniforms.iTime.value = shaderTime;
         fluidUniforms.iFrame.value = Math.min(scene.frameCount, 2);
         fluidUniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
 
@@ -43,14 +47,10 @@ export const createAnimationLoop = (scene: SceneState) => {
             rafHandle = null;
             scene.animationId = 0;
         }
-        pausedAt = performance.now();
+        lastRafTime = null;
     };
 
     const start = () => {
-        if (pausedAt !== null) {
-            totalPausedTime += performance.now() - pausedAt;
-            pausedAt = null;
-        }
         scene.frameCount = 0;
         if (rafHandle === null) {
             animate();

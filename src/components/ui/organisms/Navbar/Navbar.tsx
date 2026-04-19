@@ -38,7 +38,7 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
     return (
         <>
             <nav
-                className={`sticky top-0 left-0 w-full z-20 h-16 md:h-[10dvh] transition-colors duration-300 ease-in-out ${
+                className={`sticky top-0 left-0 w-full z-20 h-16 md:h-[clamp(64px,10vh,100px)] transition-colors duration-300 ease-in-out ${
                     isScrolled ? 'bg-ui-background-secondary' : 'bg-transparent'
                 }`}
             >

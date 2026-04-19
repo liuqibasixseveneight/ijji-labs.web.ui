@@ -130,7 +130,7 @@ export const FluidGradient = ({
             />
 
             {showPalettePicker && (
-                <nav className='absolute bottom-0 left-0 right-0 h-[10vh] z-10 pointer-events-auto'>
+                <nav className='absolute bottom-0 left-0 right-0 h-[clamp(64px,10vh,100px)] z-10 pointer-events-auto'>
                     <div className='flex items-center justify-end h-full w-full max-w-380 mx-auto px-6 md:px-8'>
                         <PalettePicker
                             activeKey={activePaletteKey}
