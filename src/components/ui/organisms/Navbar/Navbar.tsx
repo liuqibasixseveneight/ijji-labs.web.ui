@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { HamburgerIcon, Logo } from '../../atoms';
@@ -15,10 +15,13 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
         setIsOpen((prev) => !prev);
     };
 
-    useEffect(() => {
+    const handleRouteChange = useEffectEvent(() => {
         window.scrollTo(0, 0);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsOpen(false);
+    });
+
+    useEffect(() => {
+        handleRouteChange();
     }, [location.pathname]);
 
     useEffect(() => {
@@ -30,7 +33,7 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [location.pathname]);
+    }, []);
 
     return (
         <>

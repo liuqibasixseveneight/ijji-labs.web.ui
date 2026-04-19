@@ -14,18 +14,21 @@ export const createAnimationLoop = (scene: SceneState) => {
         const rawTime = (performance.now() - totalPausedTime) * 0.001;
         const time = rawTime % TIME_WRAP;
 
-        scene.fluidMaterial.uniforms.iTime.value = time;
-        scene.displayMaterial.uniforms.iTime.value = time;
+        const fluidUniforms = scene.fluidMaterial.uniforms;
+        const displayUniforms = scene.displayMaterial.uniforms;
 
-        scene.fluidMaterial.uniforms.iFrame.value = Math.min(scene.frameCount, 2);
+        fluidUniforms.iTime.value = time;
+        displayUniforms.iTime.value = time;
+        fluidUniforms.iFrame.value = Math.min(scene.frameCount, 2);
+        fluidUniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
 
-        scene.fluidMaterial.uniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
-        scene.renderer.setRenderTarget(scene.currentFluidTarget);
-        scene.renderer.render(scene.fluidPlane, scene.camera);
+        const renderer = scene.renderer;
+        renderer.setRenderTarget(scene.currentFluidTarget);
+        renderer.render(scene.fluidPlane, scene.camera);
 
-        scene.displayMaterial.uniforms.iFluid.value = scene.currentFluidTarget.texture;
-        scene.renderer.setRenderTarget(null);
-        scene.renderer.render(scene.displayPlane, scene.camera);
+        displayUniforms.iFluid.value = scene.currentFluidTarget.texture;
+        renderer.setRenderTarget(null);
+        renderer.render(scene.displayPlane, scene.camera);
 
         const temp = scene.currentFluidTarget;
         scene.currentFluidTarget = scene.previousFluidTarget;

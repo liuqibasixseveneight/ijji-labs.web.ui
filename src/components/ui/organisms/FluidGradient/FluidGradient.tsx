@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo, useEffectEvent } from 'react';
 
 import {
     cleanupScene,
@@ -20,6 +20,9 @@ const resolvePalette = (palette: PaletteKey | Palette | undefined): Palette => {
     return palette;
 };
 
+const buildPlaceholderGradient = (palette: Palette): string =>
+    `radial-gradient(ellipse at 60% 40%, ${palette.color3} 0%, ${palette.color1} 60%, ${palette.color2} 100%)`;
+
 export const FluidGradient = ({
     palette,
     showPalettePicker = false,
@@ -27,19 +30,21 @@ export const FluidGradient = ({
 }: FluidGradientProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<SceneState | null>(null);
+    const cleanupRef = useRef<(() => void) | null>(null);
+    const [webglReady, setWebglReady] = useState(false);
 
     const [activePaletteKey, setActivePaletteKey] = useState<PaletteKey>(
         typeof palette === 'string' ? palette : defaultPaletteKey,
     );
 
-    const activePalette = useMemo(() => {
-        return resolvePalette(showPalettePicker ? activePaletteKey : palette);
-    }, [showPalettePicker, activePaletteKey, palette]);
+    const activePalette = useMemo(
+        () => resolvePalette(showPalettePicker ? activePaletteKey : palette),
+        [showPalettePicker, activePaletteKey, palette],
+    );
 
-    useEffect(() => {
-        if (!canvasRef.current) return;
+    const [placeholderGradient] = useState(() => buildPlaceholderGradient(activePalette));
 
-        const canvasElement = canvasRef.current;
+    const onSceneReady = useEffectEvent((canvasElement: HTMLDivElement) => {
         const scene = initializeScene(canvasElement, activePalette);
         sceneRef.current = scene;
 
@@ -47,16 +52,54 @@ export const FluidGradient = ({
         const animate = createAnimationLoop(scene);
 
         window.addEventListener('resize', handleResize, { passive: true });
-
         animate();
 
-        return () => {
+        setTimeout(() => setWebglReady(true), 150);
+
+        cleanupRef.current = () => {
             sceneRef.current?.cleanupVisibility?.();
             window.removeEventListener('resize', handleResize);
             cleanupScene(sceneRef.current, canvasElement);
             sceneRef.current = null;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
+
+    useEffect(() => {
+        const canvasElement = canvasRef.current;
+        if (!canvasElement) return;
+
+        let initialised = false;
+
+        const initScene = () => {
+            if (initialised || !canvasElement) return;
+            initialised = true;
+
+            const run = () => onSceneReady(canvasElement);
+
+            if (typeof requestIdleCallback !== 'undefined') {
+                requestIdleCallback(run, { timeout: 2000 });
+            } else {
+                setTimeout(run, 0);
+            }
+        };
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    initScene();
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.01 },
+        );
+
+        observer.observe(canvasElement);
+
+        return () => {
+            observer.disconnect();
+            cleanupRef.current?.();
+            cleanupRef.current = null;
+        };
     }, []);
 
     useEffect(() => {
@@ -74,8 +117,17 @@ export const FluidGradient = ({
     );
 
     return (
-        <div className='absolute inset-0 z-0 pointer-events-none'>
-            <div ref={canvasRef} className='w-full h-full touch-pan-y pointer-events-auto' />
+        <div className='absolute inset-0 z-0 pointer-events-none contain-strict'>
+            <div
+                aria-hidden='true'
+                className={`absolute inset-0 z-2 pointer-events-none transition-opacity duration-700 ease-out ${webglReady ? 'opacity-0' : 'opacity-100'}`}
+                style={{ background: placeholderGradient }}
+            />
+
+            <div
+                ref={canvasRef}
+                className={`w-full h-full touch-pan-y pointer-events-auto transition-opacity duration-700 ease-in ${webglReady ? 'opacity-100' : 'opacity-0'}`}
+            />
 
             {showPalettePicker && (
                 <nav className='absolute bottom-0 left-0 right-0 h-[10vh] z-10 pointer-events-auto'>

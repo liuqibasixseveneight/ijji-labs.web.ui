@@ -2,20 +2,22 @@ import type { SceneState } from './types';
 import { getFluidResolution } from './setup';
 
 export const getPixelRatio = (width: number, height: number): number => {
-    const basePixelRatio = window.devicePixelRatio || 1;
+    const dpr = window.devicePixelRatio || 1;
+    const capped = Math.min(dpr, 2);
     const maxResolution = 1920 * 1080;
     const screenPixels = width * height;
-    const ratio = Math.min(basePixelRatio, 1);
 
-    if (screenPixels * ratio * ratio > maxResolution) {
+    if (screenPixels * capped * capped > maxResolution) {
         return Math.sqrt(maxResolution / screenPixels);
     }
 
-    return ratio;
+    return capped;
 };
 
 export const createResizeHandler = (scene: SceneState, container: HTMLElement) => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastWidth = 0;
+    let lastHeight = 0;
 
     const applyResize = () => {
         debounceTimer = null;
@@ -23,6 +25,11 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
         const rect = container.getBoundingClientRect();
         const newWidth = rect.width || window.innerWidth;
         const newHeight = rect.height || window.innerHeight;
+
+        if (newWidth === lastWidth && newHeight === lastHeight) return;
+        lastWidth = newWidth;
+        lastHeight = newHeight;
+
         const newPixelRatio = getPixelRatio(newWidth, newHeight);
         const newDisplayWidth = Math.round(newWidth * newPixelRatio);
         const newDisplayHeight = Math.round(newHeight * newPixelRatio);
