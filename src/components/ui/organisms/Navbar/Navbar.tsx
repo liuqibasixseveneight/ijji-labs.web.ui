@@ -11,6 +11,8 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
 
+    const isHome = location.pathname === '/';
+
     const handleOpenNavMenu = () => {
         setIsOpen((prev) => !prev);
     };
@@ -35,19 +37,21 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const showScrolledStyles = !isHome || isScrolled;
+
     return (
         <>
             <nav
                 className={`sticky top-0 left-0 w-full z-20 h-16 md:h-[clamp(64px,10vh,100px)] transition-colors duration-300 ease-in-out ${
-                    isScrolled ? 'bg-ui-background-secondary' : 'bg-transparent'
+                    showScrolledStyles ? 'bg-ui-background-secondary' : 'bg-transparent'
                 }`}
             >
                 <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-6 md:px-8'>
-                    <Logo isMenuOpen={isOpen} isWhite={isScrolled || isGradientDark} />
+                    <Logo isMenuOpen={isOpen} isWhite={showScrolledStyles || isGradientDark} />
                     <HamburgerIcon
                         isOpen={isOpen}
                         setIsOpen={handleOpenNavMenu}
-                        isWhite={isScrolled || isGradientDark}
+                        isWhite={showScrolledStyles || isGradientDark}
                     />
                 </div>
             </nav>

@@ -9,4 +9,5 @@ export * from './SelectInput';
 export * from './SwatchItem';
 export * from './TextareaInput';
 export * from './TextInput';
+export * from './TextLink';
 export * from './Tooltip';

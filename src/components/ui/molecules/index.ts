@@ -1,3 +1,4 @@
+export * from './AccordionItem';
 export * from './FormRow';
 export * from './InfoCard';
 export * from './NavMenu';
