@@ -1,42 +1,84 @@
 import type { SceneState } from './types';
 
+const TIME_WRAP = Math.PI * 2 * 100;
+
 export const createAnimationLoop = (scene: SceneState) => {
-    let isPaused = false;
+    let shaderTime = 0;
+    let lastRafTime: number | null = null;
+    let rafHandle: number | null = null;
 
-    const handleVisibilityChange = () => {
-        isPaused = document.hidden;
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    scene.cleanupVisibility = () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    const stop = () => {
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+            scene.animationId = 0;
+        }
+        lastRafTime = null;
     };
 
     const animate = () => {
-        scene.animationId = requestAnimationFrame(animate);
+        // Always bail immediately if the scene has been torn down
+        if (scene.destroyed) {
+            rafHandle = null;
+            scene.animationId = 0;
+            return;
+        }
 
-        if (isPaused) return;
+        rafHandle = requestAnimationFrame(animate);
+        scene.animationId = rafHandle;
 
-        const time = performance.now() * 0.001;
-        scene.fluidMaterial.uniforms.iTime.value = time;
-        scene.displayMaterial.uniforms.iTime.value = time;
+        const now = performance.now();
+        if (lastRafTime !== null) {
+            const delta = Math.min((now - lastRafTime) * 0.001, 0.1);
+            shaderTime = (shaderTime + delta) % TIME_WRAP;
+        }
+        lastRafTime = now;
 
-        scene.fluidMaterial.uniforms.iFrame.value = Math.min(scene.frameCount, 2);
+        const fluidUniforms = scene.fluidMaterial.uniforms;
+        const displayUniforms = scene.displayMaterial.uniforms;
 
-        scene.fluidMaterial.uniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
-        scene.renderer.setRenderTarget(scene.currentFluidTarget);
-        scene.renderer.render(scene.fluidPlane, scene.camera);
+        fluidUniforms.iTime.value = shaderTime;
+        displayUniforms.iTime.value = shaderTime;
+        fluidUniforms.iFrame.value = Math.min(scene.frameCount, 2);
+        fluidUniforms.iPreviousFrame.value = scene.previousFluidTarget.texture;
 
-        scene.displayMaterial.uniforms.iFluid.value = scene.currentFluidTarget.texture;
-        scene.renderer.setRenderTarget(null);
-        scene.renderer.render(scene.displayPlane, scene.camera);
+        const renderer = scene.renderer;
+        renderer.setRenderTarget(scene.currentFluidTarget);
+        renderer.render(scene.fluidPlane, scene.camera);
+
+        displayUniforms.iFluid.value = scene.currentFluidTarget.texture;
+        renderer.setRenderTarget(null);
+        renderer.render(scene.displayPlane, scene.camera);
 
         const temp = scene.currentFluidTarget;
         scene.currentFluidTarget = scene.previousFluidTarget;
         scene.previousFluidTarget = temp;
 
         if (scene.frameCount < 3) scene.frameCount++;
+    };
+
+    const start = () => {
+        if (scene.destroyed) return;
+        scene.frameCount = 0;
+        if (rafHandle === null) {
+            animate();
+        }
+    };
+
+    const handleVisibilityChange = () => {
+        if (scene.destroyed) {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            return;
+        }
+        if (document.hidden) stop();
+        else start();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    scene.cleanupVisibility = () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        stop();
     };
 
     return animate;

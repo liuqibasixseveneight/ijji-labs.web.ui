@@ -33,6 +33,10 @@ export const getFluidResolution = (
     }
 };
 
+type WebGLRendererWithDebug = THREE.WebGLRenderer & {
+    debug: { checkShaderErrors: boolean };
+};
+
 export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     const renderer = new THREE.WebGLRenderer({
         antialias: false,
@@ -43,6 +47,10 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
         depth: false,
     });
 
+    if (renderer.capabilities.isWebGL2) {
+        (renderer as WebGLRendererWithDebug).debug.checkShaderErrors = false;
+    }
+
     const { width, height } = getCanvasSize(container);
     const pixelRatio = getPixelRatio(width, height);
 
@@ -51,18 +59,21 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     renderer.setClearColor(0x000000, 0);
 
     const canvas = renderer.domElement;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.right = '0';
-    canvas.style.bottom = '0';
-    canvas.style.pointerEvents = 'auto';
-    canvas.style.touchAction = 'pan-y';
-    canvas.style.zIndex = '1';
-    canvas.style.willChange = 'transform';
+    canvas.style.cssText = [
+        'width:100%',
+        'height:100%',
+        'display:block',
+        'position:absolute',
+        'top:0',
+        'left:0',
+        'right:0',
+        'bottom:0',
+        'pointer-events:auto',
+        'touch-action:pan-y',
+        'z-index:1',
+        'will-change:transform',
+        'transform:translateZ(0)',
+    ].join(';');
 
     container.appendChild(canvas);
 
@@ -144,6 +155,7 @@ export const createMaterials = (
 };
 
 export const applyPaletteToScene = (scene: SceneState, palette: Palette): void => {
+    if (scene.destroyed) return;
     const u = scene.displayMaterial.uniforms;
     u.uColor1.value.set(...hexToRgb(palette.color1));
     u.uColor2.value.set(...hexToRgb(palette.color2));
@@ -183,11 +195,12 @@ export const initializeScene = (container: HTMLElement, palette?: Palette): Scen
         activePalette,
     );
 
-    const fluidGeometry = new THREE.PlaneGeometry(2, 2);
-    const displayGeometry = new THREE.PlaneGeometry(2, 2);
-    const fluidPlane = new THREE.Mesh(fluidGeometry, fluidMaterial);
-    const displayPlane = new THREE.Mesh(displayGeometry, displayMaterial);
+    // Single shared geometry — tracked so cleanup.ts can dispose it
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const fluidPlane = new THREE.Mesh(geometry, fluidMaterial);
+    const displayPlane = new THREE.Mesh(geometry, displayMaterial);
 
+    // Prime both render targets with an initial fluid frame
     fluidMaterial.uniforms.iPreviousFrame.value = null;
 
     renderer.setRenderTarget(fluidTarget1);
@@ -211,9 +224,11 @@ export const initializeScene = (container: HTMLElement, palette?: Palette): Scen
         displayMaterial,
         fluidPlane,
         displayPlane,
+        geometry, // ← now tracked
         fluidWidth,
         fluidHeight,
         frameCount: 0,
         animationId: 0,
+        destroyed: false, // ← guard flag
     };
 };

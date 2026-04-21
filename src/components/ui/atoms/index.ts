@@ -1,4 +1,5 @@
 export * from './ArtisticFrame';
+export * from './BadgeLink';
 export * from './Button';
 export * from './FieldWrapper';
 export * from './HamburgerIcon';
@@ -9,4 +10,5 @@ export * from './SelectInput';
 export * from './SwatchItem';
 export * from './TextareaInput';
 export * from './TextInput';
+export * from './TextLink';
 export * from './Tooltip';

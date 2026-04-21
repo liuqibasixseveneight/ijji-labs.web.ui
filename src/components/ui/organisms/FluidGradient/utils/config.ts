@@ -28,14 +28,14 @@ export const palettes: Record<string, Palette> = {
     },
     pearl: {
         name: 'Pearl',
-        color1: '#fff5f7',
-        color2: '#ffe4e9',
-        color3: '#ffc9d9',
-        color4: '#ffa8c5',
-        color5: '#c9b7eb',
-        color6: '#b8e6f0',
-        color7: '#e8f9fd',
-        color8: '#ffffff',
+        color1: '#ffe3ec', // brighter pink tint
+        color2: '#ffb3c7', // stronger pink
+        color3: '#ff7aa5', // vivid pink
+        color4: '#ff4d8d', // bold hot pink
+        color5: '#8f6bff', // more saturated purple
+        color6: '#4dd6f5', // vibrant cyan
+        color7: '#bff4ff', // brighter icy blue
+        color8: '#ffffff', // keep white
         isDark: false,
     },
     solar: {
@@ -76,14 +76,14 @@ export const palettes: Record<string, Palette> = {
     },
     arrakis: {
         name: 'Arrakis',
-        color1: '#fff3e0',
-        color2: '#ffe0b2',
-        color3: '#ffd28c',
-        color4: '#ffb75e',
-        color5: '#e68a3e',
-        color6: '#b66a2e',
-        color7: '#7f4820',
-        color8: '#4b2a10',
+        color1: '#fdf6e3',
+        color2: '#f5e3b3',
+        color3: '#e7c98a',
+        color4: '#d9a95f',
+        color5: '#b9783a',
+        color6: '#8b5a2b',
+        color7: '#5a381d',
+        color8: '#24140a',
         isDark: true,
     },
 };

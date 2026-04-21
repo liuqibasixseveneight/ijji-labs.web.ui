@@ -14,6 +14,8 @@ export type SceneState = {
     fluidTarget2: THREE.WebGLRenderTarget;
     fluidWidth: number;
     frameCount: number;
+    geometry: THREE.PlaneGeometry; // tracked so cleanup can dispose it
     previousFluidTarget: THREE.WebGLRenderTarget;
     renderer: THREE.WebGLRenderer;
+    destroyed: boolean; // guard against post-cleanup callbacks
 };

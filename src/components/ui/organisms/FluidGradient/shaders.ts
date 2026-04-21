@@ -69,7 +69,13 @@ export const fluidShader = `
     vec2 ba = A.xy - B.xy, bc = C.xy - B.xy;
     float triArea = abs(ab.x * ac.y - ab.y * ac.x)
                   + abs(ba.x * bc.y - ba.y * bc.x);
-    me.z = me.z - 0.011 * (triArea - 4.0);
+
+    // Clamp triArea so the correction term cannot sustain positive feedback.
+    // Without this, highly deformed velocity fields drive triArea << 4.0
+    // permanently, causing me.z to accumulate toward +0.45 across the whole
+    // texture and saturate the simulation over long sessions.
+    float triCorrection = clamp(triArea - 4.0, -2.0, 2.0);
+    me.z = me.z - 0.011 * triCorrection;
 
     vec4 pr = vec4(e.z, w.z, n.z, s.z);
     me.xy = me.xy + 110.0 * vec2(pr.x - pr.y, pr.z - pr.w) / ur;
@@ -82,7 +88,7 @@ export const fluidShader = `
       me.xy = (me.xy / velLen) * 0.4;
     }
 
-    float t = mod(iTime, 628.318);
+    float t = iTime;
     float spatialVar = (vUv.x + vUv.y) * 3.14159;
     me.xy *= uFluidDecay  * (0.82 + 0.18 * sin(t * 0.6  + spatialVar));
     me.z  *= uTrailLength * (0.89 + 0.11 * cos(t * 0.35 + spatialVar));
@@ -118,7 +124,7 @@ export const displayShader = `
     vec2 fragCoord = vUv * iResolution;
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / mr;
 
-    float t = mod(iTime, 628.318);
+    float t = iTime;
 
     float d = -t * 0.5;
     float a = 0.0;
