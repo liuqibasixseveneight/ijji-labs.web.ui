@@ -52,7 +52,6 @@ export const Button = (props: ButtonProps) => {
         </>
     );
 
-    // 👉 Internal link variant
     if (props.type === 'internal-link') {
         const { to, ...rest } = props;
 
@@ -63,7 +62,6 @@ export const Button = (props: ButtonProps) => {
         );
     }
 
-    // 👉 Default button variant
     const { type = 'button', disabled, ...rest } = props;
 
     return (

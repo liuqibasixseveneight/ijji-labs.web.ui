@@ -1,7 +1,11 @@
-export const Projects = () => {
-    return (
-        <div>
-            <h1 className={'font-newsreader uppercase text-[6vw] text-white'}>Projects</h1>
-        </div>
-    );
-};
+import { ProjectsCTA, ProjectsHero, ProjectsList } from './modules';
+import { ServicesProcess } from '../Services/modules';
+
+export const Projects = () => (
+    <>
+        <ProjectsHero />
+        <ProjectsList />
+        <ServicesProcess />
+        <ProjectsCTA />
+    </>
+);
