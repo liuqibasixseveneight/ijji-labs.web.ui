@@ -1,4 +1,5 @@
 export * from './ArtisticFrame';
+export * from './BadgeLink';
 export * from './Button';
 export * from './FieldWrapper';
 export * from './HamburgerIcon';

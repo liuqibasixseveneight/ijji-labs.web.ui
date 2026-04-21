@@ -18,9 +18,14 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     let lastWidth = 0;
     let lastHeight = 0;
+    let visibilityListener: (() => void) | null = null;
 
     const applyResize = () => {
         debounceTimer = null;
+        visibilityListener = null;
+
+        // Don't touch a scene that's already been torn down
+        if (scene.destroyed) return;
 
         const rect = container.getBoundingClientRect();
         const newWidth = rect.width || window.innerWidth;
@@ -51,20 +56,47 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
         scene.frameCount = 0;
     };
 
-    return () => {
+    const handler = () => {
+        if (scene.destroyed) return;
+
+        // Clear any pending debounce
         if (debounceTimer !== null) {
             clearTimeout(debounceTimer);
+            debounceTimer = null;
+        }
+
+        // Clear any pending visibility listener
+        if (visibilityListener !== null) {
+            document.removeEventListener('visibilitychange', visibilityListener);
+            visibilityListener = null;
         }
 
         if (document.hidden) {
-            const onVisible = () => {
-                document.removeEventListener('visibilitychange', onVisible);
-                applyResize();
+            visibilityListener = () => {
+                if (visibilityListener) {
+                    document.removeEventListener('visibilitychange', visibilityListener);
+                    visibilityListener = null;
+                }
+                if (!scene.destroyed) applyResize();
             };
-            document.addEventListener('visibilitychange', onVisible);
+            document.addEventListener('visibilitychange', visibilityListener);
             return;
         }
 
         debounceTimer = setTimeout(applyResize, 150);
     };
+
+    // Expose a cancel method so the component can kill in-flight timers on unmount
+    handler.cancel = () => {
+        if (debounceTimer !== null) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+        }
+        if (visibilityListener !== null) {
+            document.removeEventListener('visibilitychange', visibilityListener);
+            visibilityListener = null;
+        }
+    };
+
+    return handler;
 };

@@ -155,6 +155,7 @@ export const createMaterials = (
 };
 
 export const applyPaletteToScene = (scene: SceneState, palette: Palette): void => {
+    if (scene.destroyed) return;
     const u = scene.displayMaterial.uniforms;
     u.uColor1.value.set(...hexToRgb(palette.color1));
     u.uColor2.value.set(...hexToRgb(palette.color2));
@@ -194,10 +195,12 @@ export const initializeScene = (container: HTMLElement, palette?: Palette): Scen
         activePalette,
     );
 
-    const sharedGeometry = new THREE.PlaneGeometry(2, 2);
-    const fluidPlane = new THREE.Mesh(sharedGeometry, fluidMaterial);
-    const displayPlane = new THREE.Mesh(sharedGeometry, displayMaterial);
+    // Single shared geometry — tracked so cleanup.ts can dispose it
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const fluidPlane = new THREE.Mesh(geometry, fluidMaterial);
+    const displayPlane = new THREE.Mesh(geometry, displayMaterial);
 
+    // Prime both render targets with an initial fluid frame
     fluidMaterial.uniforms.iPreviousFrame.value = null;
 
     renderer.setRenderTarget(fluidTarget1);
@@ -221,9 +224,11 @@ export const initializeScene = (container: HTMLElement, palette?: Palette): Scen
         displayMaterial,
         fluidPlane,
         displayPlane,
+        geometry, // ← now tracked
         fluidWidth,
         fluidHeight,
         frameCount: 0,
         animationId: 0,
+        destroyed: false, // ← guard flag
     };
 };

@@ -10,7 +10,7 @@ export const ServicesFaq = () => (
             <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-10 leading-none'>
                 FAQ
             </h2>
-            <p className='text-lg text-neutral-400 max-w-2xl leading-relaxed mb-16'>
+            <p className='text-lg sm:text-xl text-neutral-400 max-w-2xl leading-relaxed mb-16'>
                 Straightforward answers to the questions we hear most often. If yours isn't here,{' '}
                 <TextLink to='/contact' underline='always' className='text-white'>
                     just ask

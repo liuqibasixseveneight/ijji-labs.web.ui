@@ -69,7 +69,13 @@ export const fluidShader = `
     vec2 ba = A.xy - B.xy, bc = C.xy - B.xy;
     float triArea = abs(ab.x * ac.y - ab.y * ac.x)
                   + abs(ba.x * bc.y - ba.y * bc.x);
-    me.z = me.z - 0.011 * (triArea - 4.0);
+
+    // Clamp triArea so the correction term cannot sustain positive feedback.
+    // Without this, highly deformed velocity fields drive triArea << 4.0
+    // permanently, causing me.z to accumulate toward +0.45 across the whole
+    // texture and saturate the simulation over long sessions.
+    float triCorrection = clamp(triArea - 4.0, -2.0, 2.0);
+    me.z = me.z - 0.011 * triCorrection;
 
     vec4 pr = vec4(e.z, w.z, n.z, s.z);
     me.xy = me.xy + 110.0 * vec2(pr.x - pr.y, pr.z - pr.w) / ur;

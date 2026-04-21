@@ -1,6 +1,13 @@
-import { ArtisticFrame, InfoCard } from '../../ui';
+import { ArtisticFrame, BadgeLinks, InfoCard } from '../../ui';
 import { aboutImageOne, aboutImageTwo } from '../../../assets/images';
 import { valueCards } from '../Home/modules/HomeAbout/valueCards.ts';
+
+const ABOUT_LINKS = [
+    { label: 'Our story', href: '#our-story' },
+    { label: 'Why independent?', href: '#why-independent' },
+    { label: 'Your ownership', href: '#your-ownership' },
+    { label: 'What we stand for', href: '#what-we-stand-for' },
+];
 
 export const About = () => {
     return (
@@ -10,10 +17,13 @@ export const About = () => {
                     <h1 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 pt-[6dvh]'>
                         About us
                     </h1>
-                    <p className='text-xl text-white/60 max-w-xl mb-12'>
+                    <p className='text-xl text-white/60 max-w-xl mb-10'>
                         A small, independent studio from Leeds — building the web with care, craft,
                         and purpose.
                     </p>
+                    <div className='mb-12'>
+                        <BadgeLinks links={ABOUT_LINKS} />
+                    </div>
                     <ArtisticFrame className='flex-1 max-h-[65vh] w-full'>
                         <img
                             src={aboutImageOne}
@@ -24,7 +34,10 @@ export const About = () => {
                 </div>
             </div>
 
-            <div className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'>
+            <div
+                id='our-story'
+                className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'
+            >
                 <div className='max-w-260 w-full flex-1 flex flex-col px-6 md:px-8'>
                     <h2 className='text-3xl md:text-4xl font-medium mb-10'>Our story</h2>
                     <div className='flex-1 flex flex-col gap-8'>
@@ -50,7 +63,10 @@ export const About = () => {
                 </div>
             </div>
 
-            <div className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-ui-background-primary'>
+            <div
+                id='why-independent'
+                className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-ui-background-primary'
+            >
                 <div className='max-w-260 w-full flex-1 flex flex-col px-6 md:px-8'>
                     <h2 className='text-3xl md:text-4xl font-medium text-white mb-10'>
                         Why independent?
@@ -89,7 +105,10 @@ export const About = () => {
                 </div>
             </div>
 
-            <div className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'>
+            <div
+                id='your-ownership'
+                className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'
+            >
                 <div className='max-w-260 w-full flex-1 flex flex-col px-6 md:px-8'>
                     <h2 className='text-3xl md:text-4xl font-medium mb-10'>
                         Your site, your ownership
@@ -116,7 +135,10 @@ export const About = () => {
                 </div>
             </div>
 
-            <div className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'>
+            <div
+                id='what-we-stand-for'
+                className='flex-1 h-full flex flex-col items-center justify-center w-full py-[6vh] bg-white'
+            >
                 <div className='max-w-7xl w-full flex-1 flex flex-col px-6 md:px-8'>
                     <h2 className='text-3xl md:text-4xl font-medium mb-10'>What we stand for</h2>
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>

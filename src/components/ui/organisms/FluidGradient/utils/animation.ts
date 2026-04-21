@@ -7,7 +7,23 @@ export const createAnimationLoop = (scene: SceneState) => {
     let lastRafTime: number | null = null;
     let rafHandle: number | null = null;
 
+    const stop = () => {
+        if (rafHandle !== null) {
+            cancelAnimationFrame(rafHandle);
+            rafHandle = null;
+            scene.animationId = 0;
+        }
+        lastRafTime = null;
+    };
+
     const animate = () => {
+        // Always bail immediately if the scene has been torn down
+        if (scene.destroyed) {
+            rafHandle = null;
+            scene.animationId = 0;
+            return;
+        }
+
         rafHandle = requestAnimationFrame(animate);
         scene.animationId = rafHandle;
 
@@ -41,16 +57,8 @@ export const createAnimationLoop = (scene: SceneState) => {
         if (scene.frameCount < 3) scene.frameCount++;
     };
 
-    const stop = () => {
-        if (rafHandle !== null) {
-            cancelAnimationFrame(rafHandle);
-            rafHandle = null;
-            scene.animationId = 0;
-        }
-        lastRafTime = null;
-    };
-
     const start = () => {
+        if (scene.destroyed) return;
         scene.frameCount = 0;
         if (rafHandle === null) {
             animate();
@@ -58,6 +66,10 @@ export const createAnimationLoop = (scene: SceneState) => {
     };
 
     const handleVisibilityChange = () => {
+        if (scene.destroyed) {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            return;
+        }
         if (document.hidden) stop();
         else start();
     };
@@ -66,10 +78,7 @@ export const createAnimationLoop = (scene: SceneState) => {
 
     scene.cleanupVisibility = () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
-        if (rafHandle !== null) {
-            cancelAnimationFrame(rafHandle);
-            rafHandle = null;
-        }
+        stop();
     };
 
     return animate;

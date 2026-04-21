@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo, useEffectEvent } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
 import {
     cleanupScene,
@@ -30,7 +30,6 @@ export const FluidGradient = ({
 }: FluidGradientProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<SceneState | null>(null);
-    const cleanupRef = useRef<(() => void) | null>(null);
     const [webglReady, setWebglReady] = useState(false);
 
     const [activePaletteKey, setActivePaletteKey] = useState<PaletteKey>(
@@ -44,42 +43,41 @@ export const FluidGradient = ({
 
     const [placeholderGradient] = useState(() => buildPlaceholderGradient(activePalette));
 
-    const onSceneReady = useEffectEvent((canvasElement: HTMLDivElement) => {
-        const scene = initializeScene(canvasElement, activePalette);
-        sceneRef.current = scene;
-
-        const handleResize = createResizeHandler(scene, canvasElement);
-        const animate = createAnimationLoop(scene);
-
-        window.addEventListener('resize', handleResize, { passive: true });
-        animate();
-
-        setTimeout(() => setWebglReady(true), 150);
-
-        cleanupRef.current = () => {
-            sceneRef.current?.cleanupVisibility?.();
-            window.removeEventListener('resize', handleResize);
-            cleanupScene(sceneRef.current, canvasElement);
-            sceneRef.current = null;
-        };
-    });
-
     useEffect(() => {
         const canvasElement = canvasRef.current;
         if (!canvasElement) return;
 
         let initialised = false;
+        let idleHandle: number | undefined;
+        let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+        let resizeHandler: ReturnType<typeof createResizeHandler> | null = null;
 
         const initScene = () => {
             if (initialised || !canvasElement) return;
             initialised = true;
 
-            const run = () => onSceneReady(canvasElement);
+            const run = () => {
+                // Bail if the component already unmounted while we were waiting
+                if (!canvasRef.current) return;
+
+                const scene = initializeScene(canvasElement, activePalette);
+                sceneRef.current = scene;
+
+                resizeHandler = createResizeHandler(scene, canvasElement);
+                const animate = createAnimationLoop(scene);
+
+                window.addEventListener('resize', resizeHandler, { passive: true });
+                animate();
+
+                setTimeout(() => {
+                    if (!scene.destroyed) setWebglReady(true);
+                }, 150);
+            };
 
             if (typeof requestIdleCallback !== 'undefined') {
-                requestIdleCallback(run, { timeout: 2000 });
+                idleHandle = requestIdleCallback(run, { timeout: 2000 });
             } else {
-                setTimeout(run, 0);
+                timeoutHandle = setTimeout(run, 0);
             }
         };
 
@@ -97,11 +95,36 @@ export const FluidGradient = ({
 
         return () => {
             observer.disconnect();
-            cleanupRef.current?.();
-            cleanupRef.current = null;
+
+            // Cancel any pending idle/timeout init
+            if (idleHandle !== undefined) {
+                cancelIdleCallback(idleHandle);
+                idleHandle = undefined;
+            }
+            if (timeoutHandle !== undefined) {
+                clearTimeout(timeoutHandle);
+                timeoutHandle = undefined;
+            }
+
+            // Remove resize listener and cancel any in-flight debounce
+            if (resizeHandler !== null) {
+                window.removeEventListener('resize', resizeHandler);
+                resizeHandler.cancel();
+                resizeHandler = null;
+            }
+
+            // Stop RAF + visibilitychange listener, then dispose all GPU resources
+            const scene = sceneRef.current;
+            if (scene) {
+                scene.cleanupVisibility?.();
+                cleanupScene(scene, canvasElement);
+                sceneRef.current = null;
+            }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Palette changes after mount — just update uniforms, no re-init needed
     useEffect(() => {
         if (sceneRef.current) {
             applyPaletteToScene(sceneRef.current, activePalette);
