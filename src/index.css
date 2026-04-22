@@ -34,6 +34,19 @@ body {
   color: #0D0F0F;
 }
 
+@keyframes scroll-chevron {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@utility animate-scroll-chevron {
+  animation: scroll-chevron 1.6s ease-in-out infinite;
+}
+
 /* DEBUGGING STYLES */
 /** {*/
 /*  background-color: #121212 !important;*/

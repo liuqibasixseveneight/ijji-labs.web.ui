@@ -1,7 +1,7 @@
 import { useState, useEffect, useEffectEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { HamburgerIcon, Logo } from '../../atoms';
+import { Button, HamburgerIcon, Logo } from '../../atoms';
 import { NavMenu } from '../../molecules';
 import { navbarItems } from './navbarItems.ts';
 import type { NavbarProps } from './types.ts';
@@ -48,11 +48,23 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
             >
                 <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-6 md:px-8'>
                     <Logo isMenuOpen={isOpen} isWhite={showScrolledStyles || isGradientDark} />
-                    <HamburgerIcon
-                        isOpen={isOpen}
-                        setIsOpen={handleOpenNavMenu}
-                        isWhite={showScrolledStyles || isGradientDark}
-                    />
+
+                    <div className={'flex items-center justify-center gap-10'}>
+                        <div className='hidden md:block'>
+                            <Button
+                                type='internal-link'
+                                to='/contact'
+                                label='Get in touch'
+                                className='self-center'
+                            />
+                        </div>
+
+                        <HamburgerIcon
+                            isOpen={isOpen}
+                            setIsOpen={handleOpenNavMenu}
+                            isWhite={showScrolledStyles || isGradientDark}
+                        />
+                    </div>
                 </div>
             </nav>
 
