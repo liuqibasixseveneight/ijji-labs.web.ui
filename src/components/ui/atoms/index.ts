@@ -6,6 +6,7 @@ export * from './HamburgerIcon';
 export * from './Logo';
 export * from './NavbarLink';
 export * from './NavMenuItem';
+export * from './ScrollIndicator';
 export * from './SelectInput';
 export * from './SwatchItem';
 export * from './TextareaInput';

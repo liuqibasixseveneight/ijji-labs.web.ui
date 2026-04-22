@@ -1,4 +1,4 @@
-import { FluidGradient } from '../../../../ui';
+import { FluidGradient, ScrollIndicator } from '../../../../ui';
 import type { HomeHeroProps } from './types.ts';
 
 export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps) => {
@@ -25,6 +25,8 @@ export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps)
                     Beautiful, user-friendly digital experiences for your business
                 </p>
             </div>
+
+            <ScrollIndicator isGradientDark={isGradientDark} />
         </div>
     );
 };
