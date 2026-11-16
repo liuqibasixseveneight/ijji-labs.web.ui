@@ -6,7 +6,7 @@ export const HomeServices = () => {
     return (
         <>
             <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-ui-background-primary'>
-                <div className='max-w-380 w-full flex-1 py-[10vh] flex flex-col px-8'>
+                <div className='max-w-380 w-full flex-1 py-[10vh] flex flex-col px-6 md:px-8'>
                     <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-10 leading-none'>
                         Our services
                     </h2>
@@ -24,7 +24,7 @@ export const HomeServices = () => {
             </div>
 
             <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-white'>
-                <div className='max-w-380 w-full flex-1 py-[10vh] flex flex-col px-8'>
+                <div className='max-w-380 w-full flex-1 py-[10vh] flex flex-col px-6 md:px-8'>
                     <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-ui-background-primary mb-10 leading-none'>
                         Our process
                     </h2>

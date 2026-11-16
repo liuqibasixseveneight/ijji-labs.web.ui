@@ -4,5 +4,5 @@ export interface NavbarItem {
 }
 
 export interface NavbarProps {
-    items?: NavbarItem[];
+    isGradientDark?: boolean;
 }

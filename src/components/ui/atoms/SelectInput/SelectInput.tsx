@@ -8,7 +8,7 @@ export const SelectInput = ({ children, ...props }: SelectHTMLAttributes<HTMLSel
         <select className={selectClass} {...props}>
             {children}
         </select>
-        <span className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-neutral-600 text-xs'>
+        <span className='absolute right-4 top-1/2 -translate-y-1/2 text-neutral-600 text-xs'>
             ▾
         </span>
     </div>

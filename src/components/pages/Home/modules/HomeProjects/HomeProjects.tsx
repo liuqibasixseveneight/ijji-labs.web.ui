@@ -3,7 +3,7 @@ import { projects } from './projects.ts';
 
 export const HomeProjects = () => (
     <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-ui-background-primary'>
-        <div className='max-w-380 w-full flex-1 pt-[10vh] pb-[12vh] flex flex-col px-8'>
+        <div className='max-w-380 w-full flex-1 pt-[10vh] pb-[12vh] flex flex-col px-6 md:px-8'>
             <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white leading-none mb-6'>
                 Our work
             </h2>

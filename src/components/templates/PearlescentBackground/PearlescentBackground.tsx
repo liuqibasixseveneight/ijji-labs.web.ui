@@ -31,7 +31,7 @@ export const PearlescentBackground = ({ children, className = '' }: PearlescentB
 
             {/* Grain */}
             <div
-                className='pointer-events-none absolute inset-0 mix-blend-overlay opacity-60'
+                className='absolute inset-0 mix-blend-overlay opacity-60'
                 style={{
                     backgroundImage: grainPattern,
                 }}
@@ -39,7 +39,7 @@ export const PearlescentBackground = ({ children, className = '' }: PearlescentB
 
             {/* Noise */}
             <div
-                className='pointer-events-none absolute inset-0 mix-blend-soft-light opacity-50'
+                className='absolute inset-0 mix-blend-soft-light opacity-50'
                 style={{
                     backgroundImage: noisePattern,
                 }}
