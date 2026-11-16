@@ -82,7 +82,7 @@ window.SCREEN_MAP = {
             title: 'Navbar',
             route: 'Top of every page',
             how: 'Always there, sticky',
-            note: 'Transparent over the home hero until scrolled, then dark; dark on every other page. Get in touch is in the navbar from 360px wide up (smaller on phones); below that it’s in the menu.',
+            note: 'See-through at the top of every page, showing the page behind it, and dark once it scrolls (on Home, once the gradient hero has mostly gone by). Get in touch is in the navbar from 360px wide up (smaller on phones); below that it’s in the menu.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
                 { tap: 'Get in touch', to: 'contact', kind: 'page' },
