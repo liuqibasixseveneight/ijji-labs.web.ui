@@ -53,6 +53,38 @@ body {
     animation: scroll-chevron 1.6s ease-in-out infinite;
 }
 
+/*
+  Links on light sections: on hover or keyboard focus, the studio yellow fills in behind the
+  text (dark text on yellow, like the buttons). Inline, so it follows the text across line
+  breaks. On dark sections, links turn yellow instead (TextLink, MoreLink).
+
+  `link-highlight` alone: nothing at rest, the yellow sweeps in from the left (lists of links).
+  Add `link-marked` for links inside text: a yellow marker stroke along the bottom at rest,
+  rising to fill the text on hover, so the link stands out without a dark underline.
+*/
+@utility link-highlight {
+    color: var(--color-ui-background-primary);
+    background-image: linear-gradient(var(--color-brand-primary), var(--color-brand-primary));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: var(--link-rest, 0% 100%);
+    padding-inline: 0.12em;
+    margin-inline: -0.12em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: background-size 300ms ease;
+
+    &:hover,
+    &:focus-visible {
+        background-size: 100% 100%;
+    }
+}
+
+@utility link-marked {
+    --link-rest: 100% 0.3em;
+    font-weight: 500;
+}
+
 /* People who ask for less motion get none: no transitions, no looping animations. */
 @media (prefers-reduced-motion: reduce) {
     *,

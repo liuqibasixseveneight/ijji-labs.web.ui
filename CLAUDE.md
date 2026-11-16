@@ -69,6 +69,7 @@ These were measured with Lighthouse (mobile) on the built site: 100 for accessib
 - Named exports with arrow-function components (`export const Foo = () => …`).
 - Relative imports with explicit `.ts`/`.tsx` extensions inside a component folder; barrels (`'../../ui'`) across folders.
 - Join conditional classes with `clsx`, not `${cond && 'class'}`.
+- Links: on dark sections they turn yellow (`TextLink`, `MoreLink`); on light sections use the `link-highlight` utility (`index.css`), which fills the yellow in behind the text, plus `link-marked` for links inside text (a yellow marker stroke at rest). Never a dark underline.
 - Form fields go inside `FieldWrapper`, which wraps them in their `<label>`; forms get a `Honeypot`.
 - With react-hook-form, read live values with `useWatch`, not `watch` (the React Compiler skips components that call `watch`).
 - Policies are drafts until reviewed; never present them as legal advice.

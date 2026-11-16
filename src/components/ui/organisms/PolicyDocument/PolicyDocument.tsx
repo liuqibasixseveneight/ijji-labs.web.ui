@@ -126,10 +126,7 @@ export const PolicyDocument = ({ document, breadcrumb, after, children }: Policy
                     <ol className='grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-base'>
                         {document.sections.map((section) => (
                             <li key={section.id}>
-                                <a
-                                    href={`#${section.id}`}
-                                    className='text-neutral-700 hover:text-ui-background-primary underline-offset-4 hover:underline'
-                                >
+                                <a href={`#${section.id}`} className='link-highlight'>
                                     {section.heading}
                                 </a>
                             </li>

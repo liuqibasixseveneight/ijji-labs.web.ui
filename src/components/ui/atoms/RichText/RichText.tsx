@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 import type { RichTextProps } from './types.ts';
 
-const linkClasses =
-    'underline underline-offset-4 decoration-1 hover:decoration-2 hover:text-ui-background-primary transition-colors';
+/** A yellow marker stroke under the link, filling in behind the text on hover (index.css). */
+const linkClasses = 'link-highlight link-marked';
 
 /** Renders content text: plain strings, links (in-site, email or external) and bold runs. */
 export const RichText = ({ text }: RichTextProps) => (
