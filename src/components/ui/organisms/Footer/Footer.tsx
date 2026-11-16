@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { clsx } from 'clsx';
 
 import { site } from '../../../../content/site.ts';
-import { Logo, NavbarLink, RollingText } from '../../atoms';
+import { AppMark, Logo, NavbarLink, RollingText } from '../../atoms';
 import { footerLinks, legalLinks } from './footerLinks.ts';
 
 export const Footer = () => (
@@ -34,28 +35,49 @@ export const Footer = () => (
                 className='flex flex-col divide-y divide-white/5 border-y border-white/5 text-sm text-ui-text-secondary'
             >
                 {/* One row per group, one under another: the studio's own policy, then each
-                app's. From sm up the names line up in a column, with the links beside them. */}
-                {legalLinks.map(({ group, links }) => (
+                app's, each with its mark. From sm up the names line up in a column, with the
+                links beside them. */}
+                {legalLinks.map(({ group, slug, links }) => (
                     <div
                         key={group}
-                        className='flex flex-col sm:flex-row sm:items-baseline gap-x-8 gap-y-3 py-5'
+                        className='group/row flex flex-col sm:flex-row sm:items-center gap-x-8 gap-y-4 py-5'
                     >
-                        <span className='sm:w-44 shrink-0 text-xs font-medium uppercase tracking-widest text-white/60'>
-                            {group}
+                        <span className='sm:w-52 shrink-0 flex items-center gap-3'>
+                            <span
+                                aria-hidden='true'
+                                className='transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/row:-rotate-6 group-hover/row:scale-110'
+                            >
+                                {slug ? (
+                                    <AppMark slug={slug} size='sm' />
+                                ) : (
+                                    <span className='w-8 h-8 rounded-[0.55rem] bg-brand-primary text-ui-background-primary font-newsreader font-extrabold text-lg leading-none flex items-center justify-center'>
+                                        ij
+                                    </span>
+                                )}
+                            </span>
+                            <span className='text-xs font-medium uppercase tracking-widest text-white/60 transition-colors group-hover/row:text-white'>
+                                {group}
+                            </span>
                         </span>
-                        <ul className='flex flex-wrap gap-x-8 gap-y-2'>
+                        <ul className='flex flex-wrap gap-x-8 gap-y-3'>
                             {links.map((link) => (
                                 <li key={link.to}>
                                     {/* The group is hidden text, not an aria-label, so the link's
                                     name ("ijji labs: Privacy") contains what it shows
                                     (WCAG 2.5.3, label in name). */}
-                                    <Link
+                                    <NavLink
                                         to={link.to}
-                                        className='group hover:text-brand-primary transition-colors'
+                                        className={({ isActive }) =>
+                                            clsx(
+                                                'group relative inline-block transition-colors duration-300 hover:text-brand-primary',
+                                                'after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:bg-brand-primary after:origin-left after:scale-x-0 after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:scale-x-100 focus-visible:after:scale-x-100',
+                                                isActive && 'text-brand-primary after:scale-x-100',
+                                            )
+                                        }
                                     >
                                         <span className='sr-only'>{group}: </span>{' '}
                                         <RollingText>{link.text}</RollingText>
-                                    </Link>
+                                    </NavLink>
                                 </li>
                             ))}
                         </ul>
