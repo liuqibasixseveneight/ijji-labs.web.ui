@@ -30,6 +30,15 @@ describe('RichText', () => {
         expect(link).toHaveClass('link-highlight', 'link-marked');
     });
 
+    it("doesn't roll, so a link in a sentence reads once and can wrap", () => {
+        const { container } = renderText([{ text: 'ask us to delete it', href: '/privacy' }]);
+
+        const link = screen.getByRole('link', { name: 'ask us to delete it' });
+        expect(link.textContent).toBe('ask us to delete it');
+        expect(link.children).toHaveLength(0);
+        expect(container.querySelector('[aria-hidden]')).toBeNull();
+    });
+
     it('opens email links in place', () => {
         renderText([{ text: 'support@ijji-labs.com', href: 'mailto:support@ijji-labs.com' }]);
 

@@ -89,15 +89,22 @@ export const InlineLink: Story = {
 };
 
 /**
- * Policy text: plain runs, bold, and links (in-site, email, other sites). Links carry the
- * yellow marker stroke, fill on hover and roll; other sites open in a new tab and say so.
+ * Policy text: plain runs, bold, and links (in-site, email, other sites). Links have a slim
+ * yellow underline that the yellow sweeps across on hover or focus. They don't roll, so a
+ * long link wraps across lines (the narrow column shows it). Other sites open in a new tab
+ * and say so.
  */
 export const PolicyText: Story = {
     render: () => (
-        <p className='max-w-xl text-lg leading-relaxed text-neutral-700 bg-white p-8'>
+        <p className='max-w-xs text-lg leading-relaxed text-neutral-700 bg-white p-8'>
             <RichText
                 text={[
-                    'Email ',
+                    'Delete it in the app, or ',
+                    {
+                        text: 'ask us to delete your account',
+                        href: '/apps/ijji-tracker/delete-account',
+                    },
+                    '. Email ',
                     { text: 'support@ijji-labs.com', href: 'mailto:support@ijji-labs.com' },
                     ' or ',
                     { text: 'send us a message', href: '/contact?topic=support' },
