@@ -23,8 +23,19 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Top of every page. Press the hamburger to open the menu. */
-export const NavbarOnPage: Story = { render: () => <Navbar /> };
+/**
+ * Top of every page, see-through at the top. Press the hamburger to open the menu. Scroll
+ * the canvas and the dark background eases in (here, as on Home, once most of the first
+ * screen has gone by; on other pages over the first 160px).
+ */
+export const NavbarOnPage: Story = {
+    render: () => (
+        <>
+            <Navbar />
+            <div className='h-[300vh] -mt-16 bg-linear-to-b from-brand-primary to-white' />
+        </>
+    ),
+};
 
 /** Over a dark home palette, the logo and icon turn white. */
 export const NavbarOverDark: Story = {
