@@ -6,6 +6,8 @@ type BaseProps = {
     label: string;
     isLoading?: boolean;
     className?: string;
+    /** `compact` on phones, full size from tablets up (the navbar). @default 'full' */
+    size?: 'full' | 'compact';
 };
 
 type ButtonVariant = BaseProps &

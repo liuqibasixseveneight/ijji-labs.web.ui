@@ -1,6 +1,8 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 
+import { RollingText } from '../RollingText/RollingText.tsx';
 import type { ButtonProps } from './types.ts';
 
 const Spinner = () => (
@@ -27,26 +29,36 @@ const Spinner = () => (
     </svg>
 );
 
-/** The yellow, corner-cut call to action: a `<button>`, or a router link with `type='internal-link'`. */
+/**
+ * The yellow, corner-cut call to action: a `<button>`, or a router link with
+ * `type='internal-link'`. On hover or focus the label rolls up and the cut corner deepens.
+ */
 export const Button = (props: ButtonProps) => {
-    const { label, cutSize = 14, isLoading = false, className } = props;
+    const { label, cutSize = 14, isLoading = false, className, size = 'full' } = props;
 
-    const clipPath = `polygon(0 0, calc(100% - ${cutSize}px) 0, 100% ${cutSize}px, 100% 100%, 0 100%)`;
+    // The corner's size is a custom property, so hover can deepen it and clip-path animates.
+    const style = {
+        '--cut-rest': `${cutSize}px`,
+        clipPath: 'polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%)',
+    } as CSSProperties;
 
     const classes = clsx(
-        'relative bg-brand-primary text-ui-background-primary',
-        'text-sm font-extrabold tracking-widest uppercase',
-        'px-10 py-4 rounded-l-4xl flex items-center justify-center gap-3',
-        'hover:opacity-90 active:scale-[0.98] transition-all duration-200',
-        'disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+        'group relative bg-brand-primary text-ui-background-primary',
+        'whitespace-nowrap font-extrabold tracking-widest uppercase rounded-l-4xl flex items-center justify-center gap-3',
+        size === 'full' ? 'text-sm px-10 py-4' : 'text-xs px-5 py-3 md:text-sm md:px-10 md:py-4',
+        '[--cut:var(--cut-rest)] hover:[--cut:calc(var(--cut-rest)*1.8)] focus-visible:[--cut:calc(var(--cut-rest)*1.8)]',
+        '[transition:clip-path_500ms_cubic-bezier(0.22,1,0.36,1),scale_150ms_ease] active:scale-[0.97]',
+        'disabled:opacity-60 disabled:cursor-not-allowed disabled:[--cut:var(--cut-rest)] cursor-pointer',
         className,
     );
 
-    const content = (
+    const content = isLoading ? (
         <>
-            {isLoading && <Spinner />}
-            <span>{isLoading ? 'Sending...' : label}</span>
+            <Spinner />
+            <span>Sending...</span>
         </>
+    ) : (
+        <RollingText>{label}</RollingText>
     );
 
     // Our own props are picked out of `rest` so they never land on the DOM element.
@@ -54,7 +66,7 @@ export const Button = (props: ButtonProps) => {
         const { to, type, ...rest } = omitOwnProps(props);
 
         return (
-            <Link {...rest} to={to} className={classes} style={{ clipPath }}>
+            <Link {...rest} to={to} className={classes} style={style}>
                 {content}
             </Link>
         );
@@ -69,7 +81,7 @@ export const Button = (props: ButtonProps) => {
             disabled={disabled || isLoading}
             aria-busy={isLoading || undefined}
             className={classes}
-            style={{ clipPath }}
+            style={style}
         >
             {content}
         </button>
@@ -77,6 +89,6 @@ export const Button = (props: ButtonProps) => {
 };
 
 const omitOwnProps = <T extends ButtonProps>(props: T) => {
-    const { label, cutSize, isLoading, className, ...rest } = props;
+    const { label, cutSize, isLoading, className, size, ...rest } = props;
     return rest;
 };

@@ -4,7 +4,7 @@ import type { FieldWrapperProps } from './types.ts';
 export const FieldWrapper = ({ label, error, required, children }: FieldWrapperProps) => (
     <div className='flex flex-col gap-2'>
         <label className='flex flex-col gap-2'>
-            <span className='text-xs font-bold tracking-widest uppercase text-neutral-500'>
+            <span className='text-xs font-bold tracking-widest uppercase text-neutral-600'>
                 {label}
                 {required && (
                     <span aria-hidden='true' className='text-red-400 ml-1'>

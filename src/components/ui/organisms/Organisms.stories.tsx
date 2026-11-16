@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { processSteps } from '../../../content';
-import { cardData } from '../../pages/Home/modules/HomeServices/cardData.ts';
-import { faqData, servicesData } from '../../pages/Services/servicesData.ts';
+import {
+    processSteps,
+    faqs as faqData,
+    serviceCards as cardData,
+    services as servicesData,
+} from '../../../content';
 import { Accordion } from './Accordion';
 import { FluidGradient } from './FluidGradient';
 import { Footer } from './Footer';
@@ -62,9 +65,14 @@ export const ServiceDetailDark: Story = {
 };
 
 export const ServiceDetailLight: Story = {
+    render: () => <ServiceDetailBlock service={servicesData[2]} index={2} />,
+};
+
+/** Apps, our newest service. */
+export const ServiceDetailApps: Story = {
     render: () => <ServiceDetailBlock service={servicesData[1]} index={1} />,
 };
 
 export const ServiceDetailOptional: Story = {
-    render: () => <ServiceDetailBlock service={servicesData[2]} index={2} />,
+    render: () => <ServiceDetailBlock service={servicesData[3]} index={3} />,
 };

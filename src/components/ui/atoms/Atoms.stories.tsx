@@ -3,10 +3,12 @@ import { useState } from 'react';
 
 import { aboutImageOne } from '../../../assets/images';
 import { ArtisticFrame } from './ArtisticFrame';
+import { ResponsiveImage } from './ResponsiveImage';
 import { BadgeLink } from './BadgeLink';
 import { HamburgerIcon } from './HamburgerIcon';
 import { Logo } from './Logo';
 import { NavbarLink } from './NavbarLink';
+import { RichText } from './RichText';
 import { ScrollIndicator } from './ScrollIndicator';
 import { TextLink } from './TextLink';
 import { Tooltip } from './Tooltip';
@@ -31,7 +33,11 @@ const dark = { globals: { backgrounds: { value: 'dark' } } };
 export const Frame: Story = {
     render: () => (
         <ArtisticFrame className='w-96 h-64'>
-            <img src={aboutImageOne} alt='Office' className='w-full h-full object-cover' />
+            <ResponsiveImage
+                image={aboutImageOne}
+                alt='Office'
+                className='w-full h-full object-cover'
+            />
         </ArtisticFrame>
     ),
 };
@@ -63,15 +69,44 @@ export const FooterLink: Story = {
     ),
 };
 
-/** Inline link, as in the FAQ's "just ask". */
+/** Inline link, as in the FAQ's "just ask": a yellow marker stroke that rises on hover. */
 export const InlineLink: Story = {
     render: () => (
-        <p className='text-lg'>
-            If yours isn&apos;t here,{' '}
-            <TextLink to='/contact' underline='always'>
-                just ask
-            </TextLink>
-            . Or one that underlines on hover: <TextLink to='/contact'>contact</TextLink>.
+        <div className='flex flex-col'>
+            <p className='text-lg text-white/60 bg-ui-background-primary p-8'>
+                On a dark section: if yours isn&apos;t here,{' '}
+                <TextLink to='/contact'>just ask</TextLink>.
+            </p>
+            <p className='text-lg text-neutral-600 bg-white p-8'>
+                On a light section: if yours isn&apos;t here,{' '}
+                <TextLink to='/contact' tone='light'>
+                    just ask
+                </TextLink>
+                .
+            </p>
+        </div>
+    ),
+};
+
+/**
+ * Policy text: plain runs, bold, and links (in-site, email, other sites). Links carry the
+ * yellow marker stroke, fill on hover and roll; other sites open in a new tab and say so.
+ */
+export const PolicyText: Story = {
+    render: () => (
+        <p className='max-w-xl text-lg leading-relaxed text-neutral-700 bg-white p-8'>
+            <RichText
+                text={[
+                    'Email ',
+                    { text: 'support@ijji-labs.com', href: 'mailto:support@ijji-labs.com' },
+                    ' or ',
+                    { text: 'send us a message', href: '/contact?topic=support' },
+                    '. You can also complain to ',
+                    { text: 'the ICO', href: 'https://ico.org.uk' },
+                    '. ',
+                    { strong: 'We never sell your data.' },
+                ]}
+            />
         </p>
     ),
 };

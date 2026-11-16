@@ -10,7 +10,8 @@ vi.mock('resend', () => ({
 }));
 
 import { handler } from './contact.ts';
-import { buildEnquiryEmail, escapeHtml } from './enquiryEmail.ts';
+import { escapeHtml } from '../../shared/email.ts';
+import { buildEnquiryEmail } from './enquiryEmail.ts';
 
 const valid = {
     name: 'Jane Smith',
@@ -70,6 +71,24 @@ describe('the contact function', () => {
         expect(send).not.toHaveBeenCalled();
     });
 
+    it('quietly drops a bot that fills the hidden field', async () => {
+        const result = await call({ ...valid, website: 'http://spam.example' });
+
+        expect(result.statusCode).toBe(200);
+        expect(send).not.toHaveBeenCalled();
+    });
+
+    it('takes a support request without a phone number, marked as support', async () => {
+        const result = await call({ ...valid, phone: '', projectType: 'Help with IJJI Tracker' });
+
+        expect(result.statusCode).toBe(200);
+        expect(send.mock.calls[0][0].subject).toBe('Support request from Jane Smith — Smith & Co');
+    });
+
+    it('still needs a phone number for a project', async () => {
+        expect((await call({ ...valid, phone: '' })).statusCode).toBe(400);
+    });
+
     it('reports a failure when Resend returns an error', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
         send.mockResolvedValue({ data: null, error: { message: 'Invalid from address' } });
@@ -99,6 +118,14 @@ describe('the enquiry email', () => {
         const { html } = buildEnquiryEmail({ ...valid, projectType: 'Other', company: '' });
 
         expect(html).toContain('<strong>Company:</strong> —');
+    });
+
+    it('keeps the message with its label, in one paragraph', () => {
+        const { html } = buildEnquiryEmail({ ...valid, projectType: 'New website project' });
+
+        expect(html).toContain(
+            '<p><strong>Message:</strong><br /><span style="white-space: pre-wrap">We would like a new website.</span></p>',
+        );
     });
 
     it('keeps the subject on one line', () => {

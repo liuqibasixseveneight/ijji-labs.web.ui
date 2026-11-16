@@ -1,4 +1,7 @@
+import type { Ref } from 'react';
+
 export interface HamburgerIconProps {
+    ref?: Ref<HTMLButtonElement>;
     isOpen: boolean;
     /** Toggles the menu. */
     setIsOpen: () => void;

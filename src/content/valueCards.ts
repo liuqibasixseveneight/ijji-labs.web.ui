@@ -5,7 +5,7 @@ export const valueCards: InfoCardProps[] = [
         number: '01',
         title: 'Quality',
         description:
-            'We build fast, reliable websites with attention to detail and thoughtful design — delivering results that last.',
+            'Fast, reliable websites, with attention to detail and thoughtful design — built to last.',
     },
     {
         number: '02',
@@ -15,14 +15,14 @@ export const valueCards: InfoCardProps[] = [
     },
     {
         number: '03',
-        title: 'Collaboration',
+        title: 'Respect for users',
         description:
-            'We work closely with you from start to finish, ensuring every decision is clear, aligned, and purposeful.',
+            'Accessible, private by default and honest. We build what we’d be happy to use ourselves, and our own apps hold to the same standard.',
     },
     {
         number: '04',
         title: 'Confidence',
         description:
-            'After launch, we provide a smooth handover and guidance, giving you the confidence to manage and grow your website independently.',
+            'A smooth handover and clear guidance, so you can run and grow what we build without depending on us.',
     },
 ];

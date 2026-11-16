@@ -80,15 +80,24 @@ describe('the site map (docs/screen-map)', () => {
     it('lists the same menu and footer links as the site', async () => {
         const { navbarItems } =
             await import('../../../src/components/ui/organisms/Navbar/navbarItems.ts');
-        const { footerLinks } =
+        const { footerLinks, legalLinks } =
             await import('../../../src/components/ui/organisms/Footer/footerLinks.ts');
         const byId = Object.fromEntries(map.screens.map((s) => [s.id, s]));
-        const pathOf = (id?: string) => (id ? byId[id].path : undefined);
+        // The map shows IJJI Tracker's pages; the routes are written for any app.
+        const pathOf = (id?: string) =>
+            id ? byId[id].path?.replace(':appSlug', 'ijji-tracker') : undefined;
 
         const menu = byId.menu.exits.filter((e) => e.kind === 'page').map((e) => pathOf(e.to));
-        const footer = byId.footer.exits.map((e) => pathOf(e.to)).filter((p) => p !== '/');
+        const footerExits = byId.footer.exits.filter((e) => pathOf(e.to) !== '/');
+        const footer = footerExits.filter((e) => !e.tap.includes(':')).map((e) => pathOf(e.to));
+        const legal = footerExits.filter((e) => e.tap.includes(':'));
 
         expect(menu).toEqual(navbarItems.map((item) => item.to));
         expect(footer).toEqual(footerLinks.map((link) => link.to));
+        expect(legal.map((e) => [e.tap, pathOf(e.to)])).toEqual(
+            legalLinks.flatMap(({ group, links }) =>
+                links.map((link) => [`${group}: ${link.text}`, link.to]),
+            ),
+        );
     });
 });

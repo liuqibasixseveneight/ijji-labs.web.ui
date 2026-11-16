@@ -25,7 +25,7 @@ export const NavMenuItem = ({ link, isHovered, onHover, onLeave, setIsOpen }: Na
                 {/* Number */}
                 <span
                     className={`shrink-0 w-8 text-xs transition-all duration-300 ${
-                        isHovered ? 'text-brand-primary font-bold' : 'text-white/30'
+                        isHovered ? 'text-brand-primary font-bold' : 'text-white/60'
                     }`}
                 >
                     {link.num}
@@ -47,7 +47,7 @@ export const NavMenuItem = ({ link, isHovered, onHover, onLeave, setIsOpen }: Na
                     {link.description && (
                         <span
                             className={`mt-0.5 md:mt-0 md:ml-auto text-xs uppercase tracking-wide transition-colors duration-300 shrink-0 ${
-                                isHovered ? 'text-brand-primary' : 'text-white/40'
+                                isHovered ? 'text-brand-primary' : 'text-white/60'
                             }`}
                         >
                             {link.description}

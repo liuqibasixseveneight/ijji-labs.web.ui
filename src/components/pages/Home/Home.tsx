@@ -1,6 +1,9 @@
 import { useOutletContext } from 'react-router-dom';
 
-import { HomeAbout, HomeContact, HomeHero, HomeProjects, HomeServices } from './modules';
+import { pageMeta } from '../../../content';
+import { webPage } from '../../../content/structuredData.ts';
+import { PageMeta, StructuredData } from '../../ui';
+import { HomeAbout, HomeApps, HomeContact, HomeHero, HomeServices, HomeWork } from './modules';
 import type { HomeContextProps } from './types.ts';
 
 export const Home = () => {
@@ -8,10 +11,15 @@ export const Home = () => {
 
     return (
         <>
+            <PageMeta {...pageMeta.home} />
+            <StructuredData
+                data={webPage(pageMeta.home.path, 'ijji labs', pageMeta.home.description)}
+            />
             <HomeHero isGradientDark={isGradientDark} handlePaletteChange={handlePaletteChange} />
             <HomeAbout />
             <HomeServices />
-            <HomeProjects />
+            <HomeApps />
+            <HomeWork />
             <HomeContact />
         </>
     );

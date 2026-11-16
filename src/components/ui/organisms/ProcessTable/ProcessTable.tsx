@@ -4,13 +4,13 @@ export const ProcessTable = ({ steps }: ProcessTableProps) => {
     return (
         <div className='w-full mx-auto'>
             <div className='hidden md:grid md:grid-cols-[3.5rem_1fr_1.6fr] gap-x-10 pb-4 border-b border-neutral-200'>
-                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-400'>
+                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-500'>
                     Step
                 </span>
-                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-400'>
+                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-500'>
                     Phase
                 </span>
-                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-400'>
+                <span className='text-xs font-bold tracking-[0.2em] uppercase text-neutral-500'>
                     What happens
                 </span>
             </div>
@@ -26,7 +26,7 @@ export const ProcessTable = ({ steps }: ProcessTableProps) => {
                         ${index === steps.length - 1 ? 'border-neutral-200' : 'border-neutral-100'}
                     `}
                 >
-                    <span className='text-sm font-semibold text-neutral-400 row-span-2 md:row-span-1 flex items-start md:items-center'>
+                    <span className='text-sm font-semibold text-neutral-500 row-span-2 md:row-span-1 flex items-start md:items-center'>
                         {step.number}
                     </span>
 

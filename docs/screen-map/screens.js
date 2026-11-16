@@ -5,24 +5,26 @@
  * Keep it in step with the site: when a route is added, moved or removed, or a
  * page gains, loses or changes a link, update it here.
  * __tests__/screenMap.test.ts fails if a route in src/router/routes.tsx has no
- * screen here, a screen points at a route that's gone, or a link names a
- * screen that isn't on the map.
+ * screen here, a screen points at a route that's gone, a link names a screen
+ * that isn't on the map, or the menu and footer here differ from the site's.
  *
  * A screen: `id`, `col` (a column id), `title`, `route` (as shown), `how` it
  * opens, `note`, optional `inside` (what changes on the same page), `exits`
  * and, for screens that are routes, `path` (as in routes.tsx: '/', '/about',
- * '*' for the catch-all). `outside` marks a way in from outside the site,
- * `dot` the colour of its "how" dot.
- * An exit: `tap` (exactly what the visitor clicks, using the on-screen copy),
- * `kind` (page, jump, menu, submit, inplace, auto or external), optional `to`
- * (a screen id) and `note`.
+ * '/apps/:appSlug/privacy', '*' for the catch-all). `outside` marks a way in
+ * from outside the site, `dot` the colour of its "how" dot.
+ * An exit: `tap` (exactly what the visitor clicks, using the on-screen copy;
+ * the footer's legal links are written `group: link`), `kind` (page, jump,
+ * menu, submit, inplace, auto or external), optional `to` (a screen id) and
+ * `note`.
  */
 window.SCREEN_MAP = {
     columns: [
-        { id: 'outside', title: 'Ways in', sub: 'Search, shared links, typed addresses' },
+        { id: 'outside', title: 'Ways in', sub: 'Search, links and the app stores' },
         { id: 'chrome', title: 'On every page', sub: 'Navbar, menu and footer' },
-        { id: 'pages', title: 'Pages', sub: 'One route each' },
-        { id: 'results', title: 'After sending', sub: 'The contact form’s outcomes' },
+        { id: 'pages', title: 'Pages', sub: 'The studio and its apps' },
+        { id: 'legal', title: 'Policies', sub: 'Linked from the stores; URLs never change' },
+        { id: 'results', title: 'After sending', sub: 'What the forms show' },
     ],
 
     screens: [
@@ -34,16 +36,42 @@ window.SCREEN_MAP = {
             title: 'Search or a shared link',
             route: 'https://www.ijji-labs.com/…',
             how: 'Arrives from outside',
-            note: 'Any page can be the first one. Netlify serves index.html for every path (netlify.toml), so a deep link or a refresh on /about loads the site rather than Netlify’s 404.',
+            note: 'Every page is pre-rendered at build time, so the first thing anyone sees is real HTML, even before JavaScript loads. Any other address gets 404.html with a real 404 status.',
             exits: [
                 { tap: 'Lands on the home page', to: 'home', kind: 'auto' },
                 {
                     tap: 'Lands on a deep link',
                     to: 'services',
                     kind: 'auto',
-                    note: 'Or About, Projects, Contact.',
+                    note: 'Or any other page; sitemap.xml lists them all.',
                 },
                 { tap: 'Follows a broken or old link', to: 'not-found', kind: 'auto' },
+            ],
+        },
+        {
+            id: 'app-store',
+            col: 'outside',
+            outside: true,
+            title: 'App Store listing',
+            route: 'apps.apple.com/…',
+            how: 'Apple’s listing for IJJI Tracker',
+            note: 'App Store Connect asks for a privacy policy URL and a support URL. Coming soon: the listing isn’t live yet.',
+            exits: [
+                { tap: 'Privacy Policy', to: 'tracker-privacy', kind: 'external' },
+                { tap: 'App Support', to: 'tracker-support', kind: 'external' },
+            ],
+        },
+        {
+            id: 'google-play',
+            col: 'outside',
+            outside: true,
+            title: 'Google Play listing',
+            route: 'play.google.com/…',
+            how: 'Google’s listing for IJJI Tracker',
+            note: 'The Play Console asks for a privacy policy URL and a web page for deleting an account without the app.',
+            exits: [
+                { tap: 'Privacy policy', to: 'tracker-privacy', kind: 'external' },
+                { tap: 'Delete account (Data safety)', to: 'tracker-deletion', kind: 'external' },
             ],
         },
 
@@ -54,15 +82,10 @@ window.SCREEN_MAP = {
             title: 'Navbar',
             route: 'Top of every page',
             how: 'Always there, sticky',
-            note: 'Transparent over the home hero until scrolled 80% of a screen, then dark. On every other page it is dark from the start. The logo and hamburger turn white over a dark palette.',
+            note: 'Transparent over the home hero until scrolled, then dark; dark on every other page. Get in touch is in the navbar from 360px wide up (smaller on phones); below that it’s in the menu.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
-                {
-                    tap: 'Get in touch',
-                    to: 'contact',
-                    kind: 'page',
-                    note: 'Tablet and desktop only (hidden below md). On a phone, Contact is in the menu.',
-                },
+                { tap: 'Get in touch', to: 'contact', kind: 'page' },
                 { tap: 'Hamburger (Open menu)', to: 'menu', kind: 'menu' },
             ],
         },
@@ -72,19 +95,20 @@ window.SCREEN_MAP = {
             title: 'Menu',
             route: 'Full screen, slides in from the left',
             how: 'Hamburger in the navbar',
-            note: 'Locks the page’s scroll while open. While closed it is inert, so its links are out of the tab order. Choosing a page closes it and scrolls to the top.',
+            note: 'Opening it moves focus to its first link and locks the page’s scroll. While closed it is inert, so its links are out of the tab order.',
             inside: ['Hovering an item shows its big number behind (tablet and up)'],
             exits: [
                 { tap: '00 Home — Welcome', to: 'home', kind: 'page' },
                 { tap: '01 About — Who we are', to: 'about', kind: 'page' },
                 { tap: '02 Services — What we do', to: 'services', kind: 'page' },
                 { tap: '03 Projects — Our work', to: 'projects', kind: 'page' },
-                { tap: '04 Contact — Say hello', to: 'contact', kind: 'page' },
+                { tap: '04 Apps — What we make', to: 'apps', kind: 'page' },
+                { tap: '05 Contact — Say hello', to: 'contact', kind: 'page' },
                 {
-                    tap: 'Hamburger again (Close menu)',
+                    tap: 'Hamburger again, or Esc',
                     to: 'navbar',
                     kind: 'menu',
-                    note: 'There is no Escape key or click-outside to close it.',
+                    note: 'Esc puts focus back on the hamburger.',
                 },
             ],
         },
@@ -94,13 +118,19 @@ window.SCREEN_MAP = {
             title: 'Footer',
             route: 'Bottom of every page',
             how: 'Always there',
-            note: 'The current page’s link stays yellow and underlined.',
+            note: 'The main links, then a Legal row with every policy, so a reviewer can find them from any page. The current page’s main link stays yellow.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
                 { tap: 'About', to: 'about', kind: 'page' },
                 { tap: 'Services', to: 'services', kind: 'page' },
                 { tap: 'Projects', to: 'projects', kind: 'page' },
+                { tap: 'Apps', to: 'apps', kind: 'page' },
                 { tap: 'Contact', to: 'contact', kind: 'page' },
+                { tap: 'This website: Privacy', to: 'website-privacy', kind: 'page' },
+                { tap: 'IJJI Tracker: Privacy', to: 'tracker-privacy', kind: 'page' },
+                { tap: 'IJJI Tracker: Terms', to: 'tracker-terms', kind: 'page' },
+                { tap: 'IJJI Tracker: Support', to: 'tracker-support', kind: 'page' },
+                { tap: 'IJJI Tracker: Delete account', to: 'tracker-deletion', kind: 'page' },
             ],
         },
 
@@ -113,12 +143,17 @@ window.SCREEN_MAP = {
             route: '/',
             how: 'Logo, Home in the menu',
             dot: '#FAEE47',
-            note: 'One long page: the gradient hero, About us, Our services, Our process, Our work and Let’s talk with the contact form. None of its sections links on to the page that covers it in full.',
+            note: 'The gradient hero, About us, Our services, Our process, Our apps (IJJI Tracker), Our work and Let’s talk with the contact form. Every section has a way on to the page that covers it in full.',
             inside: [
                 'Palette picker, bottom right of the hero: three light and three dark gradients. A dark one turns the hero text, logo and hamburger white.',
-                'Scroll to explore fades once the page moves',
+                'three.js loads only when the hero starts; no other page downloads it.',
             ],
             exits: [
+                { tap: 'More about us', to: 'about', kind: 'page' },
+                { tap: 'All services', to: 'services', kind: 'page' },
+                { tap: 'See IJJI Tracker', to: 'app', kind: 'page' },
+                { tap: 'See our apps', to: 'apps', kind: 'page' },
+                { tap: 'All projects', to: 'projects', kind: 'page' },
                 { tap: 'A palette swatch', kind: 'inplace' },
                 { tap: 'Send message (the form at the bottom)', to: 'sent', kind: 'submit' },
                 { tap: 'Send message, when sending fails', to: 'send-failed', kind: 'submit' },
@@ -130,14 +165,22 @@ window.SCREEN_MAP = {
             path: '/about',
             title: 'About',
             route: '/about',
-            how: 'Menu, footer',
+            how: 'Menu, footer, More about us',
             dot: '#FAEE47',
-            note: 'Our story, Why independent?, Your ownership, What we stand for, We really care. Ends without a call to action: the only way on is the navbar or footer.',
+            note: 'Our story, Why independent?, Your ownership, Our own apps, What we stand for, We really care, then Got something in mind?',
             exits: [
                 { tap: 'Our story', kind: 'jump' },
                 { tap: 'Why independent?', kind: 'jump' },
                 { tap: 'Your ownership', kind: 'jump' },
+                { tap: 'Our own apps', kind: 'jump' },
                 { tap: 'What we stand for', kind: 'jump' },
+                { tap: 'See our apps', to: 'apps', kind: 'page' },
+                {
+                    tap: 'Get in touch (Got something in mind?)',
+                    to: 'contact',
+                    kind: 'page',
+                    note: 'Opens with a new website chosen as the topic.',
+                },
             ],
         },
         {
@@ -146,12 +189,12 @@ window.SCREEN_MAP = {
             path: '/services',
             title: 'Services',
             route: '/services',
-            how: 'Menu, footer',
+            how: 'Menu, footer, All services',
             dot: '#FAEE47',
-            note: 'The three services in detail, Our process, the FAQ and Ready to start?',
+            note: 'Websites, Handover & Training and Post-Launch Support in detail, Our process, the FAQ and Ready to start?',
             inside: ['FAQ: one answer open at a time'],
             exits: [
-                { tap: 'Design & Development', kind: 'jump' },
+                { tap: 'Websites', kind: 'jump' },
                 { tap: 'Handover & Training', kind: 'jump' },
                 { tap: 'Post-Launch Support', kind: 'jump' },
                 { tap: 'FAQ', kind: 'jump' },
@@ -166,19 +209,63 @@ window.SCREEN_MAP = {
             path: '/projects',
             title: 'Projects',
             route: '/projects',
-            how: 'Menu, footer',
+            how: 'Menu, footer, All projects',
             dot: '#FAEE47',
-            note: 'The three projects, Our process (as Our approach) and Got a project in mind?',
+            note: 'Client work: three projects, Our process (as Our approach) and Got a project in mind?',
             exits: [
                 { tap: 'CluedIn', kind: 'jump' },
                 { tap: 'Dedalus', kind: 'jump' },
                 { tap: 'DXC Technology', kind: 'jump' },
-                {
-                    tap: 'Our approach',
-                    kind: 'jump',
-                    note: 'Lands on Our process, whose heading doesn’t say Our approach.',
-                },
+                { tap: 'Our approach', kind: 'jump' },
+                { tap: 'And the apps we make ourselves', to: 'apps', kind: 'page' },
                 { tap: 'Get in touch (Got a project in mind?)', to: 'contact', kind: 'page' },
+            ],
+        },
+        {
+            id: 'apps',
+            col: 'pages',
+            path: '/apps',
+            title: 'Apps',
+            route: '/apps',
+            how: 'Menu, footer, See our apps',
+            dot: '#FAEE47',
+            note: 'Our own apps, one card each with where to get it (Coming soon until it’s live), then Need help with IJJI Tracker?',
+            exits: [
+                { tap: 'See IJJI Tracker', to: 'app', kind: 'page' },
+                {
+                    tap: 'Ask for help',
+                    to: 'contact',
+                    kind: 'page',
+                    note: 'Opens with Help with IJJI Tracker chosen as the topic.',
+                },
+            ],
+        },
+        {
+            id: 'app',
+            col: 'pages',
+            path: '/apps/:appSlug',
+            title: 'IJJI Tracker',
+            route: '/apps/ijji-tracker',
+            how: 'See IJJI Tracker, breadcrumb',
+            dot: '#FAEE47',
+            note: 'What it does, where to get it, and Privacy and support with its four policy pages. Built from src/content/apps.ts: a new app there gets its own copy of this page and the four below.',
+            exits: [
+                { tap: 'What it does', kind: 'jump' },
+                { tap: 'Privacy and support', kind: 'jump' },
+                { tap: 'Privacy policy', to: 'tracker-privacy', kind: 'page' },
+                { tap: 'Terms of use', to: 'tracker-terms', kind: 'page' },
+                { tap: 'Support', to: 'tracker-support', kind: 'page' },
+                { tap: 'Delete your account', to: 'tracker-deletion', kind: 'page' },
+                {
+                    tap: 'Get support (Questions about IJJI Tracker?)',
+                    to: 'tracker-support',
+                    kind: 'page',
+                },
+                {
+                    tap: 'App Store / Google Play badge',
+                    kind: 'external',
+                    note: 'Shows Coming soon until the store links go into apps.ts.',
+                },
             ],
         },
         {
@@ -186,11 +273,14 @@ window.SCREEN_MAP = {
             col: 'pages',
             path: '/contact',
             title: 'Contact',
-            route: '/contact',
+            route: '/contact?topic=…',
             how: 'Get in touch, Contact, just ask',
             dot: '#FAEE47',
-            note: 'Let’s talk, the contact form and what to expect: “We’ll reply within one business day”, “No sales pitch”, “Honest about fit”.',
-            inside: ['Submitting with gaps shows what each field needs, without sending'],
+            note: 'Let’s talk, the contact form and what to expect, including “We’ll reply within one business day”. ?topic=support or website chooses the form’s topic.',
+            inside: [
+                'Submitting with gaps shows what each field needs, without sending',
+                'Help with IJJI Tracker as the topic: no phone number needed',
+            ],
             exits: [
                 { tap: 'Send message', to: 'sent', kind: 'submit' },
                 { tap: 'Send message, when sending fails', to: 'send-failed', kind: 'submit' },
@@ -202,11 +292,94 @@ window.SCREEN_MAP = {
             path: '*',
             title: 'Page not found',
             route: 'Any other path',
-            how: 'A mistyped or old address',
-            note: 'Keeps the navbar and footer, so there is always a way on.',
+            how: 'A mistyped or old address, or an app that doesn’t exist',
+            note: 'Keeps the navbar and footer, so there is always a way on. Marked noindex.',
             exits: [
                 { tap: 'home page', to: 'home', kind: 'page' },
                 { tap: 'Get in touch', to: 'contact', kind: 'page' },
+            ],
+        },
+
+        // Policies
+        {
+            id: 'tracker-privacy',
+            col: 'legal',
+            path: '/apps/:appSlug/privacy',
+            title: 'IJJI Tracker privacy policy',
+            route: '/apps/ijji-tracker/privacy',
+            how: 'Both stores, the app page, the footer',
+            note: 'What the app keeps and why, what stays on the phone, who processes it (Supabase, Resend, Apple and Google), how long, security, rights under UK GDPR, age (16+).',
+            exits: [
+                { tap: 'Any heading under On this page', kind: 'jump' },
+                { tap: 'ask us to delete it', to: 'tracker-deletion', kind: 'page' },
+                { tap: 'ico.org.uk', kind: 'external' },
+                { tap: 'Breadcrumb: IJJI Tracker', to: 'app', kind: 'page' },
+                { tap: 'Breadcrumb: Apps', to: 'apps', kind: 'page' },
+            ],
+        },
+        {
+            id: 'tracker-terms',
+            col: 'legal',
+            path: '/apps/:appSlug/terms',
+            title: 'IJJI Tracker terms of use',
+            route: '/apps/ijji-tracker/terms',
+            how: 'The app page, the footer',
+            note: 'Licence, acceptable use, your content, liability within UK consumer law, Apple’s required terms, England and Wales.',
+            exits: [
+                { tap: 'privacy policy', to: 'tracker-privacy', kind: 'page' },
+                { tap: 'on our website (delete)', to: 'tracker-deletion', kind: 'page' },
+                { tap: 'Breadcrumb: IJJI Tracker', to: 'app', kind: 'page' },
+            ],
+        },
+        {
+            id: 'tracker-support',
+            col: 'legal',
+            path: '/apps/:appSlug/support',
+            title: 'IJJI Tracker support',
+            route: '/apps/ijji-tracker/support',
+            how: 'App Store support URL, Get support, the footer',
+            note: 'Questions on signing in (links on the same phone, expired links, passwords), reminders, moving phones, exporting, deleting.',
+            exits: [
+                {
+                    tap: 'send us a message',
+                    to: 'contact',
+                    kind: 'page',
+                    note: 'Opens with Help with IJJI Tracker chosen.',
+                },
+                { tap: 'support@ijji-labs.com', kind: 'external' },
+                { tap: 'Ask us to delete it', to: 'tracker-deletion', kind: 'page' },
+                { tap: 'privacy policy', to: 'tracker-privacy', kind: 'page' },
+            ],
+        },
+        {
+            id: 'tracker-deletion',
+            col: 'legal',
+            path: '/apps/:appSlug/delete-account',
+            title: 'Delete your IJJI Tracker account',
+            route: '/apps/ijji-tracker/delete-account',
+            how: 'Google Play’s deletion URL, the footer',
+            note: 'The in-app steps (Profile → Settings → Delete account), then a form for anyone without the app. We confirm by email from support@ before deleting, within 30 days.',
+            exits: [
+                { tap: 'Request deletion', to: 'deletion-received', kind: 'submit' },
+                {
+                    tap: 'Request deletion, when sending fails',
+                    to: 'deletion-failed',
+                    kind: 'submit',
+                },
+                { tap: 'privacy policy', to: 'tracker-privacy', kind: 'page' },
+            ],
+        },
+        {
+            id: 'website-privacy',
+            col: 'legal',
+            path: '/privacy',
+            title: 'Website privacy policy',
+            route: '/privacy',
+            how: 'The footer',
+            note: 'What the contact and deletion forms collect, how long it’s kept, hosting on Netlify, no cookies or analytics, self-hosted fonts.',
+            exits: [
+                { tap: 'Contact', to: 'contact', kind: 'page' },
+                { tap: 'App account deletion', to: 'tracker-deletion', kind: 'page' },
             ],
         },
 
@@ -217,7 +390,7 @@ window.SCREEN_MAP = {
             title: 'Message sent!',
             route: 'In place of the form',
             how: 'Send message, when it works',
-            note: '“We’ll be in touch within two working days.” The Netlify function checks the enquiry against the same rules as the form, then emails it to the studio with Reply-To set to the sender.',
+            note: 'Promises a reply within one business day. The Netlify function checks the message against the same rules as the form, then emails it to the studio with Reply-To set to the sender.',
             exits: [
                 {
                     tap: 'Send another message',
@@ -233,47 +406,75 @@ window.SCREEN_MAP = {
             title: 'Failed to send message',
             route: 'Under the form',
             how: 'Send message, when it fails',
-            note: 'What they typed stays. The message is the function’s own, or “Failed to send — please try again.”',
+            note: 'What they typed stays.',
             exits: [{ tap: 'Send message again', to: 'sent', kind: 'submit' }],
+        },
+        {
+            id: 'deletion-received',
+            col: 'results',
+            title: 'Request received',
+            route: 'In place of the deletion form',
+            how: 'Request deletion, when it works',
+            note: 'Says we’ll email from support@ to confirm, then delete within 30 days. The studio gets an email with the steps; nothing is sent to the address typed in.',
+            exits: [],
+        },
+        {
+            id: 'deletion-failed',
+            col: 'results',
+            title: 'We couldn’t send your request',
+            route: 'Under the deletion form',
+            how: 'Request deletion, when it fails',
+            note: 'What they typed stays.',
+            exits: [{ tap: 'Request deletion again', to: 'deletion-received', kind: 'submit' }],
         },
     ],
 
     journeys: [
         {
             title: 'Finding out and getting in touch',
-            note: 'The path the site is built for.',
+            note: 'The path the studio side is built for.',
             steps: [
-                ['home', 'Scrolls the hero, about, services and work'],
+                ['home', 'Scrolls the hero, about, services, apps and work'],
                 ['contact', 'Uses the form at the bottom of Home, or Get in touch'],
                 ['sent', 'Sees Message sent!'],
             ],
         },
         {
-            title: 'Checking the services first',
-            note: 'Someone who wants detail before committing.',
+            title: 'Finding IJJI Tracker from Home',
             steps: [
-                ['navbar', 'Opens the menu'],
-                ['menu', 'Chooses 02 Services'],
-                ['services', 'Jumps to FAQ; reads an answer; clicks just ask'],
-                ['contact', 'Fills in the form, taps Send message'],
-                ['sent', 'Done'],
+                ['home', 'Reaches Our apps; taps See IJJI Tracker'],
+                ['app', 'Reads What it does; sees Coming soon on both stores'],
+                ['tracker-privacy', 'Opens Privacy policy under Privacy and support'],
             ],
         },
         {
-            title: 'Looking at past work',
+            title: 'A store reviewer checks the policies',
+            note: 'Apple and Google open these URLs from the listing, often without running JavaScript.',
             steps: [
-                ['footer', 'Clicks Projects'],
-                ['projects', 'Jumps to a project; reads Our approach; taps Get in touch'],
-                ['contact', 'Sends an enquiry'],
+                ['app-store', 'Opens the privacy policy and support URLs'],
+                ['tracker-privacy', 'Reads what is collected, why, where, how long, how to delete'],
+                ['google-play', 'Opens the account-deletion URL'],
+                ['tracker-deletion', 'Finds the in-app steps and the web form'],
             ],
         },
         {
-            title: 'A sending problem',
-            note: 'Resend or the network fails.',
+            title: 'Deleting an account without the app',
+            note: 'Google Play requires this route.',
             steps: [
-                ['contact', 'Taps Send message'],
-                ['send-failed', 'Sees Failed to send message, with the form still filled in'],
-                ['sent', 'Tries again'],
+                ['footer', 'Taps IJJI Tracker: Delete account'],
+                [
+                    'tracker-deletion',
+                    'Enters the account email, ticks the confirmation, taps Request deletion',
+                ],
+                ['deletion-received', 'Waits for our confirmation email from support@'],
+            ],
+        },
+        {
+            title: 'Getting help with IJJI Tracker',
+            steps: [
+                ['tracker-support', 'Reads the answers; taps send us a message'],
+                ['contact', 'The topic is already Help with IJJI Tracker; no phone needed'],
+                ['sent', 'Sees Message sent!'],
             ],
         },
         {
@@ -288,36 +489,28 @@ window.SCREEN_MAP = {
 
     notes: [
         {
-            tag: 'Dead end',
-            html: '<strong>About</strong> ends on <em>We really care</em> with no call to action, unlike Services and Projects. A <strong>Get in touch</strong> block there would match the others.',
+            tag: 'Before release',
+            html: 'The privacy policy, terms and support page are plain-English drafts written from what the app does. Have them <strong>reviewed</strong> before pasting the URLs into App Store Connect and the Play Console.',
         },
         {
-            tag: 'Dead end',
-            html: '<strong>Home</strong>’s sections (About us, Our services, Our work) don’t link to the pages that cover them in full, so the only routes on are the menu and footer. Consider a “More about us”, “All services” and “All projects” link under each.',
+            tag: 'Confirm',
+            html: 'The policies say data is held in the <strong>UK or EU</strong> and that backups roll over <strong>within 30 days</strong>. Check both against the Supabase project (Settings → General, and the plan’s backup retention) and adjust <span class="mono">src/content/site.ts</span> if needed.',
+        },
+        {
+            tag: 'Confirm',
+            html: 'Policies give <strong>support@ijji-labs.com</strong>; the tracker’s Supabase setup sends email from <strong>ijjilabs.com</strong> (no hyphen). Make sure the support mailbox exists and both domains are yours.',
+        },
+        {
+            tag: 'Process',
+            html: 'Web deletion requests arrive as an email with the steps. Someone has to <strong>reply, confirm and delete in Supabase within 30 days</strong>: decide who, and keep the reply for up to a year as the policy says.',
         },
         {
             tag: 'Copy',
-            html: 'Contact promises a reply <strong>within one business day</strong>; <strong>Message sent!</strong> says <strong>within two working days</strong>. Pick one.',
-        },
-        {
-            tag: 'Copy',
-            html: 'The project descriptions don’t match their names: <strong>CluedIn</strong> is described as a landscaping company, <strong>Dedalus</strong> as a law firm and <strong>DXC Technology</strong> as a furniture studio, while their tags describe data, healthcare and IT. The images are Unsplash placeholders.',
-        },
-        {
-            tag: 'Repetition',
-            html: '<strong>Home</strong>’s About us repeats About’s <em>Our story</em> and <em>We really care</em> almost word for word, and <strong>Our process</strong> appears on Home, Services and Projects. Fine for a small site, but Home could trim to a summary.',
-        },
-        {
-            tag: 'Mobile',
-            html: 'The navbar’s <strong>Get in touch</strong> is hidden on phones, so Contact is two taps away (menu, then Contact) unless they scroll to the form on Home.',
-        },
-        {
-            tag: 'Menu',
-            html: 'The menu closes only from the hamburger: <kbd>Esc</kbd> does nothing and focus isn’t moved into it when it opens.',
+            html: 'The three <strong>project descriptions</strong> were rewritten to match the companies’ fields, and the images are still Unsplash placeholders. Check both against the real engagements.',
         },
         {
             tag: 'Fixed',
-            html: 'In this pass: deep links and refreshes 404’d on Netlify (no SPA fallback); the Projects jump links (CluedIn, Dedalus, DXC Technology, Our approach) went nowhere; unknown paths showed React Router’s error screen; a link to a section of another page (/projects#project-dedalus) opened at the top; the form’s fields weren’t tied to their labels; enquiries were emailed as unescaped HTML; and a stray <span class="mono">functions/index.ts</span> deployed a second copy of the contact endpoint.',
+            html: 'In this pass: Home and About now lead on to fuller pages; the reply time is the same everywhere; Get in touch is in the navbar on phones; the menu closes with Esc and manages focus; every page has its own title and description and is pre-rendered; three.js loads only on Home; fonts are self-hosted. Then a measured pass: Lighthouse accessibility, best practices and SEO 100 on every page, no layout shift; photos in AVIF/WebP; low-contrast text fixed; the navbar no longer wraps at 320px; reduced-motion respected; a strict CSP; schema.org structured data, llms.txt, and a real social preview image and logo (both were missing).',
         },
     ],
 };

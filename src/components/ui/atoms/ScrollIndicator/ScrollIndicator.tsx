@@ -19,7 +19,7 @@ export const ScrollIndicator = ({ isGradientDark }: ScrollIndicatorProps) => {
         >
             <span
                 className={`font-bold text-sm tracking-widest uppercase ${
-                    isGradientDark ? 'text-white/50' : 'text-ui-background-secondary/50'
+                    isGradientDark ? 'text-white/70' : 'text-ui-background-secondary/70'
                 }`}
             >
                 Scroll to explore
