@@ -1,0 +1,70 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
+import { processSteps } from '../../../content';
+import { cardData } from '../../pages/Home/modules/HomeServices/cardData.ts';
+import { faqData, servicesData } from '../../pages/Services/servicesData.ts';
+import { Accordion } from './Accordion';
+import { FluidGradient } from './FluidGradient';
+import { Footer } from './Footer';
+import { Navbar } from './Navbar';
+import { ProcessTable } from './ProcessTable';
+import { ServiceCards } from './ServiceCards';
+import { ServiceDetailBlock } from './ServiceDetailBlock';
+
+const meta = {
+    title: 'Organisms',
+    parameters: { layout: 'fullscreen' },
+} satisfies Meta;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+/** Top of every page. Press the hamburger to open the menu. */
+export const NavbarOnPage: Story = { render: () => <Navbar /> };
+
+/** Over a dark home palette, the logo and icon turn white. */
+export const NavbarOverDark: Story = {
+    globals: { backgrounds: { value: 'dark' } },
+    render: () => <Navbar isGradientDark />,
+};
+
+export const SiteFooter: Story = { render: () => <Footer /> };
+
+/** The home hero background: WebGL fluid, with the palette picker bottom right. */
+export const Gradient: Story = {
+    render: () => (
+        <div className='relative h-screen'>
+            <FluidGradient showPalettePicker />
+        </div>
+    ),
+};
+
+export const Faq: Story = {
+    parameters: { layout: 'padded' },
+    render: () => <Accordion items={faqData} />,
+};
+
+export const Process: Story = {
+    parameters: { layout: 'padded' },
+    render: () => <ProcessTable steps={processSteps} />,
+};
+
+export const Services: Story = {
+    globals: { backgrounds: { value: 'dark' } },
+    parameters: { layout: 'padded' },
+    render: () => <ServiceCards cardData={cardData} />,
+};
+
+/** One service on /services; they alternate dark and light. */
+export const ServiceDetailDark: Story = {
+    render: () => <ServiceDetailBlock service={servicesData[0]} index={0} />,
+};
+
+export const ServiceDetailLight: Story = {
+    render: () => <ServiceDetailBlock service={servicesData[1]} index={1} />,
+};
+
+export const ServiceDetailOptional: Story = {
+    render: () => <ServiceDetailBlock service={servicesData[2]} index={2} />,
+};

@@ -1,75 +1,53 @@
-# React + TypeScript + Vite
+# ijji labs website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The ijji labs studio site: React 19, React Router 7, Tailwind 4 and Vite 8, with the React Compiler. Hosted on Netlify, where one function (`netlify/functions/contact`) emails contact-form enquiries through Resend.
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev            # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The contact form posts to `/.netlify/functions/contact`, which only runs under Netlify. To try it locally, run `npx netlify dev` with these set in `.env`:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Variable             | What it is                                     |
+| -------------------- | ---------------------------------------------- |
+| `RESEND_API_KEY`     | Resend API key                                 |
+| `CONTACT_EMAIL_FROM` | The verified sender, e.g. `site@ijji-labs.com` |
+| `CONTACT_EMAIL_TO`   | Where enquiries go                             |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts
+
+| Command                   | Does                                                |
+| ------------------------- | --------------------------------------------------- |
+| `npm run dev`             | Vite dev server                                     |
+| `npm run build`           | Typecheck, then build to `dist/`                    |
+| `npm run lint`            | ESLint                                              |
+| `npm run typecheck`       | `tsc -b` over the app, tooling and Netlify function |
+| `npm run format`          | Prettier, in place (`format:check` to only check)   |
+| `npm test`                | Vitest, once (`test:watch` to keep running)         |
+| `npm run test:coverage`   | Tests with coverage thresholds, as CI runs them     |
+| `npm run storybook`       | Storybook on http://localhost:6006                  |
+| `npm run build-storybook` | Static Storybook in `storybook-static/`             |
+
+CI (`.github/workflows/ci.yml`) runs format, lint, typecheck, tests with coverage, and both builds on every PR.
+
+## Site map
+
+`docs/screen-map/index.html` maps every page, how people reach it, every link on it and the key journeys, with review notes. Open it in a browser. Its data is `docs/screen-map/screens.js`; keep it current with navigation changes (a test checks it against the routes).
+
+## Layout
+
+```
+src/
+  components/
+    ui/          atoms → molecules → organisms (shared building blocks)
+    templates/   RootLayout: navbar, page outlet, footer
+    pages/       one folder per route; each page's sections live in its modules/
+  content/       copy shared between pages (projects, values, process steps)
+  router/        routes.tsx (the route table) and router.tsx (the browser router)
+  test/          test setup and renderApp()
+netlify/functions/contact/   the contact endpoint
+docs/screen-map/             the site map
 ```

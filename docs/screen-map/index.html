@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <title>ijji labs Site Map</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        />
+        <style>
+            /* Layout: a column-by-column map of every page (ways in → on every page → pages → after sending),
+   with the chosen page's links drawn as lines and spelled out in a panel beside it. Journeys and review notes follow. */
+            :root {
+                /* The site's own palette: near-black neutrals and its yellow. */
+                --bg: #f7f7f9;
+                --card: #ffffff;
+                --sunk: #eff0f3;
+                --fg: #14161b;
+                --muted: #646a75;
+                --line: #e1e3e8;
+                --lime: #faee47;
+                --on-lime: #0d0f0f;
+                --lime-text: #6b6200;
+                --lime-wash: #fdfbe0;
+                --push: #6b6200;
+                --sheet: #2a7bc4;
+                --replace: #a8650a;
+                --tab: #5b47e0;
+                --back: #8a8f99;
+                --external: #2f6fb2;
+                --flag: #9aa0ab;
+                --font-display:
+                    'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+                --font-body:
+                    'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+                --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+                --radius: 14px;
+                --radius-sm: 8px;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root:not([data-theme='light']) {
+                    --bg: #0b0c0f;
+                    --card: #15171c;
+                    --sunk: #1c1f25;
+                    --fg: #f2f3f5;
+                    --muted: #9ea4ae;
+                    --line: #2a2d35;
+                    --lime: #faee47;
+                    --on-lime: #0d0f0f;
+                    --lime-text: #faee47;
+                    --lime-wash: #2a2808;
+                    --push: #faee47;
+                    --sheet: #6cb8ff;
+                    --replace: #f2b544;
+                    --tab: #a493ff;
+                    --back: #7d828c;
+                    --external: #7db4f0;
+                    --flag: #6b707a;
+                    color-scheme: dark;
+                }
+            }
+            :root[data-theme='dark'] {
+                --bg: #0b0c0f;
+                --card: #15171c;
+                --sunk: #1c1f25;
+                --fg: #f2f3f5;
+                --muted: #9ea4ae;
+                --line: #2a2d35;
+                --lime: #faee47;
+                --on-lime: #0d0f0f;
+                --lime-text: #faee47;
+                --lime-wash: #2a2808;
+                --push: #faee47;
+                --sheet: #6cb8ff;
+                --replace: #f2b544;
+                --tab: #a493ff;
+                --back: #7d828c;
+                --external: #7db4f0;
+                --flag: #6b707a;
+                color-scheme: dark;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--fg);
+                font-family: var(--font-body);
+                font-size: 15px;
+                line-height: 1.5;
+                padding-left: max(16px, env(safe-area-inset-left, 0px));
+                padding-right: max(16px, env(safe-area-inset-right, 0px));
+            }
+            .wrap {
+                max-width: 1680px;
+                margin: 0 auto;
+                padding-block: 28px 64px;
+                display: flex;
+                flex-direction: column;
+                gap: 40px;
+            }
+            h1,
+            h2,
+            h3 {
+                font-family: var(--font-display);
+                text-wrap: balance;
+                margin: 0;
+            }
+            h1 {
+                font-size: clamp(28px, 4vw, 40px);
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                line-height: 1.1;
+            }
+            h2 {
+                font-size: 22px;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+            }
+            h3 {
+                font-size: 15px;
+                font-weight: 700;
+            }
+            p {
+                margin: 0;
+            }
+            .mono {
+                font-family: var(--font-mono);
+                font-size: 12px;
+            }
+            .eyebrow {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--muted);
+            }
+
+            /* Header */
+            .head {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px 40px;
+                align-items: flex-end;
+                justify-content: space-between;
+            }
+            .head-text {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                max-width: 68ch;
+                min-width: 0;
+            }
+            .head-text p {
+                color: var(--muted);
+            }
+            .counts {
+                display: flex;
+                gap: 28px;
+                font-variant-numeric: tabular-nums;
+            }
+            .count b {
+                display: block;
+                font-family: var(--font-display);
+                font-size: 28px;
+                font-weight: 800;
+                line-height: 1;
+            }
+            .count span {
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            /* Legend */
+            .legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 18px;
+                align-items: center;
+            }
+            .key {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--muted);
+            }
+            .key svg {
+                flex: none;
+            }
+            .controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+                margin-left: auto;
+            }
+            .toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--muted);
+                cursor: pointer;
+            }
+            .toggle input {
+                accent-color: var(--lime-text);
+                width: 16px;
+                height: 16px;
+            }
+
+            /* Map + panel */
+            .explorer {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 20px;
+                align-items: start;
+            }
+            @media (min-width: 1180px) {
+                .explorer {
+                    grid-template-columns: minmax(0, 1fr) 380px;
+                }
+            }
+            .map-scroll {
+                overflow-x: auto;
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                background: var(--sunk);
+            }
+            .map {
+                position: relative;
+                display: grid;
+                grid-template-columns: repeat(7, 188px);
+                gap: 36px;
+                padding: 20px;
+                width: max-content;
+            }
+            .map svg.links {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                overflow: visible;
+            }
+            .col {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                position: relative;
+                z-index: 1;
+            }
+            .col-head {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                padding: 0 2px 6px;
+                border-bottom: 1px solid var(--line);
+                margin-bottom: 4px;
+            }
+            .col-head .eyebrow {
+                color: var(--fg);
+            }
+            .col-head span:last-child {
+                font-size: 12px;
+                color: var(--muted);
+            }
+            .node {
+                appearance: none;
+                text-align: left;
+                font: inherit;
+                color: inherit;
+                cursor: pointer;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-sm);
+                padding: 9px 11px 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+                transition:
+                    opacity 0.15s ease,
+                    border-color 0.15s ease,
+                    box-shadow 0.15s ease;
+            }
+            .node:hover {
+                border-color: var(--muted);
+            }
+            .node:focus-visible {
+                outline: 2px solid var(--lime-text);
+                outline-offset: 2px;
+            }
+            .node .n-title {
+                font-weight: 700;
+                font-size: 14px;
+                line-height: 1.25;
+            }
+            .node .n-route {
+                font-family: var(--font-mono);
+                font-size: 10.5px;
+                color: var(--muted);
+                overflow-wrap: anywhere;
+            }
+            .node .n-how {
+                font-size: 11px;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                flex: none;
+                background: var(--muted);
+            }
+            .node.is-flag {
+                border-style: dashed;
+            }
+            .node.is-flag .n-title {
+                color: var(--muted);
+            }
+            .node.is-outside {
+                background: transparent;
+                border-style: dashed;
+            }
+            .node.is-selected {
+                background: var(--lime);
+                border-color: var(--lime);
+                color: var(--on-lime);
+                box-shadow: 0 0 0 4px var(--lime-wash);
+            }
+            .node.is-selected .n-route,
+            .node.is-selected .n-how {
+                color: var(--on-lime);
+                opacity: 0.75;
+            }
+            .node.is-selected .dot {
+                background: var(--on-lime) !important;
+            }
+            .node.is-target {
+                border-color: var(--push);
+                box-shadow: 0 0 0 1px var(--push);
+            }
+            .node.is-source {
+                border-color: var(--muted);
+                border-style: dashed;
+            }
+            .map.has-focus .node:not(.is-selected):not(.is-target):not(.is-source) {
+                opacity: 0.38;
+            }
+            .map.show-all .node {
+                opacity: 1 !important;
+            }
+
+            /* Panel */
+            .panel {
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                min-width: 0;
+            }
+            @media (min-width: 1180px) {
+                .panel {
+                    position: sticky;
+                    top: calc(env(safe-area-inset-top, 0px) + 16px);
+                    max-height: calc(100vh - 32px);
+                    overflow-y: auto;
+                }
+            }
+            .p-head {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .p-head .mono {
+                color: var(--muted);
+                overflow-wrap: anywhere;
+            }
+            .p-how {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 3px 9px;
+                border-radius: 999px;
+                background: var(--sunk);
+                align-self: flex-start;
+            }
+            .p-note {
+                color: var(--muted);
+                font-size: 14px;
+            }
+            .p-section {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .links-list {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .link-row {
+                display: grid;
+                grid-template-columns: 4px minmax(0, 1fr);
+                gap: 10px;
+                padding: 8px 10px;
+                border-radius: var(--radius-sm);
+                background: var(--sunk);
+            }
+            .link-row .bar {
+                border-radius: 2px;
+            }
+            .link-row .tap {
+                font-weight: 600;
+                font-size: 14px;
+            }
+            .link-row .where {
+                font-size: 13px;
+                color: var(--muted);
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px 6px;
+                align-items: baseline;
+            }
+            .link-row .note {
+                font-size: 12.5px;
+                color: var(--muted);
+            }
+            .goto {
+                appearance: none;
+                font: inherit;
+                font-weight: 600;
+                color: var(--lime-text);
+                background: none;
+                border: 0;
+                padding: 0;
+                cursor: pointer;
+                text-decoration: underline;
+                text-underline-offset: 2px;
+            }
+            .goto:focus-visible {
+                outline: 2px solid var(--lime-text);
+                outline-offset: 2px;
+                border-radius: 3px;
+            }
+            .kind {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            .inside {
+                margin: 0;
+                padding-left: 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                font-size: 14px;
+            }
+            .empty {
+                font-size: 13px;
+                color: var(--muted);
+            }
+
+            /* Journeys */
+            .section {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .section > p {
+                color: var(--muted);
+                max-width: 70ch;
+            }
+            .journeys {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+                gap: 16px;
+            }
+            .journey {
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                min-width: 0;
+            }
+            .journey > p {
+                color: var(--muted);
+                font-size: 14px;
+            }
+            .steps {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+            .step {
+                display: grid;
+                grid-template-columns: 26px minmax(0, 1fr);
+                gap: 10px;
+            }
+            .step-num {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                font-weight: 500;
+                color: var(--muted);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .step-num i {
+                display: grid;
+                place-items: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: var(--sunk);
+                font-style: normal;
+            }
+            .step-num::after {
+                content: '';
+                flex: 1;
+                width: 1px;
+                background: var(--line);
+                margin: 2px 0;
+                min-height: 10px;
+            }
+            .step:last-child .step-num::after {
+                display: none;
+            }
+            .step-body {
+                padding-bottom: 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                min-width: 0;
+            }
+            .step-body .screen-chip {
+                align-self: flex-start;
+            }
+            .step-body .act {
+                font-size: 13.5px;
+                color: var(--muted);
+            }
+            .screen-chip {
+                appearance: none;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--fg);
+                background: var(--lime-wash);
+                border: 1px solid transparent;
+                border-radius: 6px;
+                padding: 1px 8px;
+                cursor: pointer;
+            }
+            .screen-chip:hover {
+                border-color: var(--lime-text);
+            }
+            .screen-chip:focus-visible {
+                outline: 2px solid var(--lime-text);
+                outline-offset: 2px;
+            }
+
+            /* Review notes */
+            .notes {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+                gap: 12px;
+            }
+            .note-card {
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 0;
+            }
+            .tag {
+                align-self: flex-start;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: var(--sunk);
+                color: var(--muted);
+            }
+            .note-card p {
+                font-size: 14px;
+                color: var(--muted);
+            }
+            .note-card p strong {
+                color: var(--fg);
+                font-weight: 600;
+            }
+            .foot {
+                font-size: 13px;
+                color: var(--muted);
+                max-width: 80ch;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .node {
+                    transition: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <header class="head">
+                <div class="head-text">
+                    <span class="eyebrow">ijji labs website</span>
+                    <h1>Site map</h1>
+                    <p>
+                        Every page on the site, how people reach it, and exactly what they can click
+                        on it to go somewhere else. Pick a page to see its links drawn out. Kept in
+                        the repo at <span class="mono">docs/screen-map</span>: update
+                        <span class="mono">screens.js</span> whenever navigation changes.
+                    </p>
+                </div>
+                <div class="counts" id="counts"></div>
+            </header>
+
+            <div class="legend" id="legend"></div>
+
+            <section class="explorer" aria-label="Screen map">
+                <div class="map-scroll">
+                    <div class="map" id="map">
+                        <svg class="links" id="links" aria-hidden="true"></svg>
+                    </div>
+                </div>
+                <aside class="panel" id="panel" aria-live="polite"></aside>
+            </section>
+
+            <section class="section" aria-labelledby="journeys-h">
+                <h2 id="journeys-h">Key journeys</h2>
+                <p>
+                    The paths visitors take most, step by step, with the exact link or button that
+                    moves them on. Click a page to find it on the map.
+                </p>
+                <div class="journeys" id="journeys"></div>
+            </section>
+
+            <section class="section" aria-labelledby="notes-h">
+                <h2 id="notes-h">Worth deciding before you lock it down</h2>
+                <p>
+                    Things the map turned up: dead ends, copy that disagrees with itself, and what
+                    this pass already fixed.
+                </p>
+                <div class="notes" id="notes"></div>
+            </section>
+
+            <p class="foot">
+                The browser's back button works everywhere, since every page is its own address.
+                Jump links stay on the page and only scroll. Choosing a page from the menu closes it
+                and starts the new page at the top.
+            </p>
+        </div>
+
+        <!-- The map's data: edit screens.js, not this page, when the app changes. -->
+        <script src="screens.js"></script>
+        <script>
+            const KINDS = {
+                page: { label: 'Opens another page', color: 'var(--push)', dash: '' },
+                jump: { label: 'Jumps down the page', color: 'var(--sheet)', dash: null },
+                menu: { label: 'Opens or closes the menu', color: 'var(--tab)', dash: '' },
+                submit: { label: 'Sends the form', color: 'var(--replace)', dash: '' },
+                auto: { label: 'Happens by itself', color: 'var(--muted)', dash: '1.5 4' },
+                inplace: { label: 'Changes on the same page', color: 'var(--muted)', dash: null },
+                external: { label: 'Leaves the site', color: 'var(--external)', dash: null },
+            };
+
+            const {
+                columns: COLUMNS,
+                screens: SCREENS,
+                journeys: JOURNEYS,
+                notes: NOTES,
+            } = window.SCREEN_MAP;
+            const BY_ID = Object.fromEntries(SCREENS.map((s) => [s.id, s]));
+            const EDGES = SCREENS.flatMap((s) => s.exits.map((e, i) => ({ ...e, from: s.id, i })));
+            const INCOMING = {};
+            EDGES.forEach((e) => {
+                if (e.to && BY_ID[e.to]) (INCOMING[e.to] ??= []).push(e);
+            });
+
+            // ---------- rendering ----------
+            const map = document.getElementById('map');
+            const svg = document.getElementById('links');
+            const panel = document.getElementById('panel');
+            const esc = (t) =>
+                String(t).replace(
+                    /[&<>"]/g,
+                    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+                );
+
+            const lineSample = (kind) => {
+                const k = KINDS[kind];
+                if (k.dash === null)
+                    return `<svg width="22" height="10" viewBox="0 0 22 10"><circle cx="5" cy="5" r="3.5" fill="${k.color}"/><circle cx="16" cy="5" r="3.5" fill="none" stroke="${k.color}" stroke-width="1.5"/></svg>`;
+                return `<svg width="28" height="10" viewBox="0 0 28 10"><line x1="1" y1="5" x2="22" y2="5" stroke="${k.color}" stroke-width="2" ${k.dash ? `stroke-dasharray="${k.dash}"` : ''} stroke-linecap="round"/><path d="M21 1.5 L26 5 L21 8.5" fill="none" stroke="${k.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+            };
+
+            document.getElementById('legend').innerHTML =
+                Object.entries(KINDS)
+                    .map(([id, k]) => `<span class="key">${lineSample(id)}${esc(k.label)}</span>`)
+                    .join('') +
+                `<div class="controls"><label class="toggle" for="show-all"><input type="checkbox" id="show-all"> Show every link at once</label></div>`;
+
+            const inApp = SCREENS.filter((s) => !s.outside);
+            const linkCount = EDGES.filter((e) => !e.flag && !BY_ID[e.from].flag).length;
+            document.getElementById('counts').innerHTML = [
+                [inApp.length, 'pages & parts'],
+                [linkCount, 'links & actions'],
+                [JOURNEYS.length, 'key journeys'],
+            ]
+                .map(([n, l]) => `<div class="count"><b>${n}</b><span>${l}</span></div>`)
+                .join('');
+
+            COLUMNS.forEach((c) => {
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.innerHTML = `<div class="col-head"><span class="eyebrow">${esc(c.title)}</span><span>${esc(c.sub)}</span></div>`;
+                SCREENS.filter((s) => s.col === c.id).forEach((s) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className =
+                        'node' + (s.flag ? ' is-flag' : '') + (s.outside ? ' is-outside' : '');
+                    b.id = 'node-' + s.id;
+                    b.dataset.id = s.id;
+                    b.innerHTML = `<span class="n-title">${esc(s.title)}</span><span class="n-route">${esc(s.route)}</span><span class="n-how"><span class="dot" style="background:${s.dot || 'var(--muted)'}"></span>${esc(s.how)}</span>`;
+                    b.addEventListener('click', () => select(s.id, true));
+                    col.appendChild(b);
+                });
+                map.appendChild(col);
+            });
+
+            let selected = null;
+            const showAll = document.getElementById('show-all');
+            showAll.addEventListener('change', () => {
+                map.classList.toggle('show-all', showAll.checked);
+                draw();
+            });
+
+            function rectOf(id) {
+                const el = document.getElementById('node-' + id);
+                const m = map.getBoundingClientRect();
+                const r = el.getBoundingClientRect();
+                return {
+                    l: r.left - m.left,
+                    r: r.right - m.left,
+                    t: r.top - m.top,
+                    b: r.bottom - m.top,
+                    cy: r.top - m.top + r.height / 2,
+                };
+            }
+
+            function pathFor(a, b) {
+                if (Math.abs(a.l - b.l) < 4) {
+                    // Same column: loop out to the right and back in.
+                    const x = a.r,
+                        bulge = 36;
+                    return `M ${x} ${a.cy} C ${x + bulge} ${a.cy}, ${x + bulge} ${b.cy}, ${x} ${b.cy}`;
+                }
+                if (b.l > a.l) {
+                    const dx = Math.max(40, (b.l - a.r) / 2);
+                    return `M ${a.r} ${a.cy} C ${a.r + dx} ${a.cy}, ${b.l - dx} ${b.cy}, ${b.l} ${b.cy}`;
+                }
+                const dx = Math.max(40, (a.l - b.r) / 2);
+                return `M ${a.l} ${a.cy} C ${a.l - dx} ${a.cy}, ${b.r + dx} ${b.cy}, ${b.r} ${b.cy}`;
+            }
+
+            function edgeSvg(e, strong) {
+                const k = KINDS[e.kind];
+                if (!e.to || !BY_ID[e.to] || k.dash === null || e.to === e.from) return '';
+                const d = pathFor(rectOf(e.from), rectOf(e.to));
+                const marker = `url(#arrow-${e.kind})`;
+                return `<path d="${d}" fill="none" stroke="${k.color}" stroke-width="${strong ? 2 : 1.2}" stroke-opacity="${strong ? 0.95 : 0.4}" ${k.dash ? `stroke-dasharray="${k.dash}"` : ''} stroke-linecap="round" marker-end="${marker}"/>`;
+            }
+
+            function draw() {
+                svg.setAttribute('width', map.scrollWidth);
+                svg.setAttribute('height', map.scrollHeight);
+                svg.setAttribute('viewBox', `0 0 ${map.scrollWidth} ${map.scrollHeight}`);
+                const defs = `<defs>${Object.entries(KINDS)
+                    .map(
+                        ([id, k]) =>
+                            `<marker id="arrow-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" fill="none" stroke="${k.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>`,
+                    )
+                    .join('')}</defs>`;
+                let paths = '';
+                if (showAll.checked) {
+                    paths = EDGES.map((e) => edgeSvg(e, false)).join('');
+                } else if (selected) {
+                    const out = EDGES.filter((e) => e.from === selected);
+                    const inc = (INCOMING[selected] || []).filter((e) => e.from !== selected);
+                    paths =
+                        inc.map((e) => edgeSvg({ ...e, kind: e.kind }, false)).join('') +
+                        out.map((e) => edgeSvg(e, true)).join('');
+                }
+                svg.innerHTML = defs + paths;
+            }
+
+            function destination(e) {
+                if (e.to && BY_ID[e.to]) {
+                    return `<button type="button" class="goto" data-goto="${e.to}">${esc(BY_ID[e.to].title)}</button>`;
+                }
+                if (e.kind === 'back') return '<span>Back to where it was opened from</span>';
+                if (e.kind === 'external') return '<span>Outside the site</span>';
+                return '';
+            }
+
+            function renderPanel(s) {
+                const exits = s.exits
+                    .map(
+                        (e) => `
+    <li class="link-row"><span class="bar" style="background:${KINDS[e.kind].color}"></span>
+      <div>
+        <div class="tap">${esc(e.tap)}</div>
+        <div class="where"><span class="kind" style="color:${KINDS[e.kind].color}">${esc(KINDS[e.kind].label)}</span>${destination(e) ? '<span aria-hidden="true">→</span>' + destination(e) : ''}${e.flag ? '<span>· developer builds only</span>' : ''}</div>
+        ${e.note ? `<div class="note">${esc(e.note)}</div>` : ''}
+      </div></li>`,
+                    )
+                    .join('');
+                const inc = (INCOMING[s.id] || []).filter((e) => e.from !== s.id);
+                const incoming = inc
+                    .map(
+                        (e) => `
+    <li class="link-row"><span class="bar" style="background:${KINDS[e.kind].color}"></span>
+      <div>
+        <div class="where"><button type="button" class="goto" data-goto="${e.from}">${esc(BY_ID[e.from].title)}</button></div>
+        <div class="tap" style="font-weight:500">${esc(e.tap)}</div>
+      </div></li>`,
+                    )
+                    .join('');
+                panel.innerHTML = `
+    <div class="p-head">
+      <span class="eyebrow">${esc(COLUMNS.find((c) => c.id === s.col).title)}</span>
+      <h2>${esc(s.title)}</h2>
+      <span class="mono">${esc(s.route)}</span>
+    </div>
+    <span class="p-how"><span class="dot" style="background:${s.dot || 'var(--muted)'}"></span>${esc(s.how)}</span>
+    <p class="p-note">${esc(s.note)}</p>
+    ${s.inside && s.inside.length ? `<div class="p-section"><h3>On this page</h3><ul class="inside">${s.inside.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>` : ''}
+    <div class="p-section"><h3>What you can click, and where it goes</h3>${exits ? `<ul class="links-list">${exits}</ul>` : '<p class="empty">Nothing here leads anywhere else.</p>'}</div>
+    <div class="p-section"><h3>How people get here</h3>${incoming ? `<ul class="links-list">${incoming}</ul>` : '<p class="empty">Only from outside the site.</p>'}</div>`;
+                panel
+                    .querySelectorAll('[data-goto]')
+                    .forEach((b) =>
+                        b.addEventListener('click', () => select(b.dataset.goto, true, true)),
+                    );
+            }
+
+            function select(id, fromUser, scrollTo) {
+                if (!BY_ID[id]) return;
+                selected = id;
+                const outs = new Set(EDGES.filter((e) => e.from === id && e.to).map((e) => e.to));
+                const ins = new Set((INCOMING[id] || []).map((e) => e.from));
+                map.classList.add('has-focus');
+                map.querySelectorAll('.node').forEach((n) => {
+                    const nid = n.dataset.id;
+                    n.classList.toggle('is-selected', nid === id);
+                    n.classList.toggle('is-target', nid !== id && outs.has(nid));
+                    n.classList.toggle('is-source', nid !== id && !outs.has(nid) && ins.has(nid));
+                    n.setAttribute('aria-pressed', nid === id ? 'true' : 'false');
+                });
+                renderPanel(BY_ID[id]);
+                draw();
+                if (scrollTo) {
+                    document.getElementById('node-' + id).scrollIntoView({
+                        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                            ? 'auto'
+                            : 'smooth',
+                        block: 'nearest',
+                        inline: 'center',
+                    });
+                }
+                if (fromUser) {
+                    try {
+                        history.replaceState(null, '', '#screen-' + id);
+                    } catch (e) {}
+                }
+            }
+
+            document.getElementById('journeys').innerHTML = JOURNEYS.map(
+                (j) => `
+  <article class="journey">
+    <h3>${esc(j.title)}</h3>
+    <p>${esc(j.note)}</p>
+    <ol class="steps">${j.steps
+        .map(
+            ([id, act], i) => `
+      <li class="step"><span class="step-num"><i>${i + 1}</i></span>
+        <div class="step-body"><button type="button" class="screen-chip" data-goto="${id}">${esc(BY_ID[id].title)}</button><span class="act">${esc(act)}</span></div>
+      </li>`,
+        )
+        .join('')}</ol>
+  </article>`,
+            ).join('');
+            document.querySelectorAll('#journeys [data-goto]').forEach((b) =>
+                b.addEventListener('click', () => {
+                    select(b.dataset.goto, true, false);
+                    document.querySelector('.explorer').scrollIntoView({
+                        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                            ? 'auto'
+                            : 'smooth',
+                        block: 'start',
+                    });
+                    setTimeout(
+                        () =>
+                            document
+                                .getElementById('node-' + b.dataset.goto)
+                                .scrollIntoView({ block: 'nearest', inline: 'center' }),
+                        350,
+                    );
+                }),
+            );
+
+            document.getElementById('notes').innerHTML = NOTES.map(
+                (n) =>
+                    `<article class="note-card"><span class="tag">${esc(n.tag)}</span><p>${n.html}</p></article>`,
+            ).join('');
+
+            const fromHash = (location.hash || '').replace('#screen-', '');
+            select(BY_ID[fromHash] ? fromHash : 'home', false, !!BY_ID[fromHash]);
+            window.addEventListener('resize', draw);
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+        </script>
+    </body>
+</html>

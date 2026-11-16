@@ -1,61 +1,52 @@
 /**
-  FONTS:
+  FONTS (loaded in index.html):
   NEWSREADER      - HEADINGS
   SPACE GROTESK   - BODY TEXT
  */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Grotesk:wght@300..700&display=swap');
-
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  /* FONTS */
-  --font-newsreader: 'Newsreader', serif;        /* HEADINGS */
-  --font-space-grotesk: "Space Grotesk", sans-serif;   /* BODY TEXT */
+    /* FONTS */
+    --font-newsreader: 'Newsreader', serif; /* HEADINGS */
+    --font-space-grotesk: 'Space Grotesk', sans-serif; /* BODY TEXT */
 
-  /* BRAND */
-    --color-brand-primary: #FAEE47;
-  --color-brand-primary2: #A078FF;
-  --color-brand-secondary: #EF4444;
-  --color-brand-tertiary: #B06B00;
+    /* BRAND */
+    --color-brand-primary: #faee47;
+    --color-brand-primary2: #a078ff;
+    --color-brand-secondary: #ef4444;
+    --color-brand-tertiary: #b06b00;
 
-  /* UI */
-  --color-ui-background-primary: #121212;
-  --color-ui-background-secondary: #0D0F0F;
-  --color-ui-border: #1C1B1B;
-  --color-ui-text-secondary: #929093;
+    /* UI */
+    --color-ui-background-primary: #121212;
+    --color-ui-background-secondary: #0d0f0f;
+    --color-ui-border: #1c1b1b;
+    --color-ui-text-secondary: #929093;
+}
+
+/* Jump links (#our-story, /projects#project-dedalus) land below the sticky navbar, not under it. */
+[id] {
+    scroll-margin-top: clamp(64px, 10vh, 100px);
 }
 
 body {
-  font-family: "Space Grotesk", sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
-/* DEBUGGING STYLES */
-/** {*/
-/*  background-color: #121212 !important;*/
-/*  outline: 1px solid rgba(255, 255, 255, 0.1);*/
-/*}*/
+::selection {
+    background-color: #faee47;
+    color: #0d0f0f;
+}
 
-/*div, section, article, main, header, footer {*/
-/*  background-color: rgba(0, 255, 255, 0.015) !important;*/
-/*  outline-color: rgba(0, 255, 255, 0.2) !important;*/
-/*  position: relative;*/
-/*}*/
+@keyframes scroll-chevron {
+    0%,
+    100% {
+        opacity: 0.15;
+    }
+    50% {
+        opacity: 1;
+    }
+}
 
-/*[class*="flex"] > * {*/
-/*  outline: 1px dashed rgba(255, 165, 0, 0.2) !important;*/
-/*  background-color: rgba(255, 165, 0, 0.015) !important;*/
-/*}*/
-
-/*[class*="grid"] > * {*/
-/*  outline: 1px dotted rgba(255, 0, 255, 0.2) !important;*/
-/*  background-color: rgba(255, 0, 255, 0.015) !important;*/
-/*}*/
-
-/*span, a, strong, em, b, i, img, button {*/
-/*  outline: none !important;*/
-/*  background-color: transparent !important;*/
-/*}*/
-
-/*div div, section section, article article {*/
-/*  background-color: rgba(0, 255, 255, 0.025) !important;*/
-/*}*/
+@utility animate-scroll-chevron {
+    animation: scroll-chevron 1.6s ease-in-out infinite;
+}

@@ -5,8 +5,3 @@ export * from './handlers';
 export * from './hexToRgb';
 export * from './setup';
 export * from './types';
-
-
-
-
-

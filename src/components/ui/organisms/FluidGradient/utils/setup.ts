@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { config } from './config';
+import { config, palettes, defaultPaletteKey, type Palette } from './config';
 import { hexToRgb } from './hexToRgb';
 import type { SceneState } from './types';
 import { vertexShader, fluidShader, displayShader } from '../shaders';
@@ -17,16 +17,6 @@ export const getCanvasSize = (container: HTMLElement | null): { width: number; h
     };
 };
 
-/**
- * The fluid simulation does not need to run at display resolution.
- * It's a velocity/density field that gets sampled by the display shader,
- * which upscales it via bilinear filtering. Running it at full res is the
- * single biggest GPU cost in this component.
- *
- * We cap the fluid texture at 512px on the longest side. This is enough
- * fidelity for the fluid physics while cutting GPU fill-rate by 4–16x
- * depending on the user's screen size.
- */
 const FLUID_MAX_RESOLUTION = 512;
 
 export const getFluidResolution = (
@@ -43,13 +33,23 @@ export const getFluidResolution = (
     }
 };
 
+type WebGLRendererWithDebug = THREE.WebGLRenderer & {
+    debug: { checkShaderErrors: boolean };
+};
+
 export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     const renderer = new THREE.WebGLRenderer({
         antialias: false,
-        alpha: true,
+        alpha: false,
         preserveDrawingBuffer: false,
         powerPreference: 'high-performance',
+        stencil: false,
+        depth: false,
     });
+
+    if (renderer.capabilities.isWebGL2) {
+        (renderer as WebGLRendererWithDebug).debug.checkShaderErrors = false;
+    }
 
     const { width, height } = getCanvasSize(container);
     const pixelRatio = getPixelRatio(width, height);
@@ -59,18 +59,21 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
     renderer.setClearColor(0x000000, 0);
 
     const canvas = renderer.domElement;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.right = '0';
-    canvas.style.bottom = '0';
-    canvas.style.pointerEvents = 'auto';
-    canvas.style.touchAction = 'none';
-    canvas.style.zIndex = '1';
-    canvas.style.willChange = 'transform';
+    canvas.style.cssText = [
+        'width:100%',
+        'height:100%',
+        'display:block',
+        'position:absolute',
+        'top:0',
+        'left:0',
+        'right:0',
+        'bottom:0',
+        'pointer-events:auto',
+        'touch-action:pan-y',
+        'z-index:1',
+        'will-change:transform',
+        'transform:translateZ(0)',
+    ].join(';');
 
     container.appendChild(canvas);
 
@@ -112,19 +115,16 @@ export const createMaterials = (
     displayHeight: number,
     fluidWidth: number,
     fluidHeight: number,
+    palette: Palette,
 ): [THREE.ShaderMaterial, THREE.ShaderMaterial] => {
     const fluidMaterial = new THREE.ShaderMaterial({
         uniforms: {
             iTime: { value: 0 },
             iResolution: { value: new THREE.Vector2(fluidWidth, fluidHeight) },
-            iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
             iFrame: { value: 0 },
             iPreviousFrame: { value: null },
-            uBrushSize: { value: config.brushSize },
-            uBrushStrength: { value: config.brushStrength },
             uFluidDecay: { value: config.fluidDecay },
             uTrailLength: { value: config.trailLength },
-            uStopDecay: { value: config.stopDecay },
         },
         vertexShader,
         fragmentShader: fluidShader,
@@ -136,14 +136,14 @@ export const createMaterials = (
             iResolution: { value: new THREE.Vector2(displayWidth, displayHeight) },
             iFluid: { value: null },
             uDistortionAmount: { value: config.distortionAmount },
-            uColor1: { value: new THREE.Vector3(...hexToRgb(config.color1)) },
-            uColor2: { value: new THREE.Vector3(...hexToRgb(config.color2)) },
-            uColor3: { value: new THREE.Vector3(...hexToRgb(config.color3)) },
-            uColor4: { value: new THREE.Vector3(...hexToRgb(config.color4)) },
-            uColor5: { value: new THREE.Vector3(...hexToRgb(config.color5)) },
-            uColor6: { value: new THREE.Vector3(...hexToRgb(config.color6)) },
-            uColor7: { value: new THREE.Vector3(...hexToRgb(config.color7)) },
-            uColor8: { value: new THREE.Vector3(...hexToRgb(config.color8)) },
+            uColor1: { value: new THREE.Vector3(...hexToRgb(palette.color1)) },
+            uColor2: { value: new THREE.Vector3(...hexToRgb(palette.color2)) },
+            uColor3: { value: new THREE.Vector3(...hexToRgb(palette.color3)) },
+            uColor4: { value: new THREE.Vector3(...hexToRgb(palette.color4)) },
+            uColor5: { value: new THREE.Vector3(...hexToRgb(palette.color5)) },
+            uColor6: { value: new THREE.Vector3(...hexToRgb(palette.color6)) },
+            uColor7: { value: new THREE.Vector3(...hexToRgb(palette.color7)) },
+            uColor8: { value: new THREE.Vector3(...hexToRgb(palette.color8)) },
             uColorIntensity: { value: config.colorIntensity },
             uSoftness: { value: config.softness },
         },
@@ -154,7 +154,21 @@ export const createMaterials = (
     return [fluidMaterial, displayMaterial];
 };
 
-export const initializeScene = (container: HTMLElement): SceneState => {
+export const applyPaletteToScene = (scene: SceneState, palette: Palette): void => {
+    if (scene.destroyed) return;
+    const u = scene.displayMaterial.uniforms;
+    u.uColor1.value.set(...hexToRgb(palette.color1));
+    u.uColor2.value.set(...hexToRgb(palette.color2));
+    u.uColor3.value.set(...hexToRgb(palette.color3));
+    u.uColor4.value.set(...hexToRgb(palette.color4));
+    u.uColor5.value.set(...hexToRgb(palette.color5));
+    u.uColor6.value.set(...hexToRgb(palette.color6));
+    u.uColor7.value.set(...hexToRgb(palette.color7));
+    u.uColor8.value.set(...hexToRgb(palette.color8));
+};
+
+export const initializeScene = (container: HTMLElement, palette?: Palette): SceneState => {
+    const activePalette = palette ?? palettes[defaultPaletteKey];
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = createRenderer(container);
 
@@ -178,13 +192,15 @@ export const initializeScene = (container: HTMLElement): SceneState => {
         displayHeight,
         fluidWidth,
         fluidHeight,
+        activePalette,
     );
 
-    const fluidGeometry = new THREE.PlaneGeometry(2, 2);
-    const displayGeometry = new THREE.PlaneGeometry(2, 2);
-    const fluidPlane = new THREE.Mesh(fluidGeometry, fluidMaterial);
-    const displayPlane = new THREE.Mesh(displayGeometry, displayMaterial);
+    // Single shared geometry — tracked so cleanup.ts can dispose it
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const fluidPlane = new THREE.Mesh(geometry, fluidMaterial);
+    const displayPlane = new THREE.Mesh(geometry, displayMaterial);
 
+    // Prime both render targets with an initial fluid frame
     fluidMaterial.uniforms.iPreviousFrame.value = null;
 
     renderer.setRenderTarget(fluidTarget1);
@@ -208,14 +224,11 @@ export const initializeScene = (container: HTMLElement): SceneState => {
         displayMaterial,
         fluidPlane,
         displayPlane,
+        geometry, // ← now tracked
         fluidWidth,
         fluidHeight,
         frameCount: 0,
-        mouseX: 0,
-        mouseY: 0,
-        prevMouseX: 1.0,
-        prevMouseY: 1.0,
-        lastMoveTime: 0,
         animationId: 0,
+        destroyed: false, // ← guard flag
     };
 };
