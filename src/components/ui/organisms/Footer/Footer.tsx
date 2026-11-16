@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { site } from '../../../../content/site.ts';
-import { AppMark, Logo, NavbarLink, RollingText } from '../../atoms';
+import { AppMark, Logo, NavbarLink, RollingText, StudioMark } from '../../atoms';
 import { footerLinks, legalLinks } from './footerLinks.ts';
 
 export const Footer = () => (
@@ -47,13 +47,7 @@ export const Footer = () => (
                                 aria-hidden='true'
                                 className='transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/row:-rotate-6 group-hover/row:scale-110'
                             >
-                                {slug ? (
-                                    <AppMark slug={slug} size='sm' />
-                                ) : (
-                                    <span className='w-8 h-8 rounded-[0.55rem] bg-brand-primary text-ui-background-primary font-newsreader font-extrabold text-lg leading-none flex items-center justify-center'>
-                                        ij
-                                    </span>
-                                )}
+                                {slug ? <AppMark slug={slug} size='sm' /> : <StudioMark />}
                             </span>
                             <span className='text-xs font-medium uppercase tracking-widest text-white/60 transition-colors group-hover/row:text-white'>
                                 {group}

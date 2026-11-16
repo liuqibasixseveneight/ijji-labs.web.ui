@@ -1,8 +1,13 @@
-// Renders the images link previews and search engines use, in the site's own fonts and
-// colours, with headless Chrome: public/social-preview.png (1200×630, Open Graph and
-// Twitter), public/logo.png (512×512, the organisation's logo in structured data) and
-// public/apple-touch-icon.png (180×180). Run `npm run brand-images` after changing the
-// wording or the brand, and commit what it writes. Set CHROME_PATH if Chrome isn't found.
+// Renders the images link previews, browsers and search engines use, in the site's own fonts
+// and colours, with headless Chrome:
+// - public/social-preview.png (1200×630, Open Graph and Twitter);
+// - the studio mark (StudioMark: "ij" on the yellow, as in the footer) as public/logo.png
+//   (512×512, the organisation's logo in structured data), public/favicon.ico (16, 32 and
+//   48px; Google's results want a multiple of 48), public/apple-touch-icon.png (180×180) and
+//   public/icon-192.png / icon-512.png (the web manifest). The favicon and logo keep the
+//   rounded corners; the phone icons are full-bleed, as phones round them themselves.
+// Run `npm run brand-images` after changing the wording or the brand, and commit what it
+// writes. Set CHROME_PATH if Chrome isn't found.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -32,6 +37,34 @@ const style = `
     html, body { width: 100%; height: 100%; background: #121212; color: #fff; overflow: hidden; }
 `;
 
+/**
+ * The studio mark at 512px, in StudioMark's proportions: the "ij" is 20/32 of the tile, the
+ * corners 8.8/32, and the text sits 1/32 below centre, where it looks centred.
+ */
+const mark = ({ rounded }) => `
+    <div style="width:512px;height:512px;background:#faee47;border-radius:${rounded ? 141 : 0}px;display:flex;align-items:center;justify-content:center">
+        <div style="font:800 320px/1 Newsreader;color:#121212;transform:translateY(16px)">ij</div>
+    </div>`;
+
+/** An .ico holding PNGs, one per size (every browser since IE reads PNG entries). */
+const ico = (pngs) => {
+    const header = Buffer.alloc(6 + 16 * pngs.length);
+    header.writeUInt16LE(1, 2);
+    header.writeUInt16LE(pngs.length, 4);
+    let offset = header.length;
+    pngs.forEach(({ size, data }, index) => {
+        const entry = 6 + 16 * index;
+        header.writeUInt8(size % 256, entry);
+        header.writeUInt8(size % 256, entry + 1);
+        header.writeUInt16LE(1, entry + 4);
+        header.writeUInt16LE(32, entry + 6);
+        header.writeUInt32LE(data.length, entry + 8);
+        header.writeUInt32LE(offset, entry + 12);
+        offset += data.length;
+    });
+    return Buffer.concat([header, ...pngs.map(({ data }) => data)]);
+};
+
 const IMAGES = [
     {
         file: 'social-preview.png',
@@ -49,31 +82,37 @@ const IMAGES = [
             </div>`,
     },
     {
-        file: 'logo.png',
+        file: 'studio-mark.png',
         width: 512,
         height: 512,
-        body: `
-            <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-                <div style="font:800 168px/0.9 Newsreader">ijji</div>
-                <div style="font:800 168px/0.9 Newsreader;color:#faee47">labs</div>
-            </div>`,
+        body: mark({ rounded: true }),
+        transparent: true,
+        outputs: [
+            { file: 'logo.png', size: 512 },
+            { file: 'favicon.ico', sizes: [16, 32, 48] },
+        ],
     },
     {
-        file: 'apple-touch-icon.png',
-        width: 180,
-        height: 180,
-        body: `
-            <div style="height:100%;display:flex;align-items:center;justify-content:center;font:800 228px/1 Newsreader">ijji</div>`,
-        // Chrome won't open a window this small, so it's drawn at 3× and scaled down.
-        scale: 3,
+        file: 'studio-mark-full.png',
+        width: 512,
+        height: 512,
+        body: mark({ rounded: false }),
+        outputs: [
+            { file: 'apple-touch-icon.png', size: 180 },
+            { file: 'icon-192.png', size: 192 },
+            { file: 'icon-512.png', size: 512 },
+        ],
     },
 ];
 
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'brand-images-'));
 
-for (const { file, width, height, body, scale = 1 } of IMAGES) {
+for (const { file, width, height, body, scale = 1, transparent = false, outputs } of IMAGES) {
     const html = path.join(temp, `${file}.html`);
-    fs.writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${style}</style>${body}`);
+    const page = transparent
+        ? style.replace('background: #121212;', 'background: transparent;')
+        : style;
+    fs.writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${page}</style>${body}`);
 
     execFileSync(
         CHROME,
@@ -82,6 +121,7 @@ for (const { file, width, height, body, scale = 1 } of IMAGES) {
             '--disable-gpu',
             '--hide-scrollbars',
             '--force-device-scale-factor=1',
+            ...(transparent ? ['--default-background-color=00000000'] : []),
             `--window-size=${width * scale},${height * scale}`,
             '--virtual-time-budget=2000',
             `--screenshot=${path.join(temp, file)}`,
@@ -90,12 +130,34 @@ for (const { file, width, height, body, scale = 1 } of IMAGES) {
         { stdio: 'ignore' },
     );
 
-    await sharp(path.join(temp, file))
-        .resize(width, height)
-        .png()
-        .toFile(path.join(root, 'public', file));
+    const shot = path.join(temp, file);
 
-    console.log(`public/${file} (${width}×${height})`);
+    if (!outputs) {
+        await sharp(shot)
+            .resize(width, height)
+            .png()
+            .toFile(path.join(root, 'public', file));
+        console.log(`public/${file} (${width}×${height})`);
+        continue;
+    }
+
+    for (const output of outputs) {
+        const target = path.join(root, 'public', output.file);
+
+        if (output.sizes) {
+            const pngs = await Promise.all(
+                output.sizes.map(async (size) => ({
+                    size,
+                    data: await sharp(shot).resize(size, size).png().toBuffer(),
+                })),
+            );
+            fs.writeFileSync(target, ico(pngs));
+            console.log(`public/${output.file} (${output.sizes.join(', ')})`);
+        } else {
+            await sharp(shot).resize(output.size, output.size).png().toFile(target);
+            console.log(`public/${output.file} (${output.size}×${output.size})`);
+        }
+    }
 }
 
 fs.rmSync(temp, { recursive: true, force: true });
