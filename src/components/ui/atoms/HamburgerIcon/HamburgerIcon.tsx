@@ -4,11 +4,18 @@ import type { HamburgerIconProps } from './types.ts';
 
 const barClasses = 'absolute h-1 w-6 transition-all duration-300 ease-in-out';
 
-export const HamburgerIcon = ({ isOpen, setIsOpen, isWhite, controls }: HamburgerIconProps) => {
+export const HamburgerIcon = ({
+    ref,
+    isOpen,
+    setIsOpen,
+    isWhite,
+    controls,
+}: HamburgerIconProps) => {
     const colour = isOpen || isWhite ? 'bg-white' : 'bg-ui-background-secondary';
 
     return (
         <button
+            ref={ref}
             type='button'
             onClick={setIsOpen}
             className='relative w-10 h-10 flex items-center justify-center cursor-pointer'

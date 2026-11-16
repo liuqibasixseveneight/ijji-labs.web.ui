@@ -29,14 +29,14 @@ const Spinner = () => (
 
 /** The yellow, corner-cut call to action: a `<button>`, or a router link with `type='internal-link'`. */
 export const Button = (props: ButtonProps) => {
-    const { label, cutSize = 14, isLoading = false, className } = props;
+    const { label, cutSize = 14, isLoading = false, className, size = 'full' } = props;
 
     const clipPath = `polygon(0 0, calc(100% - ${cutSize}px) 0, 100% ${cutSize}px, 100% 100%, 0 100%)`;
 
     const classes = clsx(
         'relative bg-brand-primary text-ui-background-primary',
-        'text-sm font-extrabold tracking-widest uppercase',
-        'px-10 py-4 rounded-l-4xl flex items-center justify-center gap-3',
+        'whitespace-nowrap font-extrabold tracking-widest uppercase rounded-l-4xl flex items-center justify-center gap-3',
+        size === 'full' ? 'text-sm px-10 py-4' : 'text-xs px-5 py-3 md:text-sm md:px-10 md:py-4',
         'hover:opacity-90 active:scale-[0.98] transition-all duration-200',
         'disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
         className,
@@ -77,6 +77,6 @@ export const Button = (props: ButtonProps) => {
 };
 
 const omitOwnProps = <T extends ButtonProps>(props: T) => {
-    const { label, cutSize, isLoading, className, ...rest } = props;
+    const { label, cutSize, isLoading, className, size, ...rest } = props;
     return rest;
 };

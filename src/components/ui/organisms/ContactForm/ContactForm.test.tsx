@@ -8,10 +8,10 @@ import { submitForm } from './submitForm.ts';
 
 vi.mock('./submitForm.ts', () => ({ submitForm: vi.fn() }));
 
-const renderForm = () => {
+const renderForm = (path = '/contact') => {
     const user = userEvent.setup();
     render(
-        <MemoryRouter>
+        <MemoryRouter initialEntries={[path]}>
             <ContactForm />
         </MemoryRouter>,
     );
@@ -22,7 +22,7 @@ const fillRequired = async (user: ReturnType<typeof userEvent.setup>) => {
     await user.type(screen.getByLabelText(/your name/i), 'Jane Smith');
     await user.type(screen.getByLabelText(/email address/i), 'jane@example.com');
     await user.type(screen.getByLabelText(/contact number/i), '+44 113 496 0000');
-    await user.selectOptions(screen.getByLabelText(/project type/i), 'Website redesign');
+    await user.selectOptions(screen.getByLabelText(/what’s it about/i), 'Website redesign');
     await user.type(screen.getByLabelText(/^message/i), 'We need a new site by spring.');
 };
 
@@ -39,7 +39,7 @@ describe('ContactForm', () => {
             /company name/i,
             /email address/i,
             /contact number/i,
-            /project type/i,
+            /what’s it about/i,
             /preferred contact method/i,
             /^message/i,
             /how did you hear about us/i,
@@ -56,7 +56,7 @@ describe('ContactForm', () => {
         expect(await screen.findByText('Name must be at least 2 characters')).toBeVisible();
         expect(screen.getByText('Please enter a valid email address')).toBeVisible();
         expect(screen.getByText('Contact number is required')).toBeVisible();
-        expect(screen.getByText('Please select a project type')).toBeVisible();
+        expect(screen.getByText('Please choose what it’s about')).toBeVisible();
         expect(screen.getByText('Message must be at least 10 characters')).toBeVisible();
         expect(submitForm).not.toHaveBeenCalled();
     });
@@ -107,5 +107,43 @@ describe('ContactForm', () => {
         expect(await screen.findByText('Failed to send message')).toBeVisible();
         expect(screen.getByText('Failed to send — please try again.')).toBeVisible();
         expect(screen.getByLabelText(/your name/i)).toHaveValue('Jane Smith');
+    });
+
+    it('chooses the topic from the address, e.g. ?topic=support', async () => {
+        renderForm('/contact?topic=support');
+
+        expect(await screen.findByDisplayValue('Help with IJJI Tracker')).toBeInTheDocument();
+    });
+
+    it('ignores a topic it doesn’t know', () => {
+        renderForm('/contact?topic=<script>');
+
+        expect(screen.getByLabelText(/what’s it about/i)).toHaveValue('');
+    });
+
+    it('needs no phone number for a support request', async () => {
+        vi.mocked(submitForm).mockResolvedValue({ success: true });
+        const user = renderForm('/contact?topic=support');
+
+        await screen.findByDisplayValue('Help with IJJI Tracker');
+        await user.type(screen.getByLabelText(/your name/i), 'Jane Smith');
+        await user.type(screen.getByLabelText(/email address/i), 'jane@example.com');
+        await user.type(screen.getByLabelText(/^message/i), 'My reminders stopped arriving.');
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+        expect(await screen.findByRole('heading', { name: 'Message sent!' })).toBeVisible();
+        expect(submitForm).toHaveBeenCalledWith(
+            expect.objectContaining({ projectType: 'Help with IJJI Tracker', phone: '' }),
+        );
+    });
+
+    it('promises the reply time from site.ts', async () => {
+        vi.mocked(submitForm).mockResolvedValue({ success: true });
+        const user = renderForm();
+
+        await fillRequired(user);
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+        expect(await screen.findByText(/within one business day/)).toBeVisible();
     });
 });

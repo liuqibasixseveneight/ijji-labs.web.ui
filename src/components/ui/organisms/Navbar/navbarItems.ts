@@ -1,9 +1,11 @@
+import { paths } from '../../../../router/paths.ts';
 import type { NavMenuItemLink } from '../../atoms';
 
 export const navbarItems: NavMenuItemLink[] = [
-    { label: 'Home', to: '/', num: '00', description: 'Welcome' },
-    { label: 'About', to: '/about', num: '01', description: 'Who we are' },
-    { label: 'Services', to: '/services', num: '02', description: 'What we do' },
-    { label: 'Projects', to: '/projects', num: '03', description: 'Our work' },
-    { label: 'Contact', to: '/contact', num: '04', description: 'Say hello' },
+    { label: 'Home', to: paths.home, num: '00', description: 'Welcome' },
+    { label: 'About', to: paths.about, num: '01', description: 'Who we are' },
+    { label: 'Services', to: paths.services, num: '02', description: 'What we do' },
+    { label: 'Projects', to: paths.projects, num: '03', description: 'Our work' },
+    { label: 'Apps', to: paths.apps, num: '04', description: 'What we make' },
+    { label: 'Contact', to: paths.contact, num: '05', description: 'Say hello' },
 ];

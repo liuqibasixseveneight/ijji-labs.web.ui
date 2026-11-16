@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { NavMenuProps } from './types.ts';
 import { disableScrollLock, enableScrollLock } from './utils.ts';
@@ -6,6 +6,7 @@ import { NavMenuItem } from '../../atoms';
 
 export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
     const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isOpen) enableScrollLock();
@@ -14,8 +15,14 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
         return () => disableScrollLock();
     }, [isOpen]);
 
+    // Opening the menu takes keyboard focus to its first link.
+    useEffect(() => {
+        if (isOpen) menuRef.current?.querySelector('a')?.focus();
+    }, [isOpen]);
+
     return (
         <div
+            ref={menuRef}
             id={id}
             // Off-screen while closed: keep its links out of the tab order and the accessibility tree.
             inert={!isOpen}

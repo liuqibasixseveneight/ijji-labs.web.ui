@@ -1,28 +1,56 @@
+import { Link } from 'react-router-dom';
+
+import { site } from '../../../../content/site.ts';
 import { Logo, NavbarLink } from '../../atoms';
-import { footerLinks } from './footerLinks.ts';
+import { footerLinks, legalLinks } from './footerLinks.ts';
 
 export const Footer = () => (
-    <footer className='bg-ui-background-secondary py-10'>
-        <div className='max-w-380 px-6 md:px-8 mx-auto flex flex-col md:flex-row justify-between items-start md:items-center'>
-            <div className='flex flex-col items-start text-ui-text-secondary text-sm'>
-                <Logo isWhite />
-                <div className='uppercase mt-4 md:mt-2 mb-2'>
-                    &copy; 2026 ijji labs. All rights reserved.
+    <footer className='bg-ui-background-secondary py-10' data-print='hide'>
+        <div className='max-w-380 px-6 md:px-8 mx-auto flex flex-col gap-10'>
+            <div className='flex flex-col md:flex-row justify-between items-start md:items-center'>
+                <div className='flex flex-col items-start text-ui-text-secondary text-sm'>
+                    <Logo isWhite />
+                    <div className='uppercase mt-4 md:mt-2'>
+                        &copy; 2026 {site.name}. All rights reserved.
+                    </div>
                 </div>
-                <div className='italic text-xs'>Built by humans.</div>
+
+                <nav aria-label='Footer' className='flex justify-start md:justify-end mt-8 md:mt-0'>
+                    <ul className='flex flex-wrap items-center gap-x-6 gap-y-4 md:gap-x-10'>
+                        {footerLinks.map((item) => (
+                            <NavbarLink
+                                key={item.to}
+                                text={item.text}
+                                to={item.to}
+                                className='text-sm text-ui-text-secondary'
+                            />
+                        ))}
+                    </ul>
+                </nav>
             </div>
 
-            <nav aria-label='Footer' className='flex justify-start md:justify-end mt-8 md:mt-0'>
-                <ul className='flex items-center gap-6 md:gap-10'>
-                    {footerLinks.map((item) => (
-                        <NavbarLink
-                            key={item.to}
-                            text={item.text}
-                            to={item.to}
-                            className='text-sm text-ui-text-secondary'
-                        />
-                    ))}
-                </ul>
+            <nav
+                aria-label='Legal'
+                className='flex flex-col sm:flex-row flex-wrap gap-x-12 gap-y-4 pt-8 border-t border-white/5 text-xs text-ui-text-secondary'
+            >
+                {legalLinks.map(({ group, links }) => (
+                    <div key={group} className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+                        <span className='uppercase tracking-widest text-white/60'>{group}</span>
+                        <ul className='flex flex-wrap gap-x-4 gap-y-2'>
+                            {links.map((link) => (
+                                <li key={link.to}>
+                                    <Link
+                                        to={link.to}
+                                        aria-label={`${group}: ${link.text}`}
+                                        className='hover:text-brand-primary transition-colors'
+                                    >
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </nav>
         </div>
     </footer>

@@ -25,6 +25,9 @@ export default defineConfig({
                 },
             },
         },
+        // Responsive images stay files: inlined, every size in a srcset would be base64 in
+        // every page's HTML and JavaScript, whichever one the browser picks.
+        assetsInlineLimit: (file) => (file.includes('/assets/images/') ? false : undefined),
         chunkSizeWarningLimit: 800,
         minify: 'esbuild',
         cssCodeSplit: true,
@@ -53,7 +56,7 @@ export default defineConfig({
             // Lines are the honest measure here. Tests run the React Compiler's output (what ships),
             // and it adds memo-cache branches and helper functions to every component, which drag
             // the other three down whatever the tests do.
-            thresholds: { lines: 90, statements: 80, functions: 65, branches: 65 },
+            thresholds: { lines: 95, statements: 90, functions: 90, branches: 65 },
         },
     },
 });

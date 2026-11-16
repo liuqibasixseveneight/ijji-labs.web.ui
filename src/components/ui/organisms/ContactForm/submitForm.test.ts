@@ -7,7 +7,7 @@ const data: ContactFormData = {
     name: 'Jane Smith',
     email: 'jane@example.com',
     phone: '+44 113 496 0000',
-    projectType: 'Landing page',
+    projectType: 'New website project',
     message: 'A landing page for our launch.',
 };
 

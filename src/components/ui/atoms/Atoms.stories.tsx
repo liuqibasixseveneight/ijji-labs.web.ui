@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { aboutImageOne } from '../../../assets/images';
 import { ArtisticFrame } from './ArtisticFrame';
+import { ResponsiveImage } from './ResponsiveImage';
 import { BadgeLink } from './BadgeLink';
 import { HamburgerIcon } from './HamburgerIcon';
 import { Logo } from './Logo';
@@ -31,7 +32,11 @@ const dark = { globals: { backgrounds: { value: 'dark' } } };
 export const Frame: Story = {
     render: () => (
         <ArtisticFrame className='w-96 h-64'>
-            <img src={aboutImageOne} alt='Office' className='w-full h-full object-cover' />
+            <ResponsiveImage
+                image={aboutImageOne}
+                alt='Office'
+                className='w-full h-full object-cover'
+            />
         </ArtisticFrame>
     ),
 };

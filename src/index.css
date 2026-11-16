@@ -1,14 +1,16 @@
 /**
-  FONTS (loaded in index.html):
+  FONTS (self-hosted from @fontsource, no third-party requests):
   NEWSREADER      - HEADINGS
   SPACE GROTESK   - BODY TEXT
  */
+@import '@fontsource-variable/newsreader/wght.css';
+@import '@fontsource-variable/space-grotesk/wght.css';
 @import 'tailwindcss';
 
 @theme {
     /* FONTS */
-    --font-newsreader: 'Newsreader', serif; /* HEADINGS */
-    --font-space-grotesk: 'Space Grotesk', sans-serif; /* BODY TEXT */
+    --font-newsreader: 'Newsreader Variable', 'Newsreader', serif; /* HEADINGS */
+    --font-space-grotesk: 'Space Grotesk Variable', 'Space Grotesk', sans-serif; /* BODY TEXT */
 
     /* BRAND */
     --color-brand-primary: #faee47;
@@ -29,7 +31,7 @@
 }
 
 body {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-space-grotesk);
 }
 
 ::selection {
@@ -49,4 +51,36 @@ body {
 
 @utility animate-scroll-chevron {
     animation: scroll-chevron 1.6s ease-in-out infinite;
+}
+
+/* People who ask for less motion get none: no transitions, no looping animations. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* A clear focus ring for keyboard users, on every link, button and field. */
+:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 3px;
+}
+
+/* Policies and other long reads print cleanly: no navbar, menu or footer, black on white. */
+@media print {
+    [data-print='hide'] {
+        display: none !important;
+    }
+
+    body,
+    main,
+    section {
+        background: white !important;
+        color: black !important;
+    }
 }

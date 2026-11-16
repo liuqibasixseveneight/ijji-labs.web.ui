@@ -1,5 +1,6 @@
 import type { ProjectCardProps } from './types.ts';
 import { ArtisticFrame } from '../../atoms';
+import { cdnImage } from './cdnImage.ts';
 
 export const ProjectCard = ({
     number,
@@ -23,7 +24,15 @@ export const ProjectCard = ({
             >
                 {mockup ? (
                     <img
-                        src={mockup}
+                        src={cdnImage(mockup, 960)}
+                        srcSet={[480, 720, 960, 1280]
+                            .map((w) => `${cdnImage(mockup, w)} ${w}w`)
+                            .join(', ')}
+                        sizes='(min-width: 768px) 50vw, 100vw'
+                        width={1200}
+                        height={900}
+                        loading='lazy'
+                        decoding='async'
                         alt={`${name} screenshot`}
                         className='w-full h-full object-cover object-top'
                     />

@@ -1,27 +1,22 @@
-import { ServiceCards } from '../../../../ui';
-import { ServicesProcess } from '../../../Services/modules';
-import { cardData } from './cardData.ts';
+import { homeCopy, serviceCards } from '../../../../../content';
+import { paths } from '../../../../../router/paths.ts';
+import { MoreLink, ProcessSection, Section, SectionIntro, ServiceCards } from '../../../../ui';
 
 export const HomeServices = () => (
     <>
-        <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-ui-background-primary'>
-            <div className='max-w-380 w-full flex-1 py-[10vh] flex flex-col px-6 md:px-8'>
-                <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-10 leading-none'>
-                    Our services
-                </h2>
-                <p className='text-lg sm:text-xl text-neutral-400 max-w-2xl leading-relaxed mb-16'>
-                    We keep our offering focused — so every project gets our full attention, not a
-                    fraction of it.
-                </p>
-
-                <ServiceCards cardData={cardData} />
-
-                <em className='text-neutral-400 mt-[10vh]'>
-                    Any additional features can be developed at an agreed extra cost.
-                </em>
+        <Section tone='dark' labelledBy='home-services-title'>
+            <SectionIntro
+                id='home-services-title'
+                title={homeCopy.services.title}
+                lede={homeCopy.services.lede}
+            />
+            <ServiceCards cardData={serviceCards} />
+            <div className='mt-[8vh] flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between'>
+                <em className='text-neutral-400'>{homeCopy.services.note}</em>
+                <MoreLink to={paths.services}>All services</MoreLink>
             </div>
-        </div>
+        </Section>
 
-        <ServicesProcess />
+        <ProcessSection />
     </>
 );

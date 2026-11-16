@@ -3,10 +3,31 @@
     publish = "dist"
     functions = "netlify/functions"
 
-# A single-page app: serve index.html for every path, so opening or refreshing
-# /about (or any deep link) loads the app instead of Netlify's 404. Real files and
-# /.netlify/functions/* are matched first.
-[[redirects]]
-    from = "/*"
-    to = "/index.html"
-    status = 200
+# `npm run preview:netlify` builds the site and serves it as Netlify will, with these headers
+# and both functions, on http://localhost:8888. Plain `npm run dev` has no functions, so the
+# forms get a 404 there. (`netlify dev` doesn't suit: this CSP blocks Vite's dev scripts.)
+
+# Every page is pre-rendered to its own index.html at build time (scripts/prerender.mjs),
+# so there is no single-page fallback: an address that isn't a page gets Netlify's
+# 404 handling, which serves the pre-rendered dist/404.html with a real 404 status.
+# Adding a page means adding it to the routes (and so to the prerender list), not here.
+
+# Security headers for every response. The CSP allows only this site's own scripts,
+# styles (inline style attributes are used for the cut corners), fonts and forms, plus
+# project images from Unsplash. Check the browser console for CSP errors after adding a
+# third party.
+[[headers]]
+    for = "/*"
+    [headers.values]
+        Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+        X-Content-Type-Options = "nosniff"
+        Referrer-Policy = "strict-origin-when-cross-origin"
+        Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+        X-Frame-Options = "DENY"
+
+# Built assets have a content hash in their name, so they can be cached for a year.
+[[headers]]
+    for = "/assets/*"
+    [headers.values]
+        Cache-Control = "public, max-age=31536000, immutable"

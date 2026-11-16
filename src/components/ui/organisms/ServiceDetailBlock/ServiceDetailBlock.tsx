@@ -4,22 +4,24 @@ export const ServiceDetailBlock = ({ service, index }: ServiceDetailBlockProps) 
     const isEven = index % 2 === 0;
 
     return (
-        <div
+        <section
+            aria-labelledby={`${service.id}-title`}
             className={`w-full py-[8vh] ${isEven ? 'bg-ui-background-primary' : 'bg-white'}`}
-            id={`service-${index + 1}`}
+            id={service.id}
         >
             <div className='max-w-380 w-full mx-auto px-6 md:px-8'>
                 <span
                     className={`text-sm font-bold tracking-widest uppercase mb-6 block ${
-                        isEven ? 'text-white/30' : 'text-neutral-400'
+                        isEven ? 'text-white/60' : 'text-neutral-500'
                     }`}
                 >
-                    0{index + 1}
+                    {String(index + 1).padStart(2, '0')}
                 </span>
 
                 <div className='flex flex-col lg:flex-row lg:items-start lg:gap-16 mb-12'>
                     <div className='flex-1'>
                         <h2
+                            id={`${service.id}-title`}
                             className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-none mb-4 ${
                                 isEven ? 'text-white' : 'text-ui-background-primary'
                             }`}
@@ -31,7 +33,7 @@ export const ServiceDetailBlock = ({ service, index }: ServiceDetailBlockProps) 
                                     className={`ml-4 text-base font-medium align-middle px-3 py-1 rounded-full uppercase border tracking-widest ${
                                         isEven
                                             ? 'text-neutral-400 border-neutral-700'
-                                            : 'text-neutral-400 border-neutral-300'
+                                            : 'text-neutral-500 border-neutral-300'
                                     }`}
                                 >
                                     Optional
@@ -74,7 +76,7 @@ export const ServiceDetailBlock = ({ service, index }: ServiceDetailBlockProps) 
                     <div>
                         <p
                             className={`text-xs tracking-widest uppercase mb-5 ${
-                                isEven ? 'text-white/30' : 'text-neutral-400'
+                                isEven ? 'text-white/60' : 'text-neutral-500'
                             }`}
                         >
                             {service.optional ? 'Available in package' : "What's included"}
@@ -101,6 +103,6 @@ export const ServiceDetailBlock = ({ service, index }: ServiceDetailBlockProps) 
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     );
 };
