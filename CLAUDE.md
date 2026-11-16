@@ -70,6 +70,7 @@ These were measured with Lighthouse (mobile) on the built site: 100 for accessib
 - Relative imports with explicit `.ts`/`.tsx` extensions inside a component folder; barrels (`'../../ui'`) across folders.
 - Join conditional classes with `clsx`, not `${cond && 'class'}`.
 - Text links have one style, on dark and light sections alike: a yellow marker stroke at rest that rises to fill the link on hover or focus (on dark, the text turns dark as it fills). Use `TextLink` or `MoreLink` (both built on `markerLink`), or the `link-highlight link-marked` utilities in `index.css` for links inside running text. Never a plain underline. Navigation (menu, navbar, footer, breadcrumbs), buttons and cards have their own styles.
+- Buttons, text links and footer links roll their label on hover or focus: wrap the text in `RollingText` and mark the link or button `group`. The rolling copy is `aria-hidden`, so names are read once, but `textContent` holds the text twice: find links in tests by role and name.
 - Form fields go inside `FieldWrapper`, which wraps them in their `<label>`; forms get a `Honeypot`.
 - With react-hook-form, read live values with `useWatch`, not `watch` (the React Compiler skips components that call `watch`).
 - Policies are drafts until reviewed; never present them as legal advice.

@@ -1,10 +1,11 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
+import { RollingText } from '../RollingText/RollingText.tsx';
 import type { RichTextProps } from './types.ts';
 
 /** A yellow marker stroke under the link, filling in behind the text on hover (index.css). */
-const linkClasses = 'link-highlight link-marked';
+const linkClasses = 'group link-highlight link-marked';
 
 /** Renders content text: plain strings, links (in-site, email or external) and bold runs. */
 export const RichText = ({ text }: RichTextProps) => (
@@ -23,7 +24,7 @@ export const RichText = ({ text }: RichTextProps) => (
             if (part.href.startsWith('/')) {
                 return (
                     <Link key={index} to={part.href} className={linkClasses}>
-                        {part.text}
+                        <RollingText>{part.text}</RollingText>
                     </Link>
                 );
             }
@@ -37,7 +38,7 @@ export const RichText = ({ text }: RichTextProps) => (
                     className={linkClasses}
                     {...(external && { target: '_blank', rel: 'noreferrer' })}
                 >
-                    {part.text}
+                    <RollingText>{part.text}</RollingText>
                     {external && <span className='sr-only'> (opens in a new tab)</span>}
                 </a>
             );

@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 
+import { RollingText } from '../RollingText/RollingText.tsx';
 import type { ButtonProps } from './types.ts';
 
 const Spinner = () => (
@@ -27,37 +28,6 @@ const Spinner = () => (
         />
     </svg>
 );
-
-/**
- * The label, rolling on hover or keyboard focus: it slides up out of the button as a copy
- * rises in from below. The copy is hidden from screen readers, so the name is read once.
- */
-const RollingLabel = ({ label }: { label: string }) => {
-    // The same timing and easing as the links' rising yellow (markerLink).
-    const roll = 'block transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]';
-
-    return (
-        <span className='relative block overflow-hidden'>
-            <span
-                className={clsx(
-                    roll,
-                    'group-hover:-translate-y-full group-focus-visible:-translate-y-full',
-                )}
-            >
-                {label}
-            </span>
-            <span
-                aria-hidden='true'
-                className={clsx(
-                    roll,
-                    'absolute inset-0 translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0',
-                )}
-            >
-                {label}
-            </span>
-        </span>
-    );
-};
 
 /**
  * The yellow, corner-cut call to action: a `<button>`, or a router link with
@@ -88,7 +58,7 @@ export const Button = (props: ButtonProps) => {
             <span>Sending...</span>
         </>
     ) : (
-        <RollingLabel label={label} />
+        <RollingText>{label}</RollingText>
     );
 
     // Our own props are picked out of `rest` so they never land on the DOM element.

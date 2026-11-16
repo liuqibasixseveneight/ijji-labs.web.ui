@@ -12,6 +12,7 @@ export * from './NavbarLink';
 export * from './PageMeta';
 export * from './ResponsiveImage';
 export * from './RichText';
+export * from './RollingText';
 export * from './ScrollIndicator';
 export * from './Section';
 export * from './SelectInput';

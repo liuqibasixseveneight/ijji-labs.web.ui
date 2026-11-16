@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { site } from '../../../../content/site.ts';
-import { Logo, NavbarLink } from '../../atoms';
+import { Logo, NavbarLink, RollingText } from '../../atoms';
 import { footerLinks, legalLinks } from './footerLinks.ts';
 
 export const Footer = () => (
@@ -42,9 +42,9 @@ export const Footer = () => (
                                     <Link
                                         to={link.to}
                                         aria-label={`${group}: ${link.text}`}
-                                        className='hover:text-brand-primary transition-colors'
+                                        className='group hover:text-brand-primary transition-colors'
                                     >
-                                        {link.text}
+                                        <RollingText>{link.text}</RollingText>
                                     </Link>
                                 </li>
                             ))}
