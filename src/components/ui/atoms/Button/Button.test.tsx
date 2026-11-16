@@ -17,6 +17,16 @@ describe('Button', () => {
         expect(onClick).toHaveBeenCalledOnce();
     });
 
+    it('reads its label once: the copy that rolls in on hover is hidden from screen readers', () => {
+        render(<Button label='Send message' />);
+
+        const button = screen.getByRole('button', { name: 'Send message' });
+        const copies = [...button.querySelectorAll('span span')];
+
+        expect(copies.map((copy) => copy.textContent)).toEqual(['Send message', 'Send message']);
+        expect(copies.map((copy) => copy.getAttribute('aria-hidden'))).toEqual([null, 'true']);
+    });
+
     it('is disabled and says Sending... while loading', () => {
         render(<Button label='Send message' type='submit' isLoading />);
 
