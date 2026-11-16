@@ -4,7 +4,8 @@ import type { SectionProps } from './types.ts';
 
 const TONES = {
     dark: 'bg-ui-background-primary',
-    light: 'bg-white',
+    // A dark focus ring: the yellow one barely shows on white.
+    light: 'bg-white [--focus-ring:var(--color-ui-background-primary)]',
 } as const;
 
 const WIDTHS = {

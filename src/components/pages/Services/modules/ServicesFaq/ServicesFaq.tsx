@@ -15,7 +15,7 @@ export const ServicesFaq = () => (
             }
         />
 
-        <ArtisticFrame className='bg-white px-6 md:px-10 py-2'>
+        <ArtisticFrame className='bg-white px-6 md:px-10 py-2 [--focus-ring:var(--color-ui-background-primary)]'>
             <Accordion items={faqs} />
         </ArtisticFrame>
     </Section>

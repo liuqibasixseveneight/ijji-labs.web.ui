@@ -8,6 +8,7 @@ import { BadgeLink } from './BadgeLink';
 import { HamburgerIcon } from './HamburgerIcon';
 import { Logo } from './Logo';
 import { NavbarLink } from './NavbarLink';
+import { RichText } from './RichText';
 import { ScrollIndicator } from './ScrollIndicator';
 import { TextLink } from './TextLink';
 import { Tooltip } from './Tooltip';
@@ -84,6 +85,29 @@ export const InlineLink: Story = {
                 .
             </p>
         </div>
+    ),
+};
+
+/**
+ * Policy text: plain runs, bold, and links (in-site, email, other sites). Links carry the
+ * yellow marker stroke, fill on hover and roll; other sites open in a new tab and say so.
+ */
+export const PolicyText: Story = {
+    render: () => (
+        <p className='max-w-xl text-lg leading-relaxed text-neutral-700 bg-white p-8'>
+            <RichText
+                text={[
+                    'Email ',
+                    { text: 'support@ijji-labs.com', href: 'mailto:support@ijji-labs.com' },
+                    ' or ',
+                    { text: 'send us a message', href: '/contact?topic=support' },
+                    '. You can also complain to ',
+                    { text: 'the ICO', href: 'https://ico.org.uk' },
+                    '. ',
+                    { strong: 'We never sell your data.' },
+                ]}
+            />
+        </p>
     ),
 };
 

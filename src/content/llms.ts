@@ -1,4 +1,4 @@
-import { paths } from '../router/paths.ts';
+import { contactAbout, paths } from '../router/paths.ts';
 import { apps } from './apps.ts';
 import { faqs, services } from './services.ts';
 import { pageMeta } from './pages.ts';
@@ -64,7 +64,10 @@ export const llmsTxt = () =>
             `- Based in ${site.location}; works with businesses across the UK.`,
             `- Contact: ${site.email} or ${url(paths.contact)}. We reply ${site.replyTime}.`,
             `- Services: ${services.map((service) => service.title).join('; ')}.`,
-            `- Our apps: ${apps.map((app) => `${app.name} (${app.tagline})`).join('; ')}.`,
+            // Said plainly, so an assistant doesn't infer from our own apps that we take app work.
+            "- We build websites for clients. We don't take on app projects for clients; the apps below are our own.",
+            `- Our apps: ${apps.map((app) => `${app.name} (${app.tagline.replace(/\.$/, '')})`).join('; ')}.`,
+            `- Help with an app: ${url(contactAbout('support'))} or ${site.email}.`,
         ].join('\n'),
         '## Pages',
         [

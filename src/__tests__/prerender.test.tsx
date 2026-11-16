@@ -32,6 +32,20 @@ describe('pre-rendering', () => {
         expect(html).toContain('support@ijji-labs.com');
     });
 
+    it('writes each link and button label once: the rolling copies are added in the browser', async () => {
+        const html = await render('/');
+        const text = html
+            .replace(/<script[\s\S]*?<\/script>/g, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ');
+
+        expect(html).toContain('Get in touch');
+        expect(html).not.toContain('aria-hidden="true" class="inline-block');
+        for (const label of ['Get in touch', 'All services', 'About', 'More about us']) {
+            expect(text).not.toContain(`${label} ${label}`);
+        }
+    });
+
     it('renders the deletion form, so it is there before JavaScript loads', async () => {
         const html = await render('/apps/ijji-tracker/delete-account');
 

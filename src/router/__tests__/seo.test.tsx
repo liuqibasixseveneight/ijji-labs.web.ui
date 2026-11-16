@@ -160,6 +160,14 @@ describe('llms.txt', () => {
         expect(text).toContain('support@ijji-labs.com');
     });
 
+    it('says plainly that client work is websites, so assistants don’t assume app work', () => {
+        const text = llmsTxt();
+
+        expect(text).toContain("We don't take on app projects for clients");
+        expect(text).toContain('Help with an app: https://www.ijji-labs.com/contact?topic=support');
+        expect(text).not.toMatch(/\.\)\./);
+    });
+
     it('llms-full.txt carries the full text of every policy section', () => {
         const text = llmsFullTxt();
         const app = apps[0];

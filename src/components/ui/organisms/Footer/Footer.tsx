@@ -39,11 +39,14 @@ export const Footer = () => (
                         <ul className='flex flex-wrap gap-x-4 gap-y-2'>
                             {links.map((link) => (
                                 <li key={link.to}>
+                                    {/* The group is hidden text, not an aria-label, so the link's
+                                    name ("This website: Privacy") contains what it shows
+                                    (WCAG 2.5.3, label in name). */}
                                     <Link
                                         to={link.to}
-                                        aria-label={`${group}: ${link.text}`}
                                         className='group hover:text-brand-primary transition-colors'
                                     >
+                                        <span className='sr-only'>{group}: </span>{' '}
                                         <RollingText>{link.text}</RollingText>
                                     </Link>
                                 </li>
