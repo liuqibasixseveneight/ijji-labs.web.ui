@@ -68,16 +68,22 @@ export const FooterLink: Story = {
     ),
 };
 
-/** Inline link, as in the FAQ's "just ask". */
+/** Inline link, as in the FAQ's "just ask": a yellow marker stroke that rises on hover. */
 export const InlineLink: Story = {
     render: () => (
-        <p className='text-lg'>
-            If yours isn&apos;t here,{' '}
-            <TextLink to='/contact' underline='always'>
-                just ask
-            </TextLink>
-            . Or one that underlines on hover: <TextLink to='/contact'>contact</TextLink>.
-        </p>
+        <div className='flex flex-col'>
+            <p className='text-lg text-white/60 bg-ui-background-primary p-8'>
+                On a dark section: if yours isn&apos;t here,{' '}
+                <TextLink to='/contact'>just ask</TextLink>.
+            </p>
+            <p className='text-lg text-neutral-600 bg-white p-8'>
+                On a light section: if yours isn&apos;t here,{' '}
+                <TextLink to='/contact' tone='light'>
+                    just ask
+                </TextLink>
+                .
+            </p>
+        </div>
     ),
 };
 

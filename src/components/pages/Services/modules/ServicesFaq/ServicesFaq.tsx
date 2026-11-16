@@ -10,11 +10,7 @@ export const ServicesFaq = () => (
             lede={
                 <>
                     Straightforward answers to the questions we hear most often. If yours isn&apos;t
-                    here,{' '}
-                    <TextLink to={paths.contact} underline='always' className='text-white'>
-                        just ask
-                    </TextLink>
-                    .
+                    here, <TextLink to={paths.contact}>just ask</TextLink>.
                 </>
             }
         />

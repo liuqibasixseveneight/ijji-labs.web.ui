@@ -13,10 +13,7 @@ export const NotFound = () => (
             </h1>
             <p className='text-xl text-white/60 max-w-xl mb-10'>
                 The page you were looking for has moved or never existed. Try the{' '}
-                <TextLink to={paths.home} underline='always' className='text-white'>
-                    home page
-                </TextLink>
-                , or tell us what you were after.
+                <TextLink to={paths.home}>home page</TextLink>, or tell us what you were after.
             </p>
             <Button
                 type='internal-link'

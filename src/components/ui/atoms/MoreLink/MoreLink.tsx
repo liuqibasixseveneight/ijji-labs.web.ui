@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 
+import { markerLink } from '../TextLink/markerLink.ts';
 import type { MoreLinkProps } from './types.ts';
 
 /** "More about us →": the way on from a section to the page that covers it in full. */
@@ -8,10 +9,10 @@ export const MoreLink = ({ to, children, tone = 'dark', className }: MoreLinkPro
     <Link
         to={to}
         className={clsx(
-            'group inline-flex items-center gap-3 self-start text-sm font-bold tracking-widest uppercase transition-colors',
-            tone === 'dark'
-                ? 'text-white hover:text-brand-primary'
-                : 'text-ui-background-primary hover:text-neutral-500',
+            // The right padding is the left plus the arrow's 4px slide (translate-x-1), so once it
+            // has moved, the space after the arrow matches the space before the text.
+            'group inline-flex items-center gap-3 self-start py-1.5 pl-3 pr-4 -ml-3 -mr-4 text-sm font-bold tracking-widest uppercase',
+            markerLink(tone),
             className,
         )}
     >
