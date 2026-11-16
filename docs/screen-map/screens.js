@@ -118,7 +118,7 @@ window.SCREEN_MAP = {
             title: 'Footer',
             route: 'Bottom of every page',
             how: 'Always there',
-            note: 'The main links, then a Legal row with every policy, so a reviewer can find them from any page. The current page’s main link stays yellow.',
+            note: 'The main links, then under a line the policies, stacked: ijji labs (website privacy), then each app (privacy, terms, support, delete account), so a reviewer can find them from any page. The current page’s main link stays yellow.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
                 { tap: 'About', to: 'about', kind: 'page' },
@@ -126,7 +126,7 @@ window.SCREEN_MAP = {
                 { tap: 'Projects', to: 'projects', kind: 'page' },
                 { tap: 'Apps', to: 'apps', kind: 'page' },
                 { tap: 'Contact', to: 'contact', kind: 'page' },
-                { tap: 'This website: Privacy', to: 'website-privacy', kind: 'page' },
+                { tap: 'ijji labs: Privacy', to: 'website-privacy', kind: 'page' },
                 { tap: 'IJJI Tracker: Privacy', to: 'tracker-privacy', kind: 'page' },
                 { tap: 'IJJI Tracker: Terms', to: 'tracker-terms', kind: 'page' },
                 { tap: 'IJJI Tracker: Support', to: 'tracker-support', kind: 'page' },

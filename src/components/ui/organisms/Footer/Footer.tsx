@@ -31,16 +31,23 @@ export const Footer = () => (
 
             <nav
                 aria-label='Legal'
-                className='flex flex-col sm:flex-row flex-wrap gap-x-12 gap-y-4 pt-8 border-t border-white/5 text-xs text-ui-text-secondary'
+                className='flex flex-col divide-y divide-white/5 border-y border-white/5 text-sm text-ui-text-secondary'
             >
+                {/* One row per group, one under another: the studio's own policy, then each
+                app's. From sm up the names line up in a column, with the links beside them. */}
                 {legalLinks.map(({ group, links }) => (
-                    <div key={group} className='flex flex-wrap items-center gap-x-4 gap-y-2'>
-                        <span className='uppercase tracking-widest text-white/60'>{group}</span>
-                        <ul className='flex flex-wrap gap-x-4 gap-y-2'>
+                    <div
+                        key={group}
+                        className='flex flex-col sm:flex-row sm:items-baseline gap-x-8 gap-y-3 py-5'
+                    >
+                        <span className='sm:w-44 shrink-0 text-xs font-medium uppercase tracking-widest text-white/60'>
+                            {group}
+                        </span>
+                        <ul className='flex flex-wrap gap-x-8 gap-y-2'>
                             {links.map((link) => (
                                 <li key={link.to}>
                                     {/* The group is hidden text, not an aria-label, so the link's
-                                    name ("This website: Privacy") contains what it shows
+                                    name ("ijji labs: Privacy") contains what it shows
                                     (WCAG 2.5.3, label in name). */}
                                     <Link
                                         to={link.to}

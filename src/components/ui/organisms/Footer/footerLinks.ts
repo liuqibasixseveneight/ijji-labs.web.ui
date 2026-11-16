@@ -1,4 +1,5 @@
 import { apps } from '../../../../content/apps.ts';
+import { site } from '../../../../content/site.ts';
 import { paths } from '../../../../router/paths.ts';
 import type { NavbarLinkProps } from '../../atoms';
 
@@ -14,7 +15,7 @@ export const footerLinks: FooterLink[] = [
 
 /** The policies, so they're one click from every page (the stores' reviewers look). */
 export const legalLinks: { group: string; links: FooterLink[] }[] = [
-    { group: 'This website', links: [{ to: paths.privacy, text: 'Privacy' }] },
+    { group: site.name, links: [{ to: paths.privacy, text: 'Privacy' }] },
     ...apps.map((app) => {
         const to = paths.app(app.slug);
         return {
