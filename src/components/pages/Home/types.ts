@@ -1,4 +1,4 @@
-import type { Palette } from '../../ui/organisms/FluidGradient/utils';
+import type { Palette } from '../../ui';
 
 export interface HomeContextProps {
     isGradientDark: boolean;

@@ -1,6 +1,6 @@
 import { ArtisticFrame, InfoCard } from '../../../../ui';
 import { aboutImageOne, aboutImageTwo } from '../../../../../assets/images';
-import { valueCards } from './valueCards.ts';
+import { valueCards } from '../../../../../content';
 
 export const HomeAbout = () => {
     return (
@@ -64,8 +64,8 @@ export const HomeAbout = () => {
                     </h3>
 
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-                        {valueCards.map((card, index: number) => (
-                            <InfoCard key={`${card?.title}-${index}`} {...card} />
+                        {valueCards.map((card) => (
+                            <InfoCard key={card.number} {...card} />
                         ))}
                     </div>
                 </div>

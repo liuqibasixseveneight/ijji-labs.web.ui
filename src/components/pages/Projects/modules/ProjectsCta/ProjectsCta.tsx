@@ -6,7 +6,7 @@ export const ProjectsCTA = () => (
             <h2 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-10 leading-none'>
                 Got a project in mind?
             </h2>
-            <p className='text-lg sm:text-xl text-neutral-600 max-w-2xl leading-relaxed mb-16'>
+            <p className='text-lg sm:text-xl text-neutral-400 max-w-2xl leading-relaxed mb-16'>
                 We take on a small number of projects at a time — so when we're working with you,
                 you have our full attention. If you'd like to talk through what you're looking for,
                 we'd love to hear from you.

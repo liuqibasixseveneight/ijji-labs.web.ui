@@ -1,5 +1,5 @@
 import { InfoCard } from '../../../../ui';
-import { valueCards } from '../../../Home/modules/HomeAbout/valueCards.ts';
+import { valueCards } from '../../../../../content';
 
 export const AboutValues = () => (
     <div
@@ -9,8 +9,8 @@ export const AboutValues = () => (
         <div className='max-w-7xl w-full flex-1 flex flex-col px-6 md:px-8'>
             <h2 className='text-3xl md:text-4xl font-medium mb-10'>What we stand for</h2>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-                {valueCards.map((card, index: number) => (
-                    <InfoCard key={`${card?.title}-${index}`} {...card} />
+                {valueCards.map((card) => (
+                    <InfoCard key={card.number} {...card} />
                 ))}
             </div>
         </div>

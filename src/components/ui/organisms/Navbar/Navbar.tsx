@@ -6,6 +6,8 @@ import { NavMenu } from '../../molecules';
 import { navbarItems } from './navbarItems.ts';
 import type { NavbarProps } from './types.ts';
 
+const NAV_MENU_ID = 'site-menu';
+
 export const Navbar = ({ isGradientDark }: NavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -17,8 +19,13 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
         setIsOpen((prev) => !prev);
     };
 
+    // A new page starts at the top, unless the link names a section (/projects#project-dedalus).
     const handleRouteChange = useEffectEvent(() => {
-        window.scrollTo(0, 0);
+        const target = location.hash && document.getElementById(location.hash.slice(1));
+
+        if (target) target.scrollIntoView();
+        else window.scrollTo(0, 0);
+
         setIsOpen(false);
     });
 
@@ -63,12 +70,13 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
                             isOpen={isOpen}
                             setIsOpen={handleOpenNavMenu}
                             isWhite={showScrolledStyles || isGradientDark}
+                            controls={NAV_MENU_ID}
                         />
                     </div>
                 </div>
             </nav>
 
-            <NavMenu isOpen={isOpen} setIsOpen={setIsOpen} links={navbarItems} />
+            <NavMenu id={NAV_MENU_ID} isOpen={isOpen} setIsOpen={setIsOpen} links={navbarItems} />
         </>
     );
 };

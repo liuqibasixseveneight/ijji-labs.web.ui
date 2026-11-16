@@ -1,6 +1,6 @@
-import type { NavBarMenuItemProps } from '../../molecules';
+import type { NavMenuItemLink } from '../../atoms';
 
-export const navbarItems: NavBarMenuItemProps[] = [
+export const navbarItems: NavMenuItemLink[] = [
     { label: 'Home', to: '/', num: '00', description: 'Welcome' },
     { label: 'About', to: '/about', num: '01', description: 'Who we are' },
     { label: 'Services', to: '/services', num: '02', description: 'What we do' },

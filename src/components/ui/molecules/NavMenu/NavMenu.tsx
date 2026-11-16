@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import type { NavMenuProps } from './types';
-import { disableScrollLock, enableScrollLock } from './utils';
+import type { NavMenuProps } from './types.ts';
+import { disableScrollLock, enableScrollLock } from './utils.ts';
 import { NavMenuItem } from '../../atoms';
 
-export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
+export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
     const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
     useEffect(() => {
@@ -16,11 +16,18 @@ export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
 
     return (
         <div
+            id={id}
+            // Off-screen while closed: keep its links out of the tab order and the accessibility tree.
+            inert={!isOpen}
+            aria-hidden={!isOpen}
             className={`fixed inset-0 z-10 bg-ui-background-secondary transition-transform duration-600 ${
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
         >
-            <nav className='relative flex flex-col justify-center h-full max-w-380 px-6 md:px-8 mx-auto'>
+            <nav
+                aria-label='Main'
+                className='relative flex flex-col justify-center h-full max-w-380 px-6 md:px-8 mx-auto'
+            >
                 {/* Ghost number — hidden on small screens where it would collide with content */}
                 <span
                     aria-hidden='true'
@@ -30,9 +37,9 @@ export const NavMenu = ({ isOpen, setIsOpen, links }: NavMenuProps) => {
                 </span>
 
                 <ul className='flex flex-col list-none p-0 m-0'>
-                    {links.map((link, index: number) => (
+                    {links.map((link, index) => (
                         <NavMenuItem
-                            key={`${link.label}-${index}`}
+                            key={link.to}
                             link={link}
                             isHovered={hoveredItem === index}
                             setIsOpen={setIsOpen}

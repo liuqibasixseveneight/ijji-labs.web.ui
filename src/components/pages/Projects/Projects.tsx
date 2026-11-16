@@ -5,7 +5,7 @@ export const Projects = () => (
     <>
         <ProjectsHero />
         <ProjectsList />
-        <ServicesProcess />
+        <ServicesProcess id='our-approach' />
         <ProjectsCTA />
     </>
 );

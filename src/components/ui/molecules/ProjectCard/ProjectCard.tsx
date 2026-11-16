@@ -2,7 +2,8 @@ import type { ProjectCardProps } from './types.ts';
 import { ArtisticFrame } from '../../atoms';
 
 export const ProjectCard = ({
-    id,
+    number,
+    anchor,
     name,
     description,
     services,
@@ -11,6 +12,7 @@ export const ProjectCard = ({
 }: ProjectCardProps) => {
     return (
         <div
+            id={anchor}
             className={`grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${
                 flip ? 'border-y border-neutral-900 py-[5vh]' : ''
             }`}
@@ -36,7 +38,7 @@ export const ProjectCard = ({
 
             <div className={`flex flex-col gap-4 ${flip ? 'md:order-first' : ''}`}>
                 <p className='text-sm sm:text-base text-neutral-400 leading-relaxed uppercase font-semibold'>
-                    {id}
+                    {number}
                 </p>
 
                 <h3 className='text-4xl sm:text-5xl font-extrabold text-white leading-none'>

@@ -30,3 +30,7 @@ dist-ssr
 
 # Netlify
 .netlify/
+# Build output from tooling
+coverage
+storybook-static
+*storybook.log

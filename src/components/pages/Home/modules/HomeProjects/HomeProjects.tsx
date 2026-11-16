@@ -1,5 +1,5 @@
 import { ProjectCard } from '../../../../ui';
-import { projects } from './projects.ts';
+import { projects } from '../../../../../content';
 
 export const HomeProjects = () => (
     <div className='flex-1 h-full flex flex-col items-center justify-center w-full bg-ui-background-primary'>
@@ -14,11 +14,7 @@ export const HomeProjects = () => (
 
             <div className='flex flex-col gap-[5vh]'>
                 {projects.map((project, index: number) => (
-                    <ProjectCard
-                        key={`${project.id}-${index}`}
-                        flip={index % 2 !== 0}
-                        {...project}
-                    />
+                    <ProjectCard key={project.number} flip={index % 2 !== 0} {...project} />
                 ))}
             </div>
         </div>
