@@ -17,6 +17,11 @@ if (typeof window !== 'undefined') {
     // jsdom has no IntersectionObserver; FluidGradient waits on one before starting WebGL,
     // so in tests it never starts and the placeholder gradient stays up.
     class IntersectionObserverStub {
+        // Kept so a test can play the observer and say something is on screen.
+        callback: IntersectionObserverCallback;
+        constructor(callback: IntersectionObserverCallback) {
+            this.callback = callback;
+        }
         observe() {}
         unobserve() {}
         disconnect() {}

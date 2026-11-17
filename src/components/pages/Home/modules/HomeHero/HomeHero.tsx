@@ -1,12 +1,18 @@
 import { homeCopy } from '../../../../../content';
+import { useScreenHeight } from '../../../../../lib/useScreenHeight.ts';
 import { FluidGradient, ScrollIndicator } from '../../../../ui';
 import type { HomeHeroProps } from './types.ts';
 
 export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps) => {
     const text = isGradientDark ? 'text-white' : 'text-ui-background-secondary';
+    // Exactly the visible screen when the page opens, steady while scrolling (see the hook).
+    const screenHeight = useScreenHeight();
 
     return (
-        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-svh'>
+        <div
+            className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-svh'
+            style={screenHeight ? { minHeight: screenHeight } : undefined}
+        >
             <FluidGradient showPalettePicker onPaletteChange={handlePaletteChange} />
 
             <div

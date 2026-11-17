@@ -45,6 +45,7 @@ export const FluidGradient = ({
 
         let initialised = false;
         let idleHandle: number | undefined;
+        let rafHandle: number | undefined;
         let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
         let resizeHandler: ReturnType<typeof SceneModule.createResizeHandler> | null = null;
         let cancelled = false;
@@ -79,7 +80,16 @@ export const FluidGradient = ({
             if (typeof requestIdleCallback !== 'undefined') {
                 idleHandle = requestIdleCallback(() => void run(), { timeout: 2000 });
             } else {
-                timeoutHandle = setTimeout(() => void run(), 0);
+                // Safari and every iPhone browser (WebKit) have no requestIdleCallback. Starting
+                // WebGL straight away there compiled the shaders and began the frame loop before
+                // the text and navbar were painted, and WebKit then left them unpainted until
+                // the first scroll. So wait for two frames (the page has painted) and a beat.
+                rafHandle = requestAnimationFrame(() => {
+                    rafHandle = requestAnimationFrame(() => {
+                        rafHandle = undefined;
+                        timeoutHandle = setTimeout(() => void run(), 250);
+                    });
+                });
             }
         };
 
@@ -103,6 +113,10 @@ export const FluidGradient = ({
             if (idleHandle !== undefined) {
                 cancelIdleCallback(idleHandle);
                 idleHandle = undefined;
+            }
+            if (rafHandle !== undefined) {
+                cancelAnimationFrame(rafHandle);
+                rafHandle = undefined;
             }
             if (timeoutHandle !== undefined) {
                 clearTimeout(timeoutHandle);
@@ -147,7 +161,9 @@ export const FluidGradient = ({
         // its box (a phone's address bar sliding away mid-resize), the gap shows the gradient,
         // not white.
         <div
-            className='absolute inset-0 z-0 pointer-events-none contain-strict'
+            // Clipped with overflow, not `contain: strict`: WebKit mis-paints content around a
+            // contained WebGL layer.
+            className='absolute inset-0 z-0 pointer-events-none overflow-hidden'
             style={{ background: placeholderGradient }}
         >
             <div
