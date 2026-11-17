@@ -7,7 +7,7 @@ export const websitePrivacy: PolicyDocument = {
     title: 'Website privacy policy',
     summary:
         'How ijji-labs.com handles what you send us. Using one of our apps? Each app has its own privacy policy.',
-    effectiveDate: '2026-11-16',
+    effectiveDate: '2026-11-17',
     sections: [
         {
             id: 'in-short',
@@ -74,6 +74,12 @@ export const websitePrivacy: PolicyDocument = {
                         'Forms are delivered to our inbox as email, through Resend, our email provider, which may process them in the United States under the safeguards UK law requires.',
                     ],
                 },
+                {
+                    type: 'paragraph',
+                    text: [
+                        'We also keep each app account deletion request with Netlify, which hosts this site, in its data centre in Frankfurt, Germany (European Union), so we can track it until it’s done. Only we can see it, on a private page that needs a password and a code from an authenticator app.',
+                    ],
+                },
             ],
         },
         {
@@ -83,7 +89,13 @@ export const websitePrivacy: PolicyDocument = {
                 {
                     type: 'paragraph',
                     text: [
-                        'We keep an enquiry for as long as we need to deal with it, and for up to two years afterwards in case you get back in touch, unless we go on to work together, when it becomes part of our project records. Deletion requests are kept for up to a year, to show they were handled.',
+                        'We keep an enquiry for as long as we need to deal with it, and for up to two years afterwards in case you get back in touch, unless we go on to work together, when it becomes part of our project records.',
+                    ],
+                },
+                {
+                    type: 'paragraph',
+                    text: [
+                        `For an account deletion request, we remove your email address, any reason you gave and our notes ${site.deletionRequestDetailsDays} days after we’ve dealt with it. We keep the rest (which app, the dates and the outcome) for a year, to show it was handled, and so is our email exchange with you about it.`,
                     ],
                 },
             ],

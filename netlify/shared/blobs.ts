@@ -1,4 +1,4 @@
-import { getStore } from '@netlify/blobs';
+import { connectLambda, getStore } from '@netlify/blobs';
 
 /**
  * Where everything the site keeps in Netlify Blobs lives: Frankfurt, the nearest EU region
@@ -12,3 +12,14 @@ export const BLOBS_REGION = 'eu-central-1';
 /** Opens a site-wide Blobs store in {@link BLOBS_REGION}, with reads that see the latest write. */
 export const store = (name: string) =>
     getStore({ name, region: BLOBS_REGION, consistency: 'strong' });
+
+/**
+ * The form functions use Netlify's original (Lambda-style) signature, where Blobs needs the
+ * event to find the site. Call this first in such a handler; Functions v2 don't need it.
+ */
+export const connectBlobs = (event: object) => {
+    // Absent when a handler runs outside Netlify (tests, bundling checks).
+    if ('blobs' in event && event.blobs) {
+        connectLambda(event as Parameters<typeof connectLambda>[0]);
+    }
+};
