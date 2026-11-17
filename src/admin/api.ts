@@ -1,3 +1,4 @@
+import type { DeletionRequest, Status } from './deletionRequests.ts';
 import type { SignInData } from './schema.ts';
 
 // The dashboard talks only to this site's own /api/admin/* functions, which hold every key.
@@ -49,5 +50,36 @@ export const getMe = async (): Promise<Me | null> => {
         return response.ok ? ((await response.json()) as Me) : null;
     } catch {
         return null;
+    }
+};
+
+export type DeletionRequests = { requests: DeletionRequest[]; now: number };
+
+/** Every web deletion request, open ones first; null if they couldn't be loaded. */
+export const getDeletionRequests = async (): Promise<DeletionRequests | null> => {
+    try {
+        const response = await request('deletion-requests');
+        return response.ok ? ((await response.json()) as DeletionRequests) : null;
+    } catch {
+        return null;
+    }
+};
+
+/** Moves a request on; an error message to show if it didn't work. */
+export const changeDeletionRequest = async (change: {
+    id: string;
+    status: Status;
+    note?: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> => {
+    try {
+        const response = await request('deletion-requests', {
+            method: 'POST',
+            body: JSON.stringify(change),
+        });
+        if (response.ok) return { ok: true };
+        const body = await response.json().catch(() => ({}));
+        return { ok: false, error: body.error ?? 'That didn’t save. Try again.' };
+    } catch {
+        return { ok: false, error: 'Couldn’t reach the server. Try again.' };
     }
 };

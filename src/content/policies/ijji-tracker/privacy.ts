@@ -14,7 +14,7 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
     title: 'IJJI Tracker privacy policy',
     summary:
         'What IJJI Tracker keeps about you, why, where, for how long, and how to see it, take it with you or delete it.',
-    effectiveDate: '2026-11-16',
+    effectiveDate: '2026-11-17',
     sections: [
         {
             id: 'in-short',
@@ -143,7 +143,14 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
                         [
                             ['Supabase'],
                             ['Hosts the database and handles sign-in.'],
-                            ['United Kingdom or European Union'],
+                            ['Ireland (European Union)'],
+                        ],
+                        [
+                            ['Netlify'],
+                            [
+                                'Hosts our website, and keeps requests to delete an account sent through it until they’re dealt with.',
+                            ],
+                            ['Frankfurt, Germany (European Union)'],
                         ],
                         [
                             ['Resend'],
@@ -174,9 +181,7 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
                 {
                     type: 'paragraph',
                     text: [
-                        'We keep your data for as long as you have an account. When you delete your account, your account, profile, activities and sessions are removed from our database straight away. Copies in our provider’s encrypted backups are overwritten as the backups roll over, ',
-                        site.backupRetention,
-                        '.',
+                        'We keep your data for as long as you have an account. When you delete your account, your account, profile, activities and sessions are removed from our database straight away. If our database provider holds encrypted backups, any copy in them is deleted when those backups expire, and we never restore a deleted account from them.',
                     ],
                 },
             ],

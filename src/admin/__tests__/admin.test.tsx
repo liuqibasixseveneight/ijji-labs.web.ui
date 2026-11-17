@@ -205,8 +205,9 @@ describe('the admin dashboard', () => {
     });
 
     it('signs out even if the server can’t be reached', async () => {
-        const fetch = vi.fn(async (_url: string, init: RequestInit = {}) => {
+        const fetch = vi.fn(async (url: string, init: RequestInit = {}) => {
             if (init.method === 'DELETE') throw new Error('offline');
+            if (url.endsWith('deletion-requests')) return new Response('{}', { status: 500 });
             return new Response(JSON.stringify(SIGNED_IN.body), { status: 200 });
         });
         vi.stubGlobal('fetch', fetch);
