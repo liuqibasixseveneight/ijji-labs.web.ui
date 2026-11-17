@@ -2,11 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { projects, valueCards } from '../../../content';
+import { notFoundCopy, projects, valueCards } from '../../../content';
 import { navbarItems } from '../organisms/Navbar/navbarItems.ts';
 import { AccordionItem } from './AccordionItem';
 import { BadgeLinks } from './BadgeLinks';
 import { InfoCard } from './InfoCard';
+import { LinkCard } from './LinkCard';
 import { NavMenu } from './NavMenu';
 import { PalettePicker, type PaletteKey } from './PalettePicker';
 import { ProjectCard } from './ProjectCard';
@@ -67,6 +68,15 @@ export const ValueCard: Story = {
     render: () => (
         <div className='max-w-xs'>
             <InfoCard {...valueCards[0]} />
+        </div>
+    ),
+};
+
+/** A card that goes to another page, as on Page not found. Hover or tab to it: it fills yellow. */
+export const PageLinkCard: Story = {
+    render: () => (
+        <div className='max-w-xs bg-white p-6 [--focus-ring:var(--color-ui-background-primary)]'>
+            <LinkCard {...notFoundCopy.nextSteps.links[0]} />
         </div>
     ),
 };

@@ -135,3 +135,41 @@ export const contactCopy = {
         },
     ],
 } as const;
+
+/** Page not found: what it says, and the pages it points people to instead. */
+export const notFoundCopy = {
+    hero: {
+        title: 'Page not found',
+        lede: [
+            'The page you were looking for has moved, or never existed. It might be an old link, or a typo in the address.',
+        ],
+    },
+    nextSteps: {
+        title: 'Where to next?',
+        lede: 'Most people are looking for one of these.',
+        links: [
+            {
+                title: 'Services',
+                description:
+                    'Website design and development, with a proper handover and optional support after launch.',
+                to: paths.services,
+            },
+            {
+                title: 'Our work',
+                description:
+                    'Recent client projects: different problems, the same standard of care.',
+                to: paths.projects,
+            },
+            {
+                title: 'Apps',
+                description: 'Apps of our own, starting with IJJI Tracker.',
+                to: paths.apps,
+            },
+            {
+                title: 'About us',
+                description: 'A small, independent studio in Leeds, and how we like to work.',
+                to: paths.about,
+            },
+        ],
+    },
+} as const;

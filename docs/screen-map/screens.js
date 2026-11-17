@@ -297,10 +297,14 @@ window.SCREEN_MAP = {
             title: 'Page not found',
             route: 'Any other path',
             how: 'A mistyped or old address, or an app that doesn’t exist',
-            note: 'Keeps the navbar and footer, so there is always a way on. Marked noindex.',
+            note: 'Keeps the navbar and footer, so there is always a way on. Where to next? offers four pages as cards, and the home page in the text below them. Marked noindex.',
             exits: [
-                { tap: 'home page', to: 'home', kind: 'page' },
                 { tap: 'Get in touch', to: 'contact', kind: 'page' },
+                { tap: 'Services card', to: 'services', kind: 'page' },
+                { tap: 'Our work card', to: 'projects', kind: 'page' },
+                { tap: 'Apps card', to: 'apps', kind: 'page' },
+                { tap: 'About us card', to: 'about', kind: 'page' },
+                { tap: 'home page', to: 'home', kind: 'page' },
             ],
         },
 

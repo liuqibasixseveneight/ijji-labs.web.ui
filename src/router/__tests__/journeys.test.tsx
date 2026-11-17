@@ -272,6 +272,19 @@ describe('calls to action in the page', () => {
 
         expect(router.state.location.pathname).toBe('/');
     });
+
+    it.each([
+        { name: /^Services/, to: '/services' },
+        { name: /^Our work/, to: '/projects' },
+        { name: /^Apps/, to: '/apps' },
+        { name: /^About us/, to: '/about' },
+    ])('Page not found: the $to card goes there', async ({ name, to }) => {
+        const { user, router } = renderApp('/not-a-page');
+
+        await user.click(main().getByRole('link', { name }));
+
+        expect(router.state.location.pathname).toBe(to);
+    });
 });
 
 describe('jump links stay on the page', () => {
