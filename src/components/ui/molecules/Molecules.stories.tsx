@@ -71,7 +71,10 @@ export const ValueCard: Story = {
     ),
 };
 
-/** The full-screen menu, open. Hover an item to see its number behind. */
+/**
+ * The full-screen menu, open. Hover an item: its name rolls to yellow, a yellow line sweeps
+ * under it and its number shows behind. The page you're on stays yellow.
+ */
 export const Menu: Story = {
     parameters: { layout: 'fullscreen' },
     render: () => <NavMenu isOpen setIsOpen={fn()} links={navbarItems} />,
