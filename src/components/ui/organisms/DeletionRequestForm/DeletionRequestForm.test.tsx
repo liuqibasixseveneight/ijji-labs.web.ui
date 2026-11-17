@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { postForm } from '../../../../lib/postForm.ts';
+import { axeViolations } from '../../../../test/axe.ts';
 import { DeletionRequestForm } from './DeletionRequestForm.tsx';
 
 vi.mock('../../../../lib/postForm.ts', () => ({ postForm: vi.fn() }));
@@ -31,6 +32,18 @@ describe('DeletionRequestForm', () => {
         ).toBeVisible();
         expect(screen.getByText('Please confirm you want the account deleted')).toBeVisible();
         expect(postForm).not.toHaveBeenCalled();
+    });
+
+    it('marks the missing answers for screen readers, and passes axe with its errors showing', async () => {
+        const user = renderForm();
+
+        await submit(user);
+        await screen.findByText('Please confirm you want the account deleted');
+
+        const confirm = screen.getByRole('checkbox');
+        expect(confirm).toHaveAttribute('aria-invalid', 'true');
+        expect(confirm).toHaveAccessibleDescription('Please confirm you want the account deleted');
+        expect(await axeViolations(confirm.closest('form')!)).toEqual([]);
     });
 
     it('sends the request for this app, then says what happens next', async () => {

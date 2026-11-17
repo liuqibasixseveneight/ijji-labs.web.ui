@@ -82,7 +82,10 @@ export const DeletionRequestForm = ({ app }: DeletionRequestFormProps) => {
                     <input
                         type='checkbox'
                         {...register('confirm')}
-                        className='mt-1.5 w-4 h-4 accent-ui-background-primary shrink-0'
+                        aria-required
+                        aria-invalid={errors.confirm ? true : undefined}
+                        aria-describedby={errors.confirm ? 'confirm-error' : undefined}
+                        className='mt-1.5 w-4 h-4 accent-ui-background-primary shrink-0 [color-scheme:light]'
                     />
                     <span>
                         I understand my {app.name} account and everything in it will be deleted
@@ -90,7 +93,7 @@ export const DeletionRequestForm = ({ app }: DeletionRequestFormProps) => {
                     </span>
                 </label>
                 {errors.confirm && (
-                    <p role='alert' className='text-xs text-red-500 font-medium'>
+                    <p id='confirm-error' role='alert' className='text-xs text-red-700 font-medium'>
                         {errors.confirm.message}
                     </p>
                 )}

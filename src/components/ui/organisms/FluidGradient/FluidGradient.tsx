@@ -143,7 +143,13 @@ export const FluidGradient = ({
     );
 
     return (
-        <div className='absolute inset-0 z-0 pointer-events-none contain-strict'>
+        // The still gradient also sits behind the canvas, so if the canvas is ever smaller than
+        // its box (a phone's address bar sliding away mid-resize), the gap shows the gradient,
+        // not white.
+        <div
+            className='absolute inset-0 z-0 pointer-events-none contain-strict'
+            style={{ background: placeholderGradient }}
+        >
             <div
                 aria-hidden='true'
                 className={`absolute inset-0 z-2 pointer-events-none transition-opacity duration-700 ease-out ${webglReady ? 'opacity-0' : 'opacity-100'}`}

@@ -90,7 +90,7 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
                 aria-label='Site'
                 data-print='hide'
                 data-scrolled={isScrolled}
-                className='sticky top-0 left-0 w-full z-20 h-16 md:h-[clamp(64px,10vh,100px)]'
+                className='sticky top-0 left-0 w-full z-20 h-20 md:h-[clamp(80px,10vh,100px)]'
             >
                 {/* The background, faded in with the scroll. Its own layer, so changing its
                 opacity never repaints the logo or buttons. */}

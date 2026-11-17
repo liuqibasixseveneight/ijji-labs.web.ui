@@ -6,7 +6,7 @@ export const HomeHero = ({ isGradientDark, handlePaletteChange }: HomeHeroProps)
     const text = isGradientDark ? 'text-white' : 'text-ui-background-secondary';
 
     return (
-        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-dvh'>
+        <div className='flex-1 h-full relative flex flex-col items-center justify-center w-full overflow-hidden min-h-svh'>
             <FluidGradient showPalettePicker onPaletteChange={handlePaletteChange} />
 
             <div

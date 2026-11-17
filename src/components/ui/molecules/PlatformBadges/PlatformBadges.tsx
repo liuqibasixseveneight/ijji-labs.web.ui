@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
 
+import { StoreIcon } from './storeIcons.tsx';
 import type { PlatformBadgesProps } from './types.ts';
 
 const STORES = [
@@ -7,7 +8,10 @@ const STORES = [
     { key: 'android', label: 'Google Play' },
 ] as const;
 
-/** Where an app is available: a link to each store, or "Coming soon" until it's live. */
+/**
+ * Where an app is available: each store's mark and name, linking to the listing, or "Coming
+ * soon" until it's live.
+ */
 export const PlatformBadges = ({ platforms, tone = 'dark' }: PlatformBadgesProps) => {
     const badge = clsx(
         'inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold tracking-widest uppercase',
@@ -23,6 +27,7 @@ export const PlatformBadges = ({ platforms, tone = 'dark' }: PlatformBadgesProps
                     <li key={key}>
                         {status === 'coming-soon' ? (
                             <span className={badge}>
+                                <StoreIcon store={key} />
                                 {label}
                                 <span
                                     className={
@@ -42,6 +47,7 @@ export const PlatformBadges = ({ platforms, tone = 'dark' }: PlatformBadgesProps
                                     'hover:border-brand-primary transition-colors',
                                 )}
                             >
+                                <StoreIcon store={key} />
                                 Get it on {label}
                                 <span className='sr-only'> (opens in a new tab)</span>
                             </a>

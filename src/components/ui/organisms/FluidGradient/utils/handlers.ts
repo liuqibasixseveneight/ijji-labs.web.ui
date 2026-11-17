@@ -16,8 +16,12 @@ export const getPixelRatio = (width: number, height: number): number => {
 
 export const createResizeHandler = (scene: SceneState, container: HTMLElement) => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-    let lastWidth = 0;
-    let lastHeight = 0;
+    // The size the scene was built at. Starting from 0 made the first resize event always
+    // rebuild, wiping the fluid to flat colour: on a phone, that's the address bar sliding
+    // away as soon as someone scrolls.
+    const initial = container.getBoundingClientRect();
+    let lastWidth = initial.width || window.innerWidth;
+    let lastHeight = initial.height || window.innerHeight;
     let visibilityListener: (() => void) | null = null;
 
     const applyResize = () => {
@@ -32,6 +36,15 @@ export const createResizeHandler = (scene: SceneState, container: HTMLElement) =
         const newHeight = rect.height || window.innerHeight;
 
         if (newWidth === lastWidth && newHeight === lastHeight) return;
+
+        // A phone's address bar showing or hiding changes only the height, by a little.
+        // Rebuilding then would wipe the fluid mid-scroll, so the canvas (sized 100% in CSS)
+        // just stretches the few pixels. Rotating, or any real change, still rebuilds.
+        const touch = window.matchMedia?.('(pointer: coarse)').matches;
+        if (touch && newWidth === lastWidth && Math.abs(newHeight - lastHeight) <= lastHeight / 4) {
+            return;
+        }
+
         lastWidth = newWidth;
         lastHeight = newHeight;
 

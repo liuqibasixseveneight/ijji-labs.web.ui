@@ -2,7 +2,9 @@ import type { ServiceCardProps } from './types.ts';
 
 export const ServiceCard = ({ title, description, included, optional }: ServiceCardProps) => {
     return (
-        <div className='flex flex-col gap-5 bg-ui-background-primary p-5 sm:p-6 lg:p-10 h-full'>
+        // No padding until the cards sit side by side (lg): stacked, they're the same colour as
+        // the section, so padding would only push the text in from the heading above.
+        <div className='flex flex-col gap-5 bg-ui-background-primary lg:p-10 h-full'>
             <div className='flex items-start justify-between gap-3'>
                 <h3 className='text-lg sm:text-xl font-semibold text-white leading-snug'>
                     {title}

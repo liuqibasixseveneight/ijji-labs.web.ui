@@ -41,7 +41,7 @@ export const RootLayout = () => {
             <main
                 id='main'
                 tabIndex={-1}
-                className='flex-1 flex flex-col -mt-16 md:-mt-[clamp(64px,10vh,100px)]'
+                className='flex-1 flex flex-col -mt-20 md:-mt-[clamp(80px,10vh,100px)]'
             >
                 <Outlet context={outletContext} />
             </main>
