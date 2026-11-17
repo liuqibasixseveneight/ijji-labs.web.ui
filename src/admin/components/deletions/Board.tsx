@@ -1,4 +1,5 @@
 import { useState, type DragEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import {
@@ -10,7 +11,9 @@ import {
     type DeletionRequest,
     type Status,
 } from '../../deletionRequests.ts';
+import { adminPaths } from '../../paths.ts';
 import { CopyButton } from '../CopyButton.tsx';
+import { StatusSelect } from './StatusSelect.tsx';
 import { useMove } from './useMove.ts';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
@@ -25,7 +28,7 @@ const URGENCY = {
 export const DaysLeft = ({ days }: { days: number }) => (
     <span
         className={clsx(
-            'shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold',
+            'shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap',
             URGENCY[urgency(days)],
         )}
     >
@@ -33,20 +36,16 @@ export const DaysLeft = ({ days }: { days: number }) => (
     </span>
 );
 
-type CardProps = {
-    request: DeletionRequest;
-    now: number;
-    moving: boolean;
-    onOpen: (id: string) => void;
-};
+type CardProps = { request: DeletionRequest; now: number; moving: boolean };
 
 /**
- * One request on the board: who, how long is left, and when it came in. Click anywhere on it
- * to see its details and steps (the email is the button, stretched over the card), or drag it
- * to another column.
+ * One request on the board: who, how long is left, when it came in, and the column it's in.
+ * The email is a link to its page, stretched over the whole card, so a tap anywhere opens
+ * it; the copy button and the column select sit above that link and work on their own.
  */
-const Card = ({ request, now, moving, onOpen }: CardProps) => {
+const Card = ({ request, now, moving }: CardProps) => {
     const open = OPEN.includes(request.status);
+    const urgent = open && urgency(daysLeft(request, now)) === 'urgent';
 
     const startDrag = (event: DragEvent<HTMLLIElement>) => {
         event.dataTransfer.setData('text/plain', request.id);
@@ -59,27 +58,34 @@ const Card = ({ request, now, moving, onOpen }: CardProps) => {
             onDragStart={startDrag}
             data-request={request.id}
             className={clsx(
-                'group relative bg-white border border-neutral-200 rounded-xl p-4 flex flex-col gap-2 shadow-sm cursor-pointer active:cursor-grabbing transition-shadow hover:shadow-md hover:border-neutral-400',
+                'group relative bg-white border rounded-xl p-4 flex flex-col gap-3 shadow-sm transition-shadow hover:shadow-md',
+                urgent ? 'border-red-300' : 'border-neutral-200 hover:border-neutral-400',
                 moving && 'opacity-60',
-                open &&
-                    urgency(daysLeft(request, now)) === 'urgent' &&
-                    'border-l-4 border-l-red-500',
             )}
         >
-            <div className='flex items-center justify-between gap-2 text-xs text-neutral-600'>
-                <span className='font-semibold uppercase tracking-widest'>{request.appName}</span>
+            {urgent && (
+                <span
+                    aria-hidden='true'
+                    className='absolute left-0 inset-y-3 w-1 rounded-r bg-red-500'
+                />
+            )}
+
+            <div className='flex items-center justify-between gap-2'>
+                <span className='text-xs font-bold uppercase tracking-widest text-neutral-600'>
+                    {request.appName}
+                </span>
                 {open && <DaysLeft days={daysLeft(request, now)} />}
             </div>
 
             <div className='flex items-start gap-2'>
                 <h3 className='min-w-0 flex-1'>
-                    <button
-                        type='button'
-                        onClick={() => onOpen(request.id)}
-                        className="text-left font-bold [overflow-wrap:anywhere] group-hover:underline underline-offset-4 cursor-pointer after:absolute after:inset-0 after:content-['']"
+                    <Link
+                        to={adminPaths.deletionRequest(request.id)}
+                        draggable={false}
+                        className="font-bold [overflow-wrap:anywhere] group-hover:underline underline-offset-4 after:absolute after:inset-0 after:content-['']"
                     >
                         {request.email ?? 'Email removed'}
-                    </button>
+                    </Link>
                 </h3>
                 {request.email && (
                     <CopyButton
@@ -90,33 +96,40 @@ const Card = ({ request, now, moving, onOpen }: CardProps) => {
                 )}
             </div>
 
-            <div className='flex items-center justify-between gap-2 text-sm text-neutral-600'>
-                <p>
-                    {open ? 'Received' : 'Closed'}{' '}
-                    {dateFormat.format(
-                        open ? request.receivedAt : (request.closedAt ?? request.receivedAt),
-                    )}
-                    {moving && <span className='font-semibold'> · Moving…</span>}
-                </p>
+            <p className='text-sm text-neutral-600'>
+                {open ? 'Received' : 'Closed'}{' '}
+                {dateFormat.format(
+                    open ? request.receivedAt : (request.closedAt ?? request.receivedAt),
+                )}
+                {moving && <span className='font-semibold'> · Moving…</span>}
+            </p>
+
+            <div className='relative z-10 flex items-center gap-2 pt-3 border-t border-neutral-100'>
+                <StatusSelect
+                    request={request}
+                    label={`Move ${request.email ?? 'this request'} to`}
+                    compact
+                    className='flex-1'
+                />
                 <span
                     aria-hidden='true'
-                    className='pointer-events-none font-semibold text-neutral-800 group-hover:translate-x-0.5 transition-transform'
+                    className='pointer-events-none text-sm font-semibold text-neutral-800 whitespace-nowrap'
                 >
-                    Details →
+                    Open →
                 </span>
             </div>
         </li>
     );
 };
 
-type BoardProps = { requests: DeletionRequest[]; now: number; onOpen: (id: string) => void };
+type BoardProps = { requests: DeletionRequest[]; now: number };
 
 /**
- * Every request as a card in its status's column. Drag a card to another column to move it
- * (closing one asks first), or open it to work through its steps; the panel has the same
- * moves for keyboards and touch screens.
+ * Every request as a card in its status's column. Move a card with its column select (any
+ * screen), or drag it to another column on a desktop; closing one asks first. On phones the
+ * columns sit side by side and swipe, each nearly the screen's width.
  */
-export const Board = ({ requests, now, onOpen }: BoardProps) => {
+export const Board = ({ requests, now }: BoardProps) => {
     const { move, pending } = useMove();
     const [over, setOver] = useState<Status | null>(null);
 
@@ -134,7 +147,7 @@ export const Board = ({ requests, now, onOpen }: BoardProps) => {
     };
 
     return (
-        <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-4 items-start'>
+        <div className='-mx-6 px-6 md:mx-0 md:px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 md:items-start md:overflow-visible md:pb-0'>
             {COLUMNS.map((column) => {
                 const cards = shown.filter((request) => request.status === column.status);
                 const headingId = `column-${column.status}`;
@@ -151,7 +164,7 @@ export const Board = ({ requests, now, onOpen }: BoardProps) => {
                         onDragLeave={() => setOver(null)}
                         onDrop={drop(column.status)}
                         className={clsx(
-                            'rounded-2xl p-3 min-h-40 flex flex-col gap-3 transition-colors',
+                            'snap-start shrink-0 w-[85%] sm:w-80 md:w-auto rounded-2xl p-3 min-h-40 flex flex-col gap-3 transition-colors',
                             over === column.status
                                 ? 'bg-brand-primary/30 ring-2 ring-brand-primary'
                                 : 'bg-neutral-100',
@@ -160,7 +173,7 @@ export const Board = ({ requests, now, onOpen }: BoardProps) => {
                         <header className='px-1'>
                             <h2 id={headingId} className='font-bold flex items-center gap-2'>
                                 {column.title}
-                                <span className='text-sm font-semibold text-neutral-600 bg-white rounded-full px-2'>
+                                <span className='text-sm font-semibold text-neutral-700 bg-white rounded-full px-2'>
                                     {cards.length}
                                 </span>
                             </h2>
@@ -175,7 +188,6 @@ export const Board = ({ requests, now, onOpen }: BoardProps) => {
                                         request={request}
                                         now={now}
                                         moving={pending?.id === request.id}
-                                        onOpen={onOpen}
                                     />
                                 ))}
                             </ul>

@@ -87,8 +87,6 @@ const renderAdmin = (path: string) => {
 
 const column = (name: RegExp) => within(screen.getByRole('region', { name }));
 
-const panel = () => within(screen.getByRole('complementary'));
-
 describe('the deletion requests board', () => {
     beforeEach(() => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -139,7 +137,7 @@ describe('the deletion requests board', () => {
         ]);
 
         expect(
-            column(/^New/).getByRole('button', { name: 'someone@example.com' }),
+            column(/^New/).getByRole('link', { name: 'someone@example.com' }),
         ).toBeInTheDocument();
         expect(column(/^Awaiting confirmation/).getByText('2 days left')).toHaveClass('bg-red-100');
         expect(column(/^Done/).getByText('done@example.com')).toBeInTheDocument();
@@ -155,7 +153,7 @@ describe('the deletion requests board', () => {
         const fetch = api([NEW]);
         renderAdmin('/deletion-requests');
 
-        const card = (await screen.findByRole('button', { name: 'someone@example.com' })).closest(
+        const card = (await screen.findByRole('link', { name: 'someone@example.com' })).closest(
             'li',
         )!;
         const target = screen.getByRole('region', { name: /^Awaiting confirmation/ });
@@ -180,7 +178,7 @@ describe('the deletion requests board', () => {
         vi.mocked(window.confirm).mockReturnValue(false);
         renderAdmin('/deletion-requests');
 
-        const card = (await screen.findByRole('button', { name: 'someone@example.com' })).closest(
+        const card = (await screen.findByRole('link', { name: 'someone@example.com' })).closest(
             'li',
         )!;
         const target = screen.getByRole('region', { name: /^Done/ });
@@ -197,6 +195,32 @@ describe('the deletion requests board', () => {
 
         // Dropped back where it was: nothing to do.
         fireEvent.drop(screen.getByRole('region', { name: /^New/ }), { dataTransfer });
+        expect(posts(fetch)).toEqual([]);
+    });
+
+    it('moves a card with its column select, for phones and keyboards', async () => {
+        const fetch = api([NEW]);
+        const { user } = renderAdmin('/deletion-requests');
+
+        const select = await screen.findByRole('combobox', { name: 'Move someone@example.com to' });
+        expect(select).toHaveValue('new');
+        await user.selectOptions(select, 'awaiting-confirmation');
+
+        await waitFor(() =>
+            expect(posts(fetch)).toEqual([{ id: NEW.id, status: 'awaiting-confirmation' }]),
+        );
+    });
+
+    it('asks before the select closes a request, and snaps back if you say no', async () => {
+        const fetch = api([NEW]);
+        vi.mocked(window.confirm).mockReturnValue(false);
+        const { user } = renderAdmin('/deletion-requests');
+
+        const select = await screen.findByRole('combobox', { name: 'Move someone@example.com to' });
+        await user.selectOptions(select, 'rejected');
+
+        expect(window.confirm).toHaveBeenCalledWith('Mark this request as rejected?');
+        expect(select).toHaveValue('new');
         expect(posts(fetch)).toEqual([]);
     });
 
@@ -241,7 +265,7 @@ describe('the deletion requests board', () => {
     });
 });
 
-describe('a request’s panel', () => {
+describe('a request’s own page', () => {
     beforeEach(() => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
         vi.spyOn(window, 'confirm').mockReturnValue(true);
@@ -251,84 +275,111 @@ describe('a request’s panel', () => {
         vi.restoreAllMocks();
     });
 
-    const openPanel = async (requests: DeletionRequest[], email: string) => {
+    const openPage = async (requests: DeletionRequest[], email: string) => {
         const fetch = api(requests);
         const utils = renderAdmin('/deletion-requests');
-        await utils.user.click(await screen.findByRole('button', { name: email }));
-        await screen.findByRole('complementary');
+        await utils.user.click(await screen.findByRole('link', { name: email }));
+        await screen.findByRole('heading', { level: 1, name: 'Deletion request' });
         return { fetch, ...utils };
     };
 
-    it('opens from its card, focused, with its details, and is accessible', async () => {
-        const { router, container } = await openPanel([NEW], 'someone@example.com');
+    const section = (name: string) => within(screen.getByRole('region', { name }));
 
-        const heading = panel().getByRole('heading', { level: 2, name: 'someone@example.com' });
-        await waitFor(() => expect(heading).toHaveFocus());
-        expect(router.state.location.search).toBe(`?request=${NEW.id}`);
-        expect(panel().getByText('Not using it')).toBeInTheDocument();
-        expect(panel().getByText('IJJI Tracker · New')).toBeInTheDocument();
+    it('opens from its card, with the requester’s email labelled, and is accessible', async () => {
+        const { router, container } = await openPage([NEW], 'someone@example.com');
+
+        expect(router.state.location.pathname).toBe(`/deletion-requests/${NEW.id}`);
+        expect(document.title).toBe('Deletion request · someone@example.com · Admin · ijji labs');
+
+        const requester = section('Requester');
+        expect(requester.getByText('Email address').nextElementSibling).toHaveTextContent(
+            'someone@example.com',
+        );
+        expect(requester.getByRole('button', { name: 'Copy email address' })).toBeInTheDocument();
+        expect(requester.getByText('Reason they gave').nextElementSibling).toHaveTextContent(
+            'Not using it',
+        );
+
+        expect(section('Status').getByText('Due by').nextElementSibling).toHaveTextContent(
+            '18 Dec 2026',
+        );
         expect(await axeViolations(container)).toEqual([]);
     });
 
-    it('walks a new request through step 1: the email to write, then moving it on', async () => {
-        const { fetch, user } = await openPanel([NEW], 'someone@example.com');
+    it('goes back to the board', async () => {
+        const { user, router } = await openPage([NEW], 'someone@example.com');
+        await user.click(screen.getByRole('link', { name: /all deletion requests/i }));
+        expect(router.state.location.pathname).toBe('/deletion-requests');
+    });
 
-        const step1 = panel().getByRole('heading', { name: 'Check it’s them' }).closest('li')!;
-        expect(step1).toHaveAttribute('aria-current', 'step');
-        const write = within(step1).getByRole('link', { name: 'Write the email' });
-        expect(write.getAttribute('href')).toBe(confirmEmail(NEW, 'within 30 days').href);
+    it('moves the request with its column select', async () => {
+        const { fetch, user } = await openPage([NEW], 'someone@example.com');
 
-        // The later steps wait until it's awaiting confirmation.
-        expect(panel().queryByRole('button', { name: /mark as done/i })).not.toBeInTheDocument();
-        expect(panel().queryByRole('link', { name: /sql editor/i })).not.toBeInTheDocument();
-
-        await user.type(panel().getByLabelText(/^Add a note/), 'Sent from support@');
-        await user.click(within(step1).getByRole('button', { name: /i’ve emailed them/i }));
+        // One select for phones (in the header), one for wide screens (in Status).
+        const [select] = screen.getAllByRole('combobox', { name: 'Column' });
+        await user.selectOptions(select, 'awaiting-confirmation');
 
         await waitFor(() =>
-            expect(posts(fetch)).toEqual([
-                { id: NEW.id, status: 'awaiting-confirmation', note: 'Sent from support@' },
-            ]),
+            expect(posts(fetch)).toEqual([{ id: NEW.id, status: 'awaiting-confirmation' }]),
+        );
+    });
+
+    it('walks a new request through step 1: the email to write, then moving it on', async () => {
+        const { fetch, user } = await openPage([NEW], 'someone@example.com');
+
+        const step1 = screen.getByRole('heading', { name: 'Check it’s them' }).closest('li')!;
+        expect(step1).toHaveAttribute('aria-current', 'step');
+        expect(
+            within(step1).getByRole('link', { name: 'Write the email' }).getAttribute('href'),
+        ).toBe(confirmEmail(NEW, 'within 30 days').href);
+
+        // The later steps wait until it's awaiting confirmation.
+        expect(screen.queryByRole('button', { name: /mark as done/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /sql editor/i })).not.toBeInTheDocument();
+
+        await user.click(within(step1).getByRole('button', { name: /i’ve emailed them/i }));
+        await waitFor(() =>
+            expect(posts(fetch)).toEqual([{ id: NEW.id, status: 'awaiting-confirmation' }]),
         );
     });
 
     it('gives awaiting requests the SQL, the done email and Mark as done', async () => {
-        const { fetch, user } = await openPanel([URGENT], 'urgent@example.com');
+        const { fetch, user } = await openPage([URGENT], 'urgent@example.com');
 
-        const editor = panel().getByRole('link', { name: /open the sql editor/i });
+        const editor = screen.getByRole('link', { name: /open the sql editor/i });
         expect(editor).toHaveAttribute('href', SQL_EDITOR);
         expect(editor).toHaveAttribute('target', '_blank');
 
         const writeText = vi.spyOn(navigator.clipboard, 'writeText');
-        await user.click(panel().getByRole('button', { name: 'Copy the SQL' }));
+        await user.click(screen.getByRole('button', { name: 'Copy the SQL' }));
         expect(writeText).toHaveBeenCalledWith(deletionSql('urgent@example.com'));
 
-        const tell = panel()
+        const tell = screen
             .getByRole('heading', { name: 'Tell them, then close it' })
             .closest('li')!;
         expect(
             within(tell).getByRole('link', { name: 'Write the email' }).getAttribute('href'),
         ).toBe(doneEmail(URGENT).href);
-        expect(panel().getByText('Emailed to confirm')).toBeInTheDocument();
+        expect(section('Notes and history').getByText('Emailed to confirm')).toBeInTheDocument();
 
-        await user.click(panel().getByRole('button', { name: /mark as done/i }));
+        await user.click(screen.getByRole('button', { name: /mark as done/i }));
         expect(window.confirm).toHaveBeenCalledWith('Mark this request as done?');
         await waitFor(() => expect(posts(fetch)).toEqual([{ id: URGENT.id, status: 'done' }]));
     });
 
     it('rejects a request that was never confirmed', async () => {
-        const { fetch, user } = await openPanel([URGENT], 'urgent@example.com');
-
-        await user.click(panel().getByRole('button', { name: 'Reject it' }));
+        const { fetch, user } = await openPage([URGENT], 'urgent@example.com');
+        await user.click(screen.getByRole('button', { name: 'Reject it' }));
         await waitFor(() => expect(posts(fetch)).toEqual([{ id: URGENT.id, status: 'rejected' }]));
     });
 
     it('saves a note without moving the request', async () => {
-        const { fetch, user } = await openPanel([URGENT], 'urgent@example.com');
+        const { fetch, user } = await openPage([URGENT], 'urgent@example.com');
+        const notes = section('Notes and history');
 
-        expect(panel().getByRole('button', { name: 'Save note' })).toBeDisabled();
-        await user.type(panel().getByLabelText(/^Add a note/), 'They replied');
-        await user.click(panel().getByRole('button', { name: 'Save note' }));
+        expect(notes.getByRole('button', { name: 'Save note' })).toBeDisabled();
+        await user.type(notes.getByLabelText(/^Add a note/), 'They replied');
+        await user.click(notes.getByRole('button', { name: 'Save note' }));
 
         await waitFor(() =>
             expect(posts(fetch)).toEqual([
@@ -338,79 +389,75 @@ describe('a request’s panel', () => {
         expect(window.confirm).not.toHaveBeenCalled();
     });
 
-    it('reopens a done or rejected request', async () => {
-        const { fetch, user } = await openPanel([DONE], 'done@example.com');
-        expect(panel().getByRole('heading', { name: 'All done' })).toBeInTheDocument();
-        await user.click(panel().getByRole('button', { name: 'Reopen' }));
-        await waitFor(() =>
-            expect(posts(fetch)).toEqual([{ id: DONE.id, status: 'awaiting-confirmation' }]),
+    it('shows a done request as all done', async () => {
+        await openPage([DONE], 'done@example.com');
+        expect(screen.getByRole('heading', { name: 'All done' })).toBeInTheDocument();
+        expect(section('Status').getByText('Closed').nextElementSibling).toHaveTextContent(
+            '17 Nov 2026',
         );
     });
 
     it('shows a rejected request as closed, with a way to reopen it', async () => {
-        await openPanel([REJECTED], 'Email removed');
-        expect(panel().getByRole('heading', { name: 'Rejected' })).toBeInTheDocument();
-        expect(panel().getByRole('button', { name: 'Reopen' })).toBeInTheDocument();
+        const { fetch, user } = await openPage([REJECTED], 'Email removed');
+
+        expect(section('Requester').getByText(/Removed 30 days after/)).toBeInTheDocument();
         expect(
-            panel().queryByRole('button', { name: 'Copy email address' }),
+            screen.queryByRole('button', { name: 'Copy email address' }),
         ).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Reopen' }));
+        await waitFor(() =>
+            expect(posts(fetch)).toEqual([{ id: REJECTED.id, status: 'awaiting-confirmation' }]),
+        );
     });
 
     it('shows why a change didn’t save', async () => {
         const fetch = api([URGENT], { status: 400, body: { error: 'Invalid change.' } });
-        const { user } = renderAdmin('/deletion-requests');
-        await user.click(await screen.findByRole('button', { name: 'urgent@example.com' }));
-        await screen.findByRole('complementary');
+        const { user } = renderAdmin(`/deletion-requests/${URGENT.id}`);
 
-        await user.click(panel().getByRole('button', { name: 'Reject it' }));
-        expect(await panel().findByText('Invalid change.')).toBeInTheDocument();
+        await user.click(await screen.findByRole('button', { name: 'Reject it' }));
+        expect(await screen.findByText('Invalid change.')).toBeInTheDocument();
         expect(posts(fetch)).toHaveLength(1);
     });
 
     it('says so when the server can’t be reached to save', async () => {
         const fetch = api([URGENT]);
-        const { user } = renderAdmin('/deletion-requests');
-        await user.click(await screen.findByRole('button', { name: 'urgent@example.com' }));
-        await screen.findByRole('complementary');
+        const { user } = renderAdmin(`/deletion-requests/${URGENT.id}`);
+        await screen.findByRole('button', { name: 'Reject it' });
 
         fetch.mockImplementation(async (url: string, init: RequestInit = {}) => {
             if (init.method === 'POST') throw new Error('offline');
             if (url.endsWith('/me')) return Response.json({ signedIn: true, expiresAt: NOW });
             return Response.json({ requests: [URGENT], now: NOW, sqlEditorUrl: SQL_EDITOR });
         });
-        await user.click(panel().getByRole('button', { name: 'Reject it' }));
+        await user.click(screen.getByRole('button', { name: 'Reject it' }));
 
         expect(
-            await panel().findByText('Couldn’t reach the server. Try again.'),
+            await screen.findByText('Couldn’t reach the server. Try again.'),
         ).toBeInTheDocument();
     });
 
-    it.each([
-        [
-            'Close',
-            (user: ReturnType<typeof userEvent.setup>) =>
-                user.click(panel().getByRole('button', { name: 'Close' })),
-        ],
-        ['Esc', (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
-    ])('closes with %s, back to its card', async (_, close) => {
-        const { user, router } = await openPanel([NEW], 'someone@example.com');
-
-        await close(user);
-
-        await waitFor(() => expect(screen.queryByRole('complementary')).not.toBeInTheDocument());
-        expect(router.state.location.search).toBe('');
-        await waitFor(() =>
-            expect(screen.getByRole('button', { name: 'someone@example.com' })).toHaveFocus(),
-        );
-    });
-
-    it('ignores a link to a request that doesn’t exist', async () => {
+    it('says when there’s no such request', async () => {
         api([NEW]);
-        renderAdmin('/deletion-requests?request=nope');
+        renderAdmin('/deletion-requests/nope');
         expect(
-            await screen.findByRole('heading', { name: 'Deletion requests' }),
+            await screen.findByRole('heading', { level: 1, name: 'Request not found' }),
         ).toBeInTheDocument();
-        expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    });
+
+    it('says when the requests couldn’t be loaded', async () => {
+        api(null);
+        renderAdmin(`/deletion-requests/${NEW.id}`);
+        expect(
+            await screen.findByRole('heading', { level: 1, name: 'Couldn’t load the request' }),
+        ).toBeInTheDocument();
+    });
+
+    it('takes old side-panel links (?request=) to the page', async () => {
+        api([NEW]);
+        const { router } = renderAdmin(`/deletion-requests?request=${NEW.id}`);
+        await screen.findByRole('heading', { level: 1, name: 'Deletion request' });
+        expect(router.state.location.pathname).toBe(`/deletion-requests/${NEW.id}`);
     });
 });
 
