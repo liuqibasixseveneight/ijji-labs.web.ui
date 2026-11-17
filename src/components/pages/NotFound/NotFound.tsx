@@ -8,7 +8,7 @@ export const NotFound = () => (
         <PageMeta {...pageMeta.notFound} noindex />
 
         <Section tone='dark'>
-            <h1 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 pt-[6dvh]'>
+            <h1 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 pt-[6svh]'>
                 Page not found
             </h1>
             <p className='text-xl text-white/60 max-w-xl mb-10'>

@@ -41,7 +41,7 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
             )}
         >
             {/* Clears the navbar at the top, then the list, then the studio's details. */}
-            <div className='relative flex flex-col h-full max-w-380 mx-auto px-6 md:px-8 pt-20 md:pt-[clamp(80px,12vh,116px)] pb-6 [@media(max-height:500px)]:pb-3 overflow-y-auto'>
+            <div className='relative flex flex-col h-full max-w-380 mx-auto px-6 md:px-8 pt-24 md:pt-[clamp(96px,12vh,116px)] pb-6 [@media(max-height:500px)]:pb-3 overflow-y-auto'>
                 <span
                     aria-hidden='true'
                     className='hidden md:block absolute right-8 top-1/2 -translate-y-1/2 text-[22vw] leading-none font-extrabold tracking-tighter tabular-nums text-white/[0.03] select-none pointer-events-none'

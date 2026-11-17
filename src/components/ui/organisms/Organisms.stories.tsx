@@ -32,7 +32,7 @@ export const NavbarOnPage: Story = {
     render: () => (
         <>
             <Navbar />
-            <div className='h-[300vh] -mt-16 bg-linear-to-b from-brand-primary to-white' />
+            <div className='h-[300vh] -mt-20 bg-linear-to-b from-brand-primary to-white' />
         </>
     ),
 };

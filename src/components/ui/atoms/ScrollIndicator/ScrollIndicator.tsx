@@ -13,7 +13,7 @@ export const ScrollIndicator = ({ isGradientDark }: ScrollIndicatorProps) => {
 
     return (
         <div
-            className={`absolute bottom-35 md:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 transition-opacity duration-500 ${
+            className={`absolute bottom-22 md:bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 transition-opacity duration-500 ${
                 visible ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
         >

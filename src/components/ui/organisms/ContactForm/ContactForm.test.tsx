@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { axeViolations } from '../../../../test/axe.ts';
 import { ContactForm } from './ContactForm.tsx';
 import { submitForm } from './submitForm.ts';
 
@@ -59,6 +60,34 @@ describe('ContactForm', () => {
         expect(screen.getByText('Please choose what it’s about')).toBeVisible();
         expect(screen.getByText('Message must be at least 10 characters')).toBeVisible();
         expect(submitForm).not.toHaveBeenCalled();
+    });
+
+    it('tells screen readers which fields are required, and links each error to its field', async () => {
+        const user = renderForm();
+
+        expect(screen.getByLabelText(/your name/i)).toHaveAttribute('aria-required', 'true');
+        expect(screen.getByLabelText(/what’s it about/i)).toHaveAttribute('aria-required', 'true');
+        expect(screen.getByLabelText(/company name/i)).not.toHaveAttribute('aria-required');
+
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+        const name = screen.getByLabelText(/your name/i);
+        expect(await screen.findByText('Name must be at least 2 characters')).toBeVisible();
+        expect(name).toHaveAttribute('aria-invalid', 'true');
+        expect(name).toHaveAccessibleDescription('Name must be at least 2 characters');
+        expect(screen.getByLabelText(/company name/i)).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('passes axe, empty and with its errors showing', async () => {
+        const user = renderForm();
+        const form = screen.getByRole('button', { name: 'Send message' }).closest('form')!;
+
+        expect(await axeViolations(form)).toEqual([]);
+
+        await user.click(screen.getByRole('button', { name: 'Send message' }));
+        await screen.findByText('Name must be at least 2 characters');
+
+        expect(await axeViolations(form)).toEqual([]);
     });
 
     it('rejects a phone number that is not one', async () => {

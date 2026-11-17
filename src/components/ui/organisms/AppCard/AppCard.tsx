@@ -40,7 +40,7 @@ export const AppCard = ({ app, headingLevel = 3 }: AppCardProps) => {
                     type='internal-link'
                     to={paths.app(app.slug).root}
                     label={`See ${app.name}`}
-                    className='self-start mt-6'
+                    className='self-center mt-10'
                 />
             </div>
         </article>

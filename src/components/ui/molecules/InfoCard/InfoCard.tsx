@@ -4,7 +4,7 @@ import { ArtisticFrame } from '../../atoms';
 export const InfoCard = ({ number, title, description }: InfoCardProps) => {
     return (
         <ArtisticFrame className='bg-neutral-100 h-full'>
-            <div className='flex flex-col gap-4 p-8 w-full h-full'>
+            <div className='flex flex-col gap-4 p-6 md:p-8 w-full h-full'>
                 <span className='text-xs text-neutral-600 tracking-widest select-none'>
                     {number}
                 </span>
