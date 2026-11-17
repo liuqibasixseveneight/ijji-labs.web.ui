@@ -41,9 +41,13 @@ describe.each(names)('the %s function, bundled as Netlify does', (name) => {
             // The form functions: Netlify's original (Lambda-style) signature.
             const response = await fn.handler({ httpMethod: 'POST', body: '{}' }, {});
             expect(response.statusCode).toBe(400);
+        } else if (fn.config?.schedule) {
+            // A scheduled function: it has no address, so check it's ready to be scheduled.
+            expect(typeof fn.default).toBe('function');
         } else {
             // The admin functions: Functions v2, a Request in and a Response out. An empty
-            // post from our own pages is refused: 400 by sign-in, 405 by the GET-only ones.
+            // post from our own pages is refused: 400 by sign-in, 405 by the GET-only ones, and
+            // 500 by the rest, which find no admin settings here (so never reach the data).
             const response: Response = await fn.default(
                 new Request(`https://www.ijji-labs.com${fn.config.path}`, {
                     method: 'POST',
@@ -51,7 +55,7 @@ describe.each(names)('the %s function, bundled as Netlify does', (name) => {
                     body: '{}',
                 }),
             );
-            expect([400, 405]).toContain(response.status);
+            expect([400, 405, 500]).toContain(response.status);
         }
         // Bundling a whole function with esbuild can pass the default 5s while the rest of
         // the suite runs alongside it.

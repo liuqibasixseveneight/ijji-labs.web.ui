@@ -9,6 +9,20 @@ vi.mock('resend', () => ({
     },
 }));
 
+const blobs = vi.hoisted(() => ({
+    current: null as null | ReturnType<typeof import('../../shared/admin/testing.ts').memoryBlobs>,
+    failing: false,
+}));
+vi.mock('../../shared/blobs.ts', () => ({
+    connectBlobs: () => {},
+    store: () => {
+        if (blobs.failing) throw new Error('Blobs is down');
+        return blobs.current!.store();
+    },
+}));
+
+import { memoryBlobs } from '../../shared/admin/testing.ts';
+import { listRequests } from '../../shared/deletionRequests.ts';
 import { handler } from './account-deletion.ts';
 
 const valid = { app: 'ijji-tracker', email: 'me@example.com', reason: '', confirm: true };
@@ -23,6 +37,8 @@ const call = async (body: unknown, httpMethod = 'POST') => {
 
 describe('the account-deletion function', () => {
     beforeEach(() => {
+        blobs.current = memoryBlobs();
+        blobs.failing = false;
         send.mockReset().mockResolvedValue({ data: { id: '1' }, error: null });
         process.env.CONTACT_EMAIL_FROM = 'site@example.com';
         process.env.CONTACT_EMAIL_TO = 'support@example.com';
@@ -81,5 +97,40 @@ describe('the account-deletion function', () => {
         send.mockResolvedValue({ data: null, error: { message: 'down' } });
 
         expect((await call(valid)).statusCode).toBe(500);
+    });
+
+    it('saves the request for the admin dashboard, then emails the studio', async () => {
+        expect((await call({ ...valid, reason: 'Moving on' })).statusCode).toBe(200);
+
+        const [saved] = await listRequests();
+        expect(saved).toMatchObject({
+            app: 'ijji-tracker',
+            appName: 'IJJI Tracker',
+            email: 'me@example.com',
+            reason: 'Moving on',
+            status: 'new',
+        });
+        expect(saved.dueAt - saved.receivedAt).toBe(30 * 24 * 60 * 60 * 1000);
+        expect(send.mock.calls[0][0].subject).not.toContain('NOT LOGGED');
+        expect(send.mock.calls[0][0].html).toContain('/admin/deletion-requests');
+    });
+
+    it('still emails, marked NOT LOGGED, when the request can’t be saved', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        blobs.failing = true;
+
+        expect((await call(valid)).statusCode).toBe(200);
+        const message = send.mock.calls[0][0];
+        expect(message.subject).toBe(
+            'NOT LOGGED — Account deletion request: IJJI Tracker — me@example.com',
+        );
+        expect(message.html).toContain("isn't in the admin dashboard");
+    });
+
+    it('saves nothing for bots or invalid posts', async () => {
+        await call({ ...valid, website: 'http://spam.example' });
+        await call({ ...valid, confirm: false });
+        await call({ ...valid, app: 'not-ours' });
+        expect(await listRequests()).toEqual([]);
     });
 });

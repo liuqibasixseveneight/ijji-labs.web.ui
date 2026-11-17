@@ -10,7 +10,7 @@ export const ijjiTrackerDeletion: PolicyDocument = {
     title: 'Delete your IJJI Tracker account',
     summary:
         'You can delete your account in the app in a few taps. If you no longer have the app, ask us here and we’ll do it for you.',
-    effectiveDate: '2026-11-16',
+    effectiveDate: '2026-11-17',
     sections: [
         {
             id: 'in-the-app',
@@ -63,9 +63,13 @@ export const ijjiTrackerDeletion: PolicyDocument = {
                 {
                     type: 'paragraph',
                     text: [
-                        'Nothing from the account itself. Copies in our provider’s encrypted backups are overwritten as the backups roll over, ',
-                        site.backupRetention,
-                        '. We keep our email exchange about your request for up to a year, to show it was handled. The ',
+                        'Nothing from the account itself. If our database provider holds encrypted backups, any copy in them is deleted when those backups expire, and we never restore a deleted account from them.',
+                    ],
+                },
+                {
+                    type: 'paragraph',
+                    text: [
+                        `If you ask us through the form, we keep your request (your email address and any reason) until it’s dealt with, and for ${site.deletionRequestDetailsDays} days after. Then we keep only which app, the dates and the outcome, and our email exchange with you, for a year, to show it was handled. The `,
                         {
                             text: 'privacy policy',
                             href: paths.app('ijji-tracker').privacy,

@@ -1,19 +1,38 @@
-import { redirect, type RouteObject } from 'react-router-dom';
+import { redirect, type ActionFunctionArgs, type RouteObject } from 'react-router-dom';
 
-import { getMe } from './api.ts';
+import { changeDeletionRequest, getDeletionRequests, getMe } from './api.ts';
 import { AdminLayout } from './components/AdminLayout.tsx';
+import { STATUSES, type Status } from './deletionRequests.ts';
+import { adminPaths } from './paths.ts';
 import { AdminNotFound } from './pages/AdminNotFound.tsx';
+import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
 
-/** Admin paths, under the router's `/admin` basename. Never linked from the public site. */
-export const adminPaths = { overview: '/', signIn: '/sign-in' } as const;
-
-/** Every page but sign-in needs a session; without one, it's off to sign in. */
+/**
+ * Every page but sign-in needs a session; without one, it's off to sign in. The deletion
+ * requests load with it, so every page can show how many are open.
+ */
 export const requireAdmin = async () => {
-    const me = await getMe();
+    const [me, deletions] = await Promise.all([getMe(), getDeletionRequests()]);
     if (!me) throw redirect(adminPaths.signIn);
-    return me;
+    return { me, deletions };
+};
+
+export type AdminData = Awaited<ReturnType<typeof requireAdmin>>;
+
+/** Saves a status change from the deletion requests page; the page reloads its data after. */
+export const changeDeletionRequestAction = async ({ request }: ActionFunctionArgs) => {
+    const form = await request.formData();
+    const status = String(form.get('status')) as Status;
+    if (!STATUSES.includes(status)) return { error: 'Choose a status.' };
+
+    const result = await changeDeletionRequest({
+        id: String(form.get('id')),
+        status,
+        note: String(form.get('note') ?? '').trim() || undefined,
+    });
+    return result.ok ? { saved: String(form.get('id')) } : { error: result.error };
 };
 
 /**
@@ -29,6 +48,11 @@ export const adminRoutes: RouteObject[] = [
         element: <AdminLayout />,
         children: [
             { index: true, element: <Overview /> },
+            {
+                path: adminPaths.deletionRequests.slice(1),
+                element: <DeletionRequests />,
+                action: changeDeletionRequestAction,
+            },
             { path: '*', element: <AdminNotFound /> },
         ],
     },

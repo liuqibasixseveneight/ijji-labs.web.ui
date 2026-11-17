@@ -30,6 +30,9 @@ export const memoryBlobs = () => {
         delete: async (key: string) => {
             data.delete(key);
         },
+        list: async ({ prefix = '' }: { prefix?: string } = {}) => ({
+            blobs: [...data.keys()].filter((key) => key.startsWith(prefix)).map((key) => ({ key })),
+        }),
     });
     return { data, store };
 };
