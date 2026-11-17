@@ -152,13 +152,34 @@ export const signIn = async (
         return {
             ok: 'enrol',
             factorId: enrolled.id,
-            qrCode: enrolled.totp.qr_code,
+            qrCode: qrDataUri(enrolled.totp.qr_code),
             secret: enrolled.totp.secret,
         };
     } finally {
         // We keep nothing from Supabase: end the session it just made.
         await call(env, 'logout?scope=local', { token, body: {} });
     }
+};
+
+/**
+ * Supabase hands the QR code back as an SVG in a `data:` URI that isn't URL-encoded
+ * (`data:image/svg+xml;utf-8,<svg …fill="#000000"…>`). Browsers read the first `#` as the
+ * end of the address, so the image comes out broken. This re-encodes it properly, whether
+ * it arrives raw, already encoded, or as plain SVG; a base64 one is left as it is.
+ */
+export const qrDataUri = (value: string) => {
+    let svg = value;
+    if (value.startsWith('data:')) {
+        const comma = value.indexOf(',');
+        if (value.slice(0, comma).includes(';base64')) return value;
+        svg = value.slice(comma + 1);
+        try {
+            svg = decodeURIComponent(svg);
+        } catch {
+            // Raw SVG with a stray % (e.g. width="100%"): use it as it is.
+        }
+    }
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
 /** Supabase itself vouches for the token, and it's this user at aal2. */

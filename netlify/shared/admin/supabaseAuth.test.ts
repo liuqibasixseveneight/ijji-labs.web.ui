@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminEnv } from './env.ts';
-import { signIn } from './supabaseAuth.ts';
+import { qrDataUri, signIn } from './supabaseAuth.ts';
 import { ADMIN_ID, ENV, OTHER_ID } from './testing.ts';
 
 const FACTOR = '33333333-3333-4333-8333-333333333333';
@@ -181,7 +181,7 @@ describe('signing in with Supabase', () => {
             expect(await signIn(open(), { ...input, code: '' })).toEqual({
                 ok: 'enrol',
                 factorId: PENDING,
-                qrCode: 'data:image/svg+xml;utf-8,<svg/>',
+                qrCode: 'data:image/svg+xml;charset=utf-8,%3Csvg%2F%3E',
                 secret: 'ABC',
             });
             expect(calls.find((c) => c.method === 'DELETE')!.path).toBe('factors/old');
@@ -237,5 +237,26 @@ describe('the admin environment', () => {
         ['no anon key', { SUPABASE_PROD_ANON_KEY: undefined }],
     ])('is missing with %s, so nothing signs in', (_, change) => {
         expect(adminEnv({ ...ENV, ...change })).toBeNull();
+    });
+});
+
+describe('the QR code from Supabase', () => {
+    const svg = '<svg width="100%"><path fill="#000000" d="M0 0h1v1H0z"/></svg>';
+    const clean = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+
+    it('is re-encoded, so a # in its colours can’t cut the image short', () => {
+        expect(qrDataUri(`data:image/svg+xml;utf-8,${svg}`)).toBe(clean);
+        expect(clean).not.toContain('#');
+    });
+
+    it('comes out the same whether it arrives encoded, raw or as plain SVG', () => {
+        expect(qrDataUri(`data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`)).toBe(clean);
+        expect(qrDataUri(svg)).toBe(clean);
+    });
+
+    it('leaves a base64 image alone', () => {
+        expect(qrDataUri('data:image/svg+xml;base64,PHN2Zy8+')).toBe(
+            'data:image/svg+xml;base64,PHN2Zy8+',
+        );
     });
 });
