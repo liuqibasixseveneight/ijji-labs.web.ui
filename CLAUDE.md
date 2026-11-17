@@ -75,4 +75,4 @@ These were measured with Lighthouse (mobile) on the built site: 100 for accessib
 - Form fields go inside `FieldWrapper`, which wraps them in their `<label>`; forms get a `Honeypot`.
 - With react-hook-form, read live values with `useWatch`, not `watch` (the React Compiler skips components that call `watch`).
 - Policies are drafts until reviewed; never present them as legal advice.
-- Branching: `feat/*`, `fix/*` into `development` via PR.
+- Branching: `feat/*`, `fix/*` and `chore/*` branch from `develop` and go back into `develop` via PR.
