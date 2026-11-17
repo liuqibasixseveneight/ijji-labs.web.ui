@@ -3,6 +3,7 @@ export * from './BadgeLinks';
 export * from './FormRow';
 export * from './FormStatus';
 export * from './InfoCard';
+export * from './LinkCard';
 export * from './NavMenu';
 export * from './PalettePicker';
 export * from './PlatformBadges';
