@@ -92,6 +92,39 @@ body {
     font-weight: 500;
 }
 
+/*
+  The form fields (TextInput, SelectInput, TextareaInput) are dark, whatever the phone's theme.
+  Without this, phones draw their own: iOS adds rounded corners and an inner shadow, autofill
+  paints fields pale yellow or blue, and the native parts (the select's option list, the
+  caret) follow the system's light or dark theme. 16px text on phones also stops iOS zooming
+  the page when a field is tapped.
+*/
+@utility field-native {
+    color-scheme: dark;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 16px;
+    caret-color: var(--color-brand-primary);
+
+    @media (width >= 40rem) {
+        font-size: var(--text-sm);
+    }
+
+    & option {
+        background-color: var(--color-neutral-900);
+        color: var(--color-white);
+    }
+
+    /* Autofill keeps the field's own colours (the inset shadow covers the browser's fill). */
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--color-white);
+        box-shadow: 0 0 0 1000px var(--color-neutral-900) inset;
+        transition: background-color 9999s ease-out;
+    }
+}
+
 /* People who ask for less motion get none: no transitions, no looping animations. */
 @media (prefers-reduced-motion: reduce) {
     *,

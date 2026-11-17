@@ -71,8 +71,8 @@ export const createRenderer = (container: HTMLElement): THREE.WebGLRenderer => {
         'pointer-events:auto',
         'touch-action:pan-y',
         'z-index:1',
-        'will-change:transform',
-        'transform:translateZ(0)',
+        // No will-change or translateZ: a WebGL canvas gets its own layer anyway, and forcing
+        // one left WebKit (Safari, every iPhone browser) not repainting what overlaps it.
     ].join(';');
 
     container.appendChild(canvas);

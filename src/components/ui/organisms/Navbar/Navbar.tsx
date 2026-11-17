@@ -90,15 +90,15 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
                 aria-label='Site'
                 data-print='hide'
                 data-scrolled={isScrolled}
-                className='sticky top-0 left-0 w-full z-20 h-16 md:h-[clamp(64px,10vh,100px)]'
+                className='sticky top-0 left-0 w-full z-20 h-20 md:h-[clamp(80px,10vh,100px)]'
             >
-                {/* The background, faded in with the scroll. Its own layer, so changing its
-                opacity never repaints the logo or buttons. */}
+                {/* The background, faded in with the scroll: a separate element, so changing
+                its opacity leaves the logo and buttons alone. */}
                 <div
                     ref={fillRef}
                     aria-hidden='true'
                     data-testid='navbar-fill'
-                    className='absolute inset-0 -z-10 bg-ui-background-secondary opacity-0 will-change-[opacity]'
+                    className='absolute inset-0 -z-10 bg-ui-background-secondary opacity-0'
                 />
                 <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-6 md:px-8'>
                     <Logo isMenuOpen={isOpen} isWhite={isWhite} />

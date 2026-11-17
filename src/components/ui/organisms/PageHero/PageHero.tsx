@@ -5,7 +5,7 @@ import type { PageHeroProps } from './types.ts';
 /** The top of every page but Home: a big title, a line or two, jump links and an image. */
 export const PageHero = ({ title, lede, links, image, children }: PageHeroProps) => (
     <Section tone='dark' spacing='md'>
-        <h1 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 pt-[6dvh]'>
+        <h1 className='text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white mb-6 pt-[6svh]'>
             {title}
         </h1>
 

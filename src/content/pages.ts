@@ -55,6 +55,10 @@ export const homeCopy = {
             'We value simplicity, clarity and performance in everything we make, and we make apps of our own, which keeps us honest about what it takes to build something people use every day.',
         ],
     },
+    values: {
+        title: 'What we value',
+        lede: 'Four principles behind everything we make, for our clients and in our own apps.',
+    },
     services: {
         title: 'Our services',
         lede: 'We keep our offering focused — websites, done properly — so every project gets our full attention.',

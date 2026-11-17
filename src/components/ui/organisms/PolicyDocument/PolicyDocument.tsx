@@ -81,7 +81,7 @@ export const PolicyDocument = ({ document, breadcrumb, after, children }: Policy
     <>
         <Section tone='dark' spacing='md'>
             {breadcrumb && (
-                <nav aria-label='Breadcrumb' className='pt-[6dvh] mb-6' data-print='hide'>
+                <nav aria-label='Breadcrumb' className='pt-[6svh] mb-6' data-print='hide'>
                     <ol className='flex flex-wrap items-center gap-2 text-sm text-white/50'>
                         {breadcrumb.map((crumb, index) => (
                             <li key={crumb.to} className='flex items-center gap-2'>
@@ -99,7 +99,7 @@ export const PolicyDocument = ({ document, breadcrumb, after, children }: Policy
             )}
 
             <h1
-                className={`text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white mb-6 ${breadcrumb ? '' : 'pt-[6dvh]'}`}
+                className={`text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white mb-6 ${breadcrumb ? '' : 'pt-[6svh]'}`}
             >
                 {document.title}
             </h1>

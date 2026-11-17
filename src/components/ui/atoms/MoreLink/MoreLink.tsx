@@ -45,9 +45,9 @@ export const MoreLink = ({ to, children, tone = 'dark', className }: MoreLinkPro
         <Link
             to={to}
             className={clsx(
-                // A slim stroke (8% of the link's height, about 2.5px). The negative margin keeps
-                // the text lined up with what's around it.
-                'group inline-flex self-start py-1.5 px-3 -mx-3 text-sm font-bold tracking-widest uppercase [--marker-rest:0.08]',
+                // A slim stroke (8% of the link's height, about 2.5px), exactly as wide as the
+                // text and arrow: no side padding, as there's no fill that would need it.
+                'group inline-flex self-start py-1.5 text-sm font-bold tracking-widest uppercase [--marker-rest:0.08]',
                 markerLink(tone, { fill: false }),
                 className,
             )}
