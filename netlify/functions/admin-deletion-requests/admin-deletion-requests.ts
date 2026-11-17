@@ -13,15 +13,26 @@ const changeSchema = z.object({
     note: z.string().trim().max(500).optional(),
 });
 
+/** The production project's SQL editor, where an account is deleted: from its URL's ref. */
+export const sqlEditorUrl = (supabaseUrl: string) => {
+    const ref = new URL(supabaseUrl).hostname.split('.')[0];
+    return `https://supabase.com/dashboard/project/${ref}/sql/new`;
+};
+
 /**
  * /api/admin/deletion-requests
- * - GET: every web request to delete an app account, open ones first.
+ * - GET: every web request to delete an app account, open ones first, and a link to the
+ *   production project's SQL editor.
  * - POST `{ id, status, note? }`: moves one on. Nothing can be created, edited or deleted here.
  */
 export default withAdmin(
-    async (request) => {
+    async (request, _session, env) => {
         if (request.method === 'GET') {
-            return json(200, { requests: await listRequests(), now: Date.now() });
+            return json(200, {
+                requests: await listRequests(),
+                now: Date.now(),
+                sqlEditorUrl: sqlEditorUrl(env.supabaseUrl),
+            });
         }
 
         let body: unknown;

@@ -37,8 +37,17 @@ export const AdminLayout = () => {
 
             <header className='bg-ui-background-primary text-white'>
                 <div className='max-w-380 mx-auto flex flex-wrap items-center justify-between gap-4 px-6 md:px-8 py-4'>
-                    <Link to='/' className='text-lg font-extrabold tracking-tight'>
-                        ijji labs <span className='text-brand-primary'>admin</span>
+                    {/* The site's logo (as in its navbar), with "admin" beside it. */}
+                    <Link
+                        to={adminPaths.overview}
+                        className='flex items-baseline gap-2 whitespace-nowrap'
+                    >
+                        <span className='text-3xl md:text-4xl font-extrabold font-newsreader text-white'>
+                            ijji labs
+                        </span>{' '}
+                        <span className='text-lg md:text-xl font-bold text-brand-primary'>
+                            admin
+                        </span>
                     </Link>
 
                     <div className='flex items-center gap-4'>
