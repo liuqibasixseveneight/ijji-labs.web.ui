@@ -40,7 +40,11 @@ type CardProps = {
     onOpen: (id: string) => void;
 };
 
-/** One request on the board: who, how long is left, and when it came in. Drag it, or open it. */
+/**
+ * One request on the board: who, how long is left, and when it came in. Click anywhere on it
+ * to see its details and steps (the email is the button, stretched over the card), or drag it
+ * to another column.
+ */
 const Card = ({ request, now, moving, onOpen }: CardProps) => {
     const open = OPEN.includes(request.status);
 
@@ -55,7 +59,7 @@ const Card = ({ request, now, moving, onOpen }: CardProps) => {
             onDragStart={startDrag}
             data-request={request.id}
             className={clsx(
-                'bg-white border border-neutral-200 rounded-xl p-4 flex flex-col gap-2 shadow-sm cursor-grab active:cursor-grabbing',
+                'group relative bg-white border border-neutral-200 rounded-xl p-4 flex flex-col gap-2 shadow-sm cursor-pointer active:cursor-grabbing transition-shadow hover:shadow-md hover:border-neutral-400',
                 moving && 'opacity-60',
                 open &&
                     urgency(daysLeft(request, now)) === 'urgent' &&
@@ -72,7 +76,7 @@ const Card = ({ request, now, moving, onOpen }: CardProps) => {
                     <button
                         type='button'
                         onClick={() => onOpen(request.id)}
-                        className='text-left font-bold [overflow-wrap:anywhere] hover:underline underline-offset-4 cursor-pointer'
+                        className="text-left font-bold [overflow-wrap:anywhere] group-hover:underline underline-offset-4 cursor-pointer after:absolute after:inset-0 after:content-['']"
                     >
                         {request.email ?? 'Email removed'}
                     </button>
@@ -81,18 +85,26 @@ const Card = ({ request, now, moving, onOpen }: CardProps) => {
                     <CopyButton
                         text={request.email}
                         label='Copy email address'
-                        className='shrink-0'
+                        className='relative z-10 shrink-0'
                     />
                 )}
             </div>
 
-            <p className='text-sm text-neutral-600'>
-                {open ? 'Received' : 'Closed'}{' '}
-                {dateFormat.format(
-                    open ? request.receivedAt : (request.closedAt ?? request.receivedAt),
-                )}
-                {moving && <span className='font-semibold'> · Moving…</span>}
-            </p>
+            <div className='flex items-center justify-between gap-2 text-sm text-neutral-600'>
+                <p>
+                    {open ? 'Received' : 'Closed'}{' '}
+                    {dateFormat.format(
+                        open ? request.receivedAt : (request.closedAt ?? request.receivedAt),
+                    )}
+                    {moving && <span className='font-semibold'> · Moving…</span>}
+                </p>
+                <span
+                    aria-hidden='true'
+                    className='pointer-events-none font-semibold text-neutral-800 group-hover:translate-x-0.5 transition-transform'
+                >
+                    Details →
+                </span>
+            </div>
         </li>
     );
 };
