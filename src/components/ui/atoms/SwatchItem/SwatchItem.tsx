@@ -13,6 +13,9 @@ export const SwatchItem = ({
     onHover,
 }: SwatchItemProps) => (
     <button
+        type='button'
+        aria-label={name}
+        aria-pressed={isActive}
         onClick={() => onChange(paletteKey)}
         onMouseEnter={(e) => {
             const wrapper = wrapperRef.current;

@@ -1,16 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
-import {
-    cleanupScene,
-    createAnimationLoop,
-    createResizeHandler,
-    initializeScene,
-    applyPaletteToScene,
-    palettes,
-    defaultPaletteKey,
-    type Palette,
-    type SceneState,
-} from './utils';
+import { palettes, defaultPaletteKey, type Palette, type SceneState } from './utils';
+import type * as SceneModule from './utils/scene';
 import type { FluidGradientProps } from './types.ts';
 import { type PaletteKey, PalettePicker } from '../../molecules';
 
@@ -30,6 +21,7 @@ export const FluidGradient = ({
 }: FluidGradientProps) => {
     const canvasRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<SceneState | null>(null);
+    const sceneModuleRef = useRef<typeof SceneModule | null>(null);
     const [webglReady, setWebglReady] = useState(false);
 
     const [activePaletteKey, setActivePaletteKey] = useState<PaletteKey>(
@@ -41,24 +33,34 @@ export const FluidGradient = ({
         [showPalettePicker, activePaletteKey, palette],
     );
 
-    const [placeholderGradient] = useState(() => buildPlaceholderGradient(activePalette));
+    // The still gradient shown until WebGL starts, and instead of it for reduced motion.
+    const placeholderGradient = buildPlaceholderGradient(activePalette);
 
     useEffect(() => {
         const canvasElement = canvasRef.current;
         if (!canvasElement) return;
 
+        // No moving fluid for people who ask for less motion: the still gradient stays.
+        if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
         let initialised = false;
         let idleHandle: number | undefined;
         let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
-        let resizeHandler: ReturnType<typeof createResizeHandler> | null = null;
+        let resizeHandler: ReturnType<typeof SceneModule.createResizeHandler> | null = null;
+        let cancelled = false;
 
         const initScene = () => {
             if (initialised || !canvasElement) return;
             initialised = true;
 
-            const run = () => {
+            const run = async () => {
                 // Bail if the component already unmounted while we were waiting
                 if (!canvasRef.current) return;
+
+                const sceneModule = await import('./utils/scene');
+                if (cancelled || !canvasRef.current) return;
+                sceneModuleRef.current = sceneModule;
+                const { createAnimationLoop, createResizeHandler, initializeScene } = sceneModule;
 
                 const scene = initializeScene(canvasElement, activePalette);
                 sceneRef.current = scene;
@@ -75,9 +77,9 @@ export const FluidGradient = ({
             };
 
             if (typeof requestIdleCallback !== 'undefined') {
-                idleHandle = requestIdleCallback(run, { timeout: 2000 });
+                idleHandle = requestIdleCallback(() => void run(), { timeout: 2000 });
             } else {
-                timeoutHandle = setTimeout(run, 0);
+                timeoutHandle = setTimeout(() => void run(), 0);
             }
         };
 
@@ -94,6 +96,7 @@ export const FluidGradient = ({
         observer.observe(canvasElement);
 
         return () => {
+            cancelled = true;
             observer.disconnect();
 
             // Cancel any pending idle/timeout init
@@ -117,7 +120,7 @@ export const FluidGradient = ({
             const scene = sceneRef.current;
             if (scene) {
                 scene.cleanupVisibility?.();
-                cleanupScene(scene, canvasElement);
+                sceneModuleRef.current?.cleanupScene(scene, canvasElement);
                 sceneRef.current = null;
             }
         };
@@ -127,7 +130,7 @@ export const FluidGradient = ({
     // Palette changes after mount — just update uniforms, no re-init needed
     useEffect(() => {
         if (sceneRef.current) {
-            applyPaletteToScene(sceneRef.current, activePalette);
+            sceneModuleRef.current?.applyPaletteToScene(sceneRef.current, activePalette);
         }
     }, [activePalette]);
 

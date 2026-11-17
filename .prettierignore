@@ -1,0 +1,7 @@
+dist
+coverage
+storybook-static
+package-lock.json
+deno.lock
+.netlify
+dist-server

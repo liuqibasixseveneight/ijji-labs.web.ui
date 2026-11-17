@@ -1,12 +1,8 @@
-export interface NavBarMenuItemProps {
-    label: string;
-    to: string;
-    num: string;
-    description: string;
-}
+import type { NavMenuItemLink } from '../../atoms';
 
 export interface NavMenuProps {
+    id?: string;
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    links: NavBarMenuItemProps[];
+    links: NavMenuItemLink[];
 }

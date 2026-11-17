@@ -1,79 +1,129 @@
 /**
-  FONTS:
+  FONTS (self-hosted from @fontsource, no third-party requests):
   NEWSREADER      - HEADINGS
   SPACE GROTESK   - BODY TEXT
  */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Grotesk:wght@300..700&display=swap');
-
-@import "tailwindcss";
+@import '@fontsource-variable/newsreader/wght.css';
+@import '@fontsource-variable/space-grotesk/wght.css';
+@import 'tailwindcss';
 
 @theme {
-  /* FONTS */
-  --font-newsreader: 'Newsreader', serif;        /* HEADINGS */
-  --font-space-grotesk: "Space Grotesk", sans-serif;   /* BODY TEXT */
+    /* FONTS */
+    --font-newsreader: 'Newsreader Variable', 'Newsreader', serif; /* HEADINGS */
+    --font-space-grotesk: 'Space Grotesk Variable', 'Space Grotesk', sans-serif; /* BODY TEXT */
 
-  /* BRAND */
-  --color-brand-primary: #FAEE47;
-  --color-brand-primary2: #A078FF;
-  --color-brand-secondary: #EF4444;
-  --color-brand-tertiary: #B06B00;
+    /* BRAND */
+    --color-brand-primary: #faee47;
+    --color-brand-primary2: #a078ff;
+    --color-brand-secondary: #ef4444;
+    --color-brand-tertiary: #b06b00;
 
-  /* UI */
-  --color-ui-background-primary: #121212;
-  --color-ui-background-secondary: #0D0F0F;
-  --color-ui-border: #1C1B1B;
-  --color-ui-text-secondary: #929093;
+    /* UI */
+    --color-ui-background-primary: #121212;
+    --color-ui-background-secondary: #0d0f0f;
+    --color-ui-border: #1c1b1b;
+    --color-ui-text-secondary: #929093;
+}
+
+/* Jump links (#our-story, /projects#project-dedalus) land below the sticky navbar, not under it. */
+[id] {
+    scroll-margin-top: clamp(64px, 10vh, 100px);
 }
 
 body {
-  font-family: "Space Grotesk", sans-serif;
+    font-family: var(--font-space-grotesk);
 }
 
 ::selection {
-  background-color: #FAEE47;
-  color: #0D0F0F;
+    background-color: #faee47;
+    color: #0d0f0f;
 }
 
 @keyframes scroll-chevron {
-  0%, 100% {
-    opacity: 0.15;
-  }
-  50% {
-    opacity: 1;
-  }
+    0%,
+    100% {
+        opacity: 0.15;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 @utility animate-scroll-chevron {
-  animation: scroll-chevron 1.6s ease-in-out infinite;
+    animation: scroll-chevron 1.6s ease-in-out infinite;
 }
 
-/* DEBUGGING STYLES */
-/** {*/
-/*  background-color: #121212 !important;*/
-/*  outline: 1px solid rgba(255, 255, 255, 0.1);*/
-/*}*/
+/*
+  Links inside running text (policies): a slim yellow underline at rest; on hover or keyboard
+  focus the yellow sweeps across behind the text, left to right, and the underline gives way
+  to it. A background rather than a layer, so it follows the text across line breaks. They
+  don't roll: a roll can't wrap.
 
-/*div, section, article, main, header, footer {*/
-/*  background-color: rgba(0, 255, 255, 0.015) !important;*/
-/*  outline-color: rgba(0, 255, 255, 0.2) !important;*/
-/*  position: relative;*/
-/*}*/
+  Always used with `link-marked`, which sets the resting underline.
+*/
+@utility link-highlight {
+    color: var(--color-ui-background-primary);
+    text-decoration-line: underline;
+    text-decoration-color: var(--link-underline, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+    background-image: linear-gradient(var(--color-brand-primary), var(--color-brand-primary));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 100%;
+    padding-inline: 0.1em;
+    margin-inline: -0.1em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* The same timing as markerLink (TextLink, MoreLink), so every link moves alike. */
+    transition:
+        background-size 500ms cubic-bezier(0.22, 1, 0.36, 1),
+        text-decoration-color 300ms ease;
 
-/*[class*="flex"] > * {*/
-/*  outline: 1px dashed rgba(255, 165, 0, 0.2) !important;*/
-/*  background-color: rgba(255, 165, 0, 0.015) !important;*/
-/*}*/
+    &:hover,
+    &:focus-visible {
+        background-size: 100% 100%;
+        text-decoration-color: transparent;
+    }
+}
 
-/*[class*="grid"] > * {*/
-/*  outline: 1px dotted rgba(255, 0, 255, 0.2) !important;*/
-/*  background-color: rgba(255, 0, 255, 0.015) !important;*/
-/*}*/
+@utility link-marked {
+    --link-underline: var(--color-brand-primary);
+    font-weight: 500;
+}
 
-/*span, a, strong, em, b, i, img, button {*/
-/*  outline: none !important;*/
-/*  background-color: transparent !important;*/
-/*}*/
+/* People who ask for less motion get none: no transitions, no looping animations. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
 
-/*div div, section section, article article {*/
-/*  background-color: rgba(0, 255, 255, 0.025) !important;*/
-/*}*/
+/*
+  A clear focus ring for keyboard users, on every link, button and field: yellow on dark
+  sections, near-black on light ones (yellow on white is about 1.1:1; WCAG asks 3:1). Light
+  surfaces set --focus-ring (Section tone='light' does it for you).
+*/
+:focus-visible {
+    outline: 2px solid var(--focus-ring, var(--color-brand-primary));
+    outline-offset: 3px;
+}
+
+/* Policies and other long reads print cleanly: no navbar, menu or footer, black on white. */
+@media print {
+    [data-print='hide'] {
+        display: none !important;
+    }
+
+    body,
+    main,
+    section {
+        background: white !important;
+        color: black !important;
+    }
+}

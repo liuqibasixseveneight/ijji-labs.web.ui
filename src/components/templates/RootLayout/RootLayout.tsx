@@ -1,17 +1,16 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 
-import { Footer, Navbar } from '../../ui';
-import type { Palette } from '../../ui/organisms/FluidGradient/utils';
-
-const DARK_HERO_ROUTES: string[] = ['/about', '/services', '/projects', '/contact'];
+import { siteGraph } from '../../../content/structuredData.ts';
+import { Footer, Navbar, StructuredData, type Palette } from '../../ui';
+import type { HomeContextProps } from '../../pages/Home/types.ts';
 
 export const RootLayout = () => {
     const [isPaletteDark, setIsPaletteDark] = useState(false);
     const { pathname } = useLocation();
 
+    // Only Home has the gradient; every other page has a dark navbar regardless.
     const isGradientDark = pathname === '/' && isPaletteDark;
-    const isNavInitiallyWhite = isGradientDark || DARK_HERO_ROUTES.includes(pathname);
 
     const onPathnameChange = useEffectEvent((path: string) => {
         if (path !== '/') setIsPaletteDark(false);
@@ -25,12 +24,26 @@ export const RootLayout = () => {
         setIsPaletteDark(palette.isDark);
     }, []);
 
+    const outletContext: HomeContextProps = { isGradientDark, handlePaletteChange };
+
     return (
         <div className='flex flex-col min-h-screen relative'>
-            <Navbar isGradientDark={isNavInitiallyWhite} />
+            <a
+                href='#main'
+                className='sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-brand-primary focus:text-ui-background-primary focus:px-4 focus:py-2 focus:font-bold'
+            >
+                Skip to content
+            </a>
 
-            <main className='flex-1 flex flex-col -mt-16 md:-mt-[clamp(64px,10vh,100px)]'>
-                <Outlet context={{ isGradientDark, handlePaletteChange }} />
+            <StructuredData data={siteGraph()} />
+            <Navbar isGradientDark={isGradientDark} />
+
+            <main
+                id='main'
+                tabIndex={-1}
+                className='flex-1 flex flex-col -mt-16 md:-mt-[clamp(64px,10vh,100px)]'
+            >
+                <Outlet context={outletContext} />
             </main>
 
             <Footer />

@@ -1,8 +1,10 @@
 import type { ProjectCardProps } from './types.ts';
 import { ArtisticFrame } from '../../atoms';
+import { cdnImage } from './cdnImage.ts';
 
 export const ProjectCard = ({
-    id,
+    number,
+    anchor,
     name,
     description,
     services,
@@ -11,6 +13,7 @@ export const ProjectCard = ({
 }: ProjectCardProps) => {
     return (
         <div
+            id={anchor}
             className={`grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${
                 flip ? 'border-y border-neutral-900 py-[5vh]' : ''
             }`}
@@ -21,7 +24,15 @@ export const ProjectCard = ({
             >
                 {mockup ? (
                     <img
-                        src={mockup}
+                        src={cdnImage(mockup, 960)}
+                        srcSet={[480, 720, 960, 1280]
+                            .map((w) => `${cdnImage(mockup, w)} ${w}w`)
+                            .join(', ')}
+                        sizes='(min-width: 768px) 50vw, 100vw'
+                        width={1200}
+                        height={900}
+                        loading='lazy'
+                        decoding='async'
                         alt={`${name} screenshot`}
                         className='w-full h-full object-cover object-top'
                     />
@@ -36,7 +47,7 @@ export const ProjectCard = ({
 
             <div className={`flex flex-col gap-4 ${flip ? 'md:order-first' : ''}`}>
                 <p className='text-sm sm:text-base text-neutral-400 leading-relaxed uppercase font-semibold'>
-                    {id}
+                    {number}
                 </p>
 
                 <h3 className='text-4xl sm:text-5xl font-extrabold text-white leading-none'>
