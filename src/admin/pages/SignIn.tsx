@@ -122,12 +122,10 @@ export const SignIn = () => {
 
                             {error && <FormError title='Couldn’t sign in' message={error} />}
 
-                            <Button
-                                type='submit'
-                                isLoading={isSubmitting}
-                                label='Sign in'
-                                className='self-start'
-                            />
+                            {/* At the end of the row, as on the contact form. */}
+                            <div className='w-full flex items-center justify-end'>
+                                <Button type='submit' isLoading={isSubmitting} label='Sign in' />
+                            </div>
                         </form>
                     </div>
                 </Section>
