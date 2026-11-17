@@ -5,7 +5,7 @@
 // This is the outer layer only. Every admin function checks the session again (withAdmin),
 // including the "sign out everywhere" epoch, which lives in Blobs and isn't read here.
 
-import { parseAllowlist, readCookie, verifySession } from '../shared/admin/session.ts';
+import { parseAllowlist, readCookie, verifySession } from '../../shared/admin/session.ts';
 
 declare const Netlify: { env: { get(name: string): string | undefined } };
 

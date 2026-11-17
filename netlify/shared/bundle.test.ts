@@ -61,7 +61,9 @@ describe.each(names)('the %s function, bundled as Netlify does', (name) => {
 describe('the admin edge gate, bundled for the edge', () => {
     it('uses only web APIs (no Node built-ins or npm packages), as Deno needs', async () => {
         const result = await build({
-            entryPoints: [resolve(import.meta.dirname, '../edge-functions/admin-gate.ts')],
+            entryPoints: [
+                resolve(import.meta.dirname, '../edge-functions/admin-gate/admin-gate.ts'),
+            ],
             bundle: true,
             platform: 'neutral',
             format: 'esm',
@@ -71,4 +73,19 @@ describe('the admin edge gate, bundled for the edge', () => {
         expect(result.warnings.map((warning) => warning.text)).toEqual([]);
         expect(result.outputFiles[0].text).not.toMatch(/from\s*["'](node:|[a-z@])/);
     }, 30_000);
+});
+
+describe('the functions folders', () => {
+    // Netlify deploys every top-level file in these folders as a function of its own (a test
+    // file there once broke a deploy). Each function lives in a folder named after it, with
+    // its tests and helpers beside it; only the file named after the folder is deployed.
+    it.each(['functions', 'edge-functions'])('netlify/%s holds only folders', (folder) => {
+        const dir = resolve(import.meta.dirname, '..', folder);
+        const files = readdirSync(dir, { withFileTypes: true }).filter((e) => !e.isDirectory());
+        expect(files.map((e) => e.name)).toEqual([]);
+
+        for (const entry of readdirSync(dir)) {
+            expect(readdirSync(join(dir, entry))).toContain(`${entry}.ts`);
+        }
+    });
 });
