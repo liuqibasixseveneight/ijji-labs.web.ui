@@ -27,7 +27,7 @@
         X-Frame-Options = "DENY"
 
 # The admin dashboard (src/admin, its own page at admin/index.html). The edge gate
-# (netlify/edge-functions/admin-gate.ts) runs first and answers 404 to anyone without a valid
+# (netlify/edge-functions/admin-gate/admin-gate.ts) runs first and answers 404 to anyone without a valid
 # admin session, except on /admin/sign-in; this rewrite then serves the dashboard's page for
 # every /admin address. Its functions (/api/admin/*) check the session again themselves.
 # Never cached, never indexed, and no referrer leaves it. Not in robots.txt on purpose:

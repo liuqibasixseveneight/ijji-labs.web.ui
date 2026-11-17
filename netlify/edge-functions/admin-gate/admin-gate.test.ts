@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ADMIN_ID, ENV, forge, ORIGIN, OTHER_ID, sessionFor } from '../shared/admin/testing.ts';
+import { ADMIN_ID, ENV, forge, ORIGIN, OTHER_ID, sessionFor } from '../../shared/admin/testing.ts';
 import handler, { config, gate } from './admin-gate.ts';
 
 const env = (name: string) => (ENV as Record<string, string>)[name];
