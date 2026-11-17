@@ -36,6 +36,7 @@ describe('the admin-deletion-requests function', () => {
         expect(body.requests).toHaveLength(1);
         expect(body.requests[0]).toMatchObject({ id, email: 'me@example.com', status: 'new' });
         expect(typeof body.now).toBe('number');
+        expect(body.sqlEditorUrl).toBe('https://supabase.com/dashboard/project/prod/sql/new');
     });
 
     it('moves a request on, with a note', async () => {

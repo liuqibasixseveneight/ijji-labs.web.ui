@@ -53,7 +53,12 @@ export const getMe = async (): Promise<Me | null> => {
     }
 };
 
-export type DeletionRequests = { requests: DeletionRequest[]; now: number };
+export type DeletionRequests = {
+    requests: DeletionRequest[];
+    now: number;
+    /** The production Supabase project's SQL editor, where accounts are deleted. */
+    sqlEditorUrl: string;
+};
 
 /** Every web deletion request, open ones first; null if they couldn't be loaded. */
 export const getDeletionRequests = async (): Promise<DeletionRequests | null> => {
