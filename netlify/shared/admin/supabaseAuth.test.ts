@@ -33,7 +33,13 @@ const supabase = ({
             const headers = init.headers as Record<string, string>;
             calls.push({ path, method: init.method!, body, auth: headers.Authorization });
             const ok = (data: object) => new Response(JSON.stringify(data), { status: 200 });
-            const no = () => new Response('{}', { status: 400 });
+            const no = () =>
+                new Response(
+                    JSON.stringify({
+                        error_code: path.startsWith('token') ? 'invalid_credentials' : 'bad',
+                    }),
+                    { status: 400 },
+                );
 
             if (path === 'token?grant_type=password') {
                 return password ? ok({ access_token: AAL1, user: { id: userId, factors } }) : no();
@@ -61,9 +67,55 @@ const supabase = ({
 const env = (extra: Record<string, string> = {}) => adminEnv({ ...ENV, ...extra })!;
 const input = { email: 'admin@ijji-labs.com', password: 'pw', code: '123456' };
 
+/** Everything signIn wrote to the function's log. */
+let logged: string[] = [];
+
 describe('signing in with Supabase', () => {
-    beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
-    afterEach(() => vi.unstubAllGlobals());
+    beforeEach(() => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        logged = [];
+        vi.spyOn(console, 'warn').mockImplementation((...args) => {
+            logged.push(args.join(' '));
+        });
+    });
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    it.each([
+        [
+            'a wrong password',
+            {},
+            { password: false },
+            ['Supabase token answered 400 invalid_credentials', 'wrong email or password'],
+        ],
+        ['someone not on the allowlist', {}, { userId: OTHER_ID }, ['not on ADMIN_USER_IDS']],
+        ['no code', { code: '' }, {}, ['no authenticator code']],
+        [
+            'a wrong code',
+            { code: '000000' },
+            {},
+            ['factors/:id/verify answered 400', 'wrong authenticator code'],
+        ],
+        [
+            'no authenticator while enrolment is off',
+            { code: '' },
+            { factors: [] },
+            ['ADMIN_MFA_ENROLL'],
+        ],
+    ])(
+        'logs why it refused %s, and never the details typed in',
+        async (_, change, setup, reasons) => {
+            supabase(setup);
+            expect(await signIn(env(), { ...input, ...change })).toEqual({ ok: false });
+
+            const log = logged.join('\n');
+            for (const reason of reasons) expect(log).toContain(reason);
+            // Not the email, password, code or a token (the fake tokens start "h.ey").
+            expect(log).not.toMatch(/admin@ijji-labs\.com|\bpw\b|123456|000000|h\.ey/);
+        },
+    );
 
     it('signs in the admin with a password and a code, then signs Supabase out again', async () => {
         const calls = supabase();
