@@ -1,10 +1,11 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
 import { apps, faqs } from '../../content';
 import { llmsFullTxt, llmsTxt } from '../../content/llms.ts';
+import { webManifest } from '../../content/webManifest.ts';
 import { renderApp } from '../../test/renderApp.tsx';
 import { paths } from '../paths.ts';
 
@@ -177,5 +178,42 @@ describe('llms.txt', () => {
         }
         expect(text).not.toContain('[object Object]');
         expect(text).not.toContain('undefined');
+    });
+});
+
+describe('the studio mark as the site icon', () => {
+    const publicFile = (file: string) => resolve(process.cwd(), 'public', file);
+
+    it('index.html links the favicon, the touch icon and the manifest, and they exist', () => {
+        const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf-8');
+
+        for (const file of ['favicon.ico', 'apple-touch-icon.png']) {
+            expect(html).toContain(`href="/${file}"`);
+            expect(existsSync(publicFile(file))).toBe(true);
+        }
+        expect(html).toContain('href="/site.webmanifest"');
+        // Vite's starter icon is gone for good.
+        expect(existsSync(publicFile('favicon.svg'))).toBe(false);
+    });
+
+    it('the favicon holds 16, 32 and 48px images (Google wants a multiple of 48)', () => {
+        const ico = readFileSync(publicFile('favicon.ico'));
+        const count = ico.readUInt16LE(4);
+        const sizes = Array.from({ length: count }, (_, index) => ico.readUInt8(6 + 16 * index));
+
+        expect(sizes).toEqual([16, 32, 48]);
+    });
+
+    it('the manifest names the studio and points at icons that exist', () => {
+        const manifest = JSON.parse(webManifest());
+
+        expect(manifest.name).toBe('ijji labs');
+        expect(manifest.icons.map((icon: { sizes: string }) => icon.sizes)).toEqual([
+            '192x192',
+            '512x512',
+        ]);
+        for (const icon of manifest.icons) {
+            expect(existsSync(publicFile(icon.src.slice(1)))).toBe(true);
+        }
     });
 });

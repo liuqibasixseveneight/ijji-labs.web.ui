@@ -10,6 +10,7 @@ import { Logo } from './Logo';
 import { NavbarLink } from './NavbarLink';
 import { RichText } from './RichText';
 import { ScrollIndicator } from './ScrollIndicator';
+import { StudioMark } from './StudioMark';
 import { TextLink } from './TextLink';
 import { Tooltip } from './Tooltip';
 
@@ -115,6 +116,18 @@ export const PolicyText: Story = {
                 ]}
             />
         </p>
+    ),
+};
+
+/** The studio's mark, beside the ijji labs policies in the footer. */
+export const StudioMarkOnDark: Story = {
+    render: () => (
+        <div className='flex items-center gap-3 bg-ui-background-secondary p-8'>
+            <StudioMark />
+            <span className='text-xs font-medium uppercase tracking-widest text-white/60'>
+                ijji labs
+            </span>
+        </div>
     ),
 };
 

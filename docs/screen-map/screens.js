@@ -96,7 +96,11 @@ window.SCREEN_MAP = {
             route: 'Full screen, slides in from the left',
             how: 'Hamburger in the navbar',
             note: 'Opening it moves focus to its first link and locks the page’s scroll. While closed it is inert, so its links are out of the tab order.',
-            inside: ['Hovering an item shows its big number behind (tablet and up)'],
+            inside: [
+                'The page you’re on is yellow, marked “You’re here”, with its number behind (tablet and up)',
+                'Hovering an item rolls its name to yellow, sweeps a yellow line under it and shows its number behind',
+                'The studio’s email and location at the foot',
+            ],
             exits: [
                 { tap: '00 Home — Welcome', to: 'home', kind: 'page' },
                 { tap: '01 About — Who we are', to: 'about', kind: 'page' },
@@ -118,7 +122,7 @@ window.SCREEN_MAP = {
             title: 'Footer',
             route: 'Bottom of every page',
             how: 'Always there',
-            note: 'The main links, then a Legal row with every policy, so a reviewer can find them from any page. The current page’s main link stays yellow.',
+            note: 'The main links, then under a line the policies, stacked: ijji labs (website privacy), then each app (privacy, terms, support, delete account), so a reviewer can find them from any page. The current page’s main link stays yellow.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
                 { tap: 'About', to: 'about', kind: 'page' },
@@ -126,7 +130,7 @@ window.SCREEN_MAP = {
                 { tap: 'Projects', to: 'projects', kind: 'page' },
                 { tap: 'Apps', to: 'apps', kind: 'page' },
                 { tap: 'Contact', to: 'contact', kind: 'page' },
-                { tap: 'This website: Privacy', to: 'website-privacy', kind: 'page' },
+                { tap: 'ijji labs: Privacy', to: 'website-privacy', kind: 'page' },
                 { tap: 'IJJI Tracker: Privacy', to: 'tracker-privacy', kind: 'page' },
                 { tap: 'IJJI Tracker: Terms', to: 'tracker-terms', kind: 'page' },
                 { tap: 'IJJI Tracker: Support', to: 'tracker-support', kind: 'page' },

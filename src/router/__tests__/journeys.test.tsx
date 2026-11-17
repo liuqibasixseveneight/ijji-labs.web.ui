@@ -125,7 +125,7 @@ describe('the footer', () => {
     );
 
     it.each([
-        { name: 'This website: Privacy', path: paths.privacy },
+        { name: 'ijji labs: Privacy', path: paths.privacy },
         { name: 'IJJI Tracker: Privacy', path: tracker.privacy },
         { name: 'IJJI Tracker: Terms', path: tracker.terms },
         { name: 'IJJI Tracker: Support', path: tracker.support },

@@ -9,7 +9,7 @@ const dist = path.join(root, 'dist');
 const serverDir = path.join(root, 'dist-server');
 const SITE_URL = 'https://www.ijji-labs.com';
 
-const { render, prerenderPaths, sitemapEntries, llmsTxt, llmsFullTxt } = await import(
+const { render, prerenderPaths, sitemapEntries, llmsTxt, llmsFullTxt, webManifest } = await import(
     pathToFileURL(path.join(serverDir, 'entry-server.js')).href
 );
 
@@ -107,8 +107,11 @@ Sitemap: ${SITE_URL}/sitemap.xml
 write(path.join(dist, 'llms.txt'), llmsTxt());
 write(path.join(dist, 'llms-full.txt'), llmsFullTxt());
 
+// The home-screen name and icons (the studio mark), from the same content.
+write(path.join(dist, 'site.webmanifest'), webManifest());
+
 fs.rmSync(serverDir, { recursive: true, force: true });
 
 console.log(
-    `Pre-rendered ${urls.length} pages, 404.html, sitemap.xml, robots.txt, llms.txt and llms-full.txt`,
+    `Pre-rendered ${urls.length} pages, 404.html, sitemap.xml, robots.txt, llms.txt, llms-full.txt and site.webmanifest`,
 );

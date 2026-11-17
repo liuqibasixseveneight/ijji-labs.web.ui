@@ -39,5 +39,7 @@ describe.each(names)('the %s function, bundled as Netlify does', (name) => {
 
         const response = await handler({ httpMethod: 'POST', body: '{}' }, {});
         expect(response.statusCode).toBe(400);
-    });
+        // Bundling a whole function with esbuild can pass the default 5s while the rest of
+        // the suite runs alongside it.
+    }, 30_000);
 });

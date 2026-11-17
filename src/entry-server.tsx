@@ -4,6 +4,7 @@ import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'r
 
 import { apps, websitePrivacy } from './content';
 export { llmsFullTxt, llmsTxt } from './content/llms.ts';
+export { webManifest } from './content/webManifest.ts';
 import { site } from './content/site.ts';
 import { paths } from './router/paths.ts';
 import { routes } from './router/routes.tsx';

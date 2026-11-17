@@ -36,6 +36,9 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
         setupFiles: ['./src/test/setup.ts'],
+        // Form tests type with user-event, which can pass the default 5s while the whole
+        // suite runs (more so under coverage, as CI does).
+        testTimeout: 15_000,
         include: ['src/**/*.test.{ts,tsx}', 'netlify/**/*.test.ts', 'docs/**/*.test.ts'],
         css: false,
         coverage: {

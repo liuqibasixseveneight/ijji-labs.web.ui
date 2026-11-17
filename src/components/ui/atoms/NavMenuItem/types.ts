@@ -7,7 +7,10 @@ export interface NavMenuItemLink {
 
 export interface NavMenuItemProps {
     link: NavMenuItemLink;
-    isHovered: boolean;
+    /** Its place in the menu, for the staggered entrance. */
+    index: number;
+    /** Whether the menu is open: the rows slide in one after another as it opens. */
+    isMenuOpen: boolean;
     onHover: () => void;
     onLeave: () => void;
     setIsOpen: (open: boolean) => void;

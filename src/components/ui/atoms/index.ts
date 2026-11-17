@@ -15,6 +15,7 @@ export * from './RichText';
 export * from './RollingText';
 export * from './ScrollIndicator';
 export * from './Section';
+export * from './StudioMark';
 export * from './SelectInput';
 export * from './StructuredData';
 export * from './SwatchItem';

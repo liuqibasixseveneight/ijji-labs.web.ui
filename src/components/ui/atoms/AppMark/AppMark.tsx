@@ -5,6 +5,7 @@ import { ResponsiveImage } from '../ResponsiveImage/ResponsiveImage.tsx';
 import type { AppMarkProps } from './types.ts';
 
 const SIZES = {
+    sm: { frame: 'w-8 h-8 rounded-[0.55rem]', sizes: '32px' },
     md: { frame: 'w-20 h-20 rounded-[1.25rem]', sizes: '80px' },
     lg: {
         frame: 'w-32 h-32 md:w-40 md:h-40 rounded-[1.8rem] md:rounded-[2.25rem]',
