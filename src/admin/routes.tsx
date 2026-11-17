@@ -5,6 +5,7 @@ import { AdminLayout } from './components/AdminLayout.tsx';
 import { STATUSES, type Status } from './deletionRequests.ts';
 import { adminPaths } from './paths.ts';
 import { AdminNotFound } from './pages/AdminNotFound.tsx';
+import { DeletionRequest } from './pages/DeletionRequest.tsx';
 import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
@@ -51,6 +52,11 @@ export const adminRoutes: RouteObject[] = [
             {
                 path: adminPaths.deletionRequests.slice(1),
                 element: <DeletionRequests />,
+                action: changeDeletionRequestAction,
+            },
+            {
+                path: `${adminPaths.deletionRequests.slice(1)}/:requestId`,
+                element: <DeletionRequest />,
                 action: changeDeletionRequestAction,
             },
             { path: '*', element: <AdminNotFound /> },
