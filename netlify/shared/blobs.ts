@@ -9,9 +9,14 @@ import { connectLambda, getStore } from '@netlify/blobs';
  */
 export const BLOBS_REGION = 'eu-central-1';
 
-/** Opens a site-wide Blobs store in {@link BLOBS_REGION}, with reads that see the latest write. */
-export const store = (name: string) =>
-    getStore({ name, region: BLOBS_REGION, consistency: 'strong' });
+/**
+ * Opens a site-wide Blobs store in {@link BLOBS_REGION}. Reads see the latest write
+ * (`strong`) by default. The form functions (Lambda-style, see {@link connectBlobs}) only get a
+ * cached edge address, where `strong` throws BlobsConsistencyError on every call, so they
+ * pass `eventual`: fine for writing a new entry.
+ */
+export const store = (name: string, consistency: 'strong' | 'eventual' = 'strong') =>
+    getStore({ name, region: BLOBS_REGION, consistency });
 
 /**
  * The form functions use Netlify's original (Lambda-style) signature, where Blobs needs the

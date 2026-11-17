@@ -14,10 +14,13 @@ export const REDACT_AFTER_DAYS = site.deletionRequestDetailsDays;
 /** After a request is closed, its record (dates and status only by then) is kept this long. */
 export const DELETE_AFTER_DAYS = site.deletionRequestRecordDays;
 
-const requests = () => store('deletion-requests');
+const requests = (consistency?: 'eventual') => store('deletion-requests', consistency);
 const key = (id: string) => `request/${id}`;
 
-/** Saves a new request; its id. Throws if Blobs can't be reached (the caller still emails). */
+/**
+ * Saves a new request; its id. Throws if Blobs can't be reached (the caller still emails).
+ * Called from the Lambda-style form function, so it writes with eventual consistency.
+ */
 export const saveRequest = async (
     input: { app: string; appName: string; email: string; reason?: string },
     now = Date.now(),
@@ -33,7 +36,7 @@ export const saveRequest = async (
         status: 'new',
         history: [{ at: now, status: 'new' }],
     };
-    await requests().setJSON(key(request.id), request);
+    await requests('eventual').setJSON(key(request.id), request);
     return request.id;
 };
 
