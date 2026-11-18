@@ -1,5 +1,6 @@
 import type { DeletionRequest, Status } from './deletionRequests.ts';
 import type { SignInData } from './schema.ts';
+import type { Website } from './website.ts';
 
 // The dashboard talks only to this site's own /api/admin/* functions, which hold every key.
 // Nothing here knows a secret; the session is an httpOnly cookie the browser sends itself.
@@ -86,5 +87,21 @@ export const changeDeletionRequest = async (change: {
         return { ok: false, error: body.error ?? 'That didn’t save. Try again.' };
     } catch {
         return { ok: false, error: 'Couldn’t reach the server. Try again.' };
+    }
+};
+
+/** The website section's data (uptime, Lighthouse, deploys, forms); null if it couldn't load. */
+export const getWebsite = async (): Promise<Website | null> => {
+    try {
+        const response = await request('website');
+        if (!response.ok) return null;
+        const body = await response.json();
+        // Only what looks like the website's data: anything else counts as "couldn't load".
+        const parts = ['uptime', 'lighthouse', 'deploys', 'forms'] as const;
+        return body && parts.every((part) => body[part] && 'data' in body[part])
+            ? (body as Website)
+            : null;
+    } catch {
+        return null;
     }
 };

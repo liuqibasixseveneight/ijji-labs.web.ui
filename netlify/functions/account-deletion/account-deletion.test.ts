@@ -23,6 +23,7 @@ vi.mock('../../shared/blobs.ts', () => ({
 
 import { memoryBlobs } from '../../shared/admin/testing.ts';
 import { listRequests } from '../../shared/deletionRequests.ts';
+import { readFormStats } from '../../shared/formStats.ts';
 import { handler } from './account-deletion.ts';
 
 const valid = { app: 'ijji-tracker', email: 'me@example.com', reason: '', confirm: true };
@@ -125,6 +126,16 @@ describe('the account-deletion function', () => {
             'NOT LOGGED — Account deletion request: IJJI Tracker — me@example.com',
         );
         expect(message.html).toContain("isn't in the admin dashboard");
+    });
+
+    it('counts how each post went, for the dashboard', async () => {
+        await call(valid);
+        await call({ ...valid, app: 'not-ours' });
+        await call({ ...valid, confirm: false });
+        await call({ ...valid, website: 'http://spam.example' });
+
+        const { total } = (await readFormStats()).forms['account-deletion'];
+        expect(total).toEqual({ sent: 1, invalid: 2, bot: 1, failed: 0 });
     });
 
     it('saves nothing for bots or invalid posts', async () => {

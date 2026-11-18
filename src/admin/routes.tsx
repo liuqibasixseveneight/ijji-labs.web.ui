@@ -1,6 +1,6 @@
 import { redirect, type ActionFunctionArgs, type RouteObject } from 'react-router-dom';
 
-import { changeDeletionRequest, getDeletionRequests, getMe } from './api.ts';
+import { changeDeletionRequest, getDeletionRequests, getMe, getWebsite } from './api.ts';
 import { AdminLayout } from './components/AdminLayout.tsx';
 import { STATUSES, type Status } from './deletionRequests.ts';
 import { adminPaths } from './paths.ts';
@@ -9,6 +9,7 @@ import { DeletionRequest } from './pages/DeletionRequest.tsx';
 import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
+import { Website } from './pages/Website.tsx';
 
 /**
  * Every page but sign-in needs a session; without one, it's off to sign in. The deletion
@@ -48,7 +49,9 @@ export const adminRoutes: RouteObject[] = [
         loader: requireAdmin,
         element: <AdminLayout />,
         children: [
-            { index: true, element: <Overview /> },
+            // The Overview and Website pages load the website's data; other pages don't.
+            { index: true, element: <Overview />, loader: getWebsite },
+            { path: adminPaths.website.slice(1), element: <Website />, loader: getWebsite },
             {
                 path: adminPaths.deletionRequests.slice(1),
                 element: <DeletionRequests />,
