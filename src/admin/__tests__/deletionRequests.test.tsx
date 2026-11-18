@@ -10,6 +10,8 @@ import {
     deletionSql,
     describeDaysLeft,
     doneEmail,
+    matches,
+    sortRequests,
     urgency,
     type DeletionRequest,
 } from '../deletionRequests.ts';
@@ -233,7 +235,7 @@ describe('the deletion requests board', () => {
         await user.click(await screen.findByRole('button', { name: 'Copy email address' }));
 
         expect(writeText).toHaveBeenCalledWith('someone@example.com');
-        expect(await screen.findByRole('status')).toHaveTextContent('Copied');
+        expect(await screen.findByText('Copied')).toBeInTheDocument();
     });
 
     it('says so when copying fails', async () => {
@@ -462,7 +464,139 @@ describe('a request’s own page', () => {
     });
 });
 
+describe('finding requests when there are lots', () => {
+    beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    /** `count` new requests, received a minute apart, the first due soonest. */
+    const many = (count: number) =>
+        Array.from({ length: count }, (_, i) =>
+            request({
+                id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+                email: `person${i}@example.com`,
+                receivedAt: NOW - 10 * DAY + i * 60_000,
+                dueAt: NOW + 20 * DAY + i * 60_000,
+            }),
+        );
+
+    const cardsIn = (name: RegExp) =>
+        within(screen.getByRole('region', { name }))
+            .queryAllByRole('heading', { level: 3 })
+            .map((heading) => heading.textContent);
+
+    it('searches by email, reason or note as you type, and keeps it in the address', async () => {
+        api([NEW, URGENT, DONE]);
+        const { user, router } = renderAdmin('/deletion-requests');
+
+        const search = await screen.findByRole('searchbox', { name: 'Search requests' });
+        await user.type(search, 'urgent');
+
+        expect(router.state.location.search).toBe('?q=urgent');
+        expect(screen.getByText(/^Showing/)).toHaveTextContent('Showing 1 of 3 requests');
+        expect(cardsIn(/^Awaiting confirmation/)).toEqual(['urgent@example.com']);
+        // Only columns with matches show while searching.
+        expect(screen.queryByRole('region', { name: /^New/ })).not.toBeInTheDocument();
+
+        // A note matches too, and every word has to.
+        await user.clear(search);
+        await user.type(search, 'emailed CONFIRM');
+        expect(cardsIn(/^Awaiting confirmation/)).toEqual(['urgent@example.com']);
+        await user.type(search, ' nothing-like-this');
+        expect(screen.getByText(/^Showing/)).toHaveTextContent('Showing 0 of 3 requests');
+        expect(screen.getByText('No requests match that search.')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Clear search' }));
+        expect(router.state.location.search).toBe('');
+        expect(cardsIn(/^New/)).toEqual(['someone@example.com']);
+        expect(screen.queryByText(/^Showing/)).not.toBeInTheDocument();
+    });
+
+    it('opens with the search from the address', async () => {
+        api([NEW, URGENT]);
+        renderAdmin('/deletion-requests?q=someone');
+
+        expect(await screen.findByRole('searchbox', { name: 'Search requests' })).toHaveValue(
+            'someone',
+        );
+        expect(cardsIn(/^New/)).toEqual(['someone@example.com']);
+        expect(
+            screen.queryByRole('region', { name: /^Awaiting confirmation/ }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('sorts open requests by due date, newest or oldest', async () => {
+        api(many(3));
+        const { user, router } = renderAdmin('/deletion-requests');
+
+        await screen.findByRole('searchbox', { name: 'Search requests' });
+        expect(cardsIn(/^New/)).toEqual([
+            'person0@example.com',
+            'person1@example.com',
+            'person2@example.com',
+        ]);
+
+        await user.selectOptions(
+            screen.getByRole('combobox', { name: 'Sort open requests' }),
+            'newest',
+        );
+        expect(router.state.location.search).toBe('?sort=newest');
+        expect(cardsIn(/^New/)).toEqual([
+            'person2@example.com',
+            'person1@example.com',
+            'person0@example.com',
+        ]);
+
+        await user.selectOptions(
+            screen.getByRole('combobox', { name: 'Sort open requests' }),
+            'due',
+        );
+        expect(router.state.location.search).toBe('');
+    });
+
+    it('ignores a sort it doesn’t know', async () => {
+        api(many(2));
+        renderAdmin('/deletion-requests?sort=nonsense');
+        expect(await screen.findByRole('combobox', { name: 'Sort open requests' })).toHaveValue(
+            'due',
+        );
+    });
+
+    it('shows 20 cards a column at first, and more on request', async () => {
+        api(many(45));
+        const { user } = renderAdmin('/deletion-requests');
+
+        await screen.findByRole('searchbox', { name: 'Search requests' });
+        expect(cardsIn(/^New/)).toHaveLength(20);
+
+        await user.click(screen.getByRole('button', { name: /show 20 more \(25 hidden\)/i }));
+        expect(cardsIn(/^New/)).toHaveLength(40);
+
+        await user.click(screen.getByRole('button', { name: /show 5 more \(5 hidden\)/i }));
+        expect(cardsIn(/^New/)).toHaveLength(45);
+        expect(screen.queryByRole('button', { name: /show .* more/i })).not.toBeInTheDocument();
+    });
+});
+
 describe('the help each request comes with', () => {
+    it('matches a search on every word, in any field, whatever the case', () => {
+        expect(matches(URGENT, '')).toBe(true);
+        expect(matches(URGENT, 'URGENT example')).toBe(true);
+        expect(matches(URGENT, 'emailed')).toBe(true);
+        expect(matches(NEW, 'not using')).toBe(true);
+        expect(matches(NEW, 'tracker')).toBe(true);
+        expect(matches(NEW, 'someone nope')).toBe(false);
+        expect(matches(REJECTED, 'someone')).toBe(false);
+    });
+
+    it('sorts closed requests latest first, whatever the sort', () => {
+        const older = request({ id: 'a', status: 'done', closedAt: NOW - 5 * DAY });
+        const newer = request({ id: 'b', status: 'done', closedAt: NOW - DAY });
+        expect(sortRequests([older, newer], 'oldest').map((r) => r.id)).toEqual(['b', 'a']);
+    });
+
     it('lets long emails wrap after the @ and the dots, not mid-word', () => {
         const { container } = render(<Email address='first.last@example.co.uk' />);
         expect(container).toHaveTextContent('first.last@example.co.uk');
