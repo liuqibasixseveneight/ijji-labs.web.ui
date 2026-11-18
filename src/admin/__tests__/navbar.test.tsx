@@ -49,6 +49,18 @@ describe('the dashboard’s navbar', () => {
         expect(within(logo).getByText('admin')).toHaveClass('text-brand-primary');
     });
 
+    it('is on the sign-in page too, with just the wordmark', async () => {
+        api();
+        renderAdmin('/sign-in');
+        await screen.findByRole('heading', { level: 1, name: 'Admin sign-in' });
+
+        const banner = within(screen.getByRole('banner'));
+        expect(banner.getByRole('link', { name: 'ijji labs admin' })).toHaveAttribute('href', '/');
+        // Nothing to open or sign out of yet.
+        expect(screen.queryByRole('button', { name: 'Open menu' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument();
+    });
+
     it('opens the sections’ menu, and closes it with Esc, back on the menu button', async () => {
         const user = userEvent.setup();
         api();

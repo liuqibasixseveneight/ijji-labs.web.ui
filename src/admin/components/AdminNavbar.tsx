@@ -21,15 +21,17 @@ const footerLink =
     'group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors cursor-pointer';
 
 /**
- * The dashboard's wordmark: the site's logo with "admin" set the same way (Newsreader, the
- * same size and weight) in yellow, so it reads as one name.
+ * The dashboard's wordmark, "ijji labs | admin": the site's logo, a thin rule, and "admin" set
+ * the same way (Newsreader, the same size and weight) in yellow. The rule is drawn, not a
+ * typed bar, so it sits at the letters' height; screen readers hear "ijji labs admin".
  */
 export const AdminLogo = () => (
     <Link
         to={adminPaths.overview}
-        className='whitespace-nowrap text-[1.625rem] min-[400px]:text-3xl md:text-4xl font-extrabold font-newsreader text-white'
+        className='inline-flex items-center gap-2.5 md:gap-3.5 whitespace-nowrap text-[1.625rem] min-[400px]:text-3xl md:text-4xl font-extrabold font-newsreader text-white'
     >
-        ijji labs <span className='text-brand-primary'>admin</span>
+        ijji labs <span aria-hidden='true' className='w-0.5 h-[0.8em] rounded-full bg-white/40' />
+        <span className='text-brand-primary'>admin</span>
     </Link>
 );
 

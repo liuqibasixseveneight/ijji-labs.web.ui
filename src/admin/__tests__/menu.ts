@@ -2,12 +2,16 @@ import { fireEvent, screen, within } from '@testing-library/react';
 
 /**
  * Opens the dashboard's menu, as the site's: the sections are in it, behind the menu button.
- * Returns the sections' list, and the whole menu (its footer has sign-out).
+ * Waits for the page first (the menu closes as a page opens, so opening it mid-load would see
+ * it shut again), then for the menu. Returns the sections' list, and the whole menu (its
+ * footer has sign-out).
  */
 export const openMenu = async () => {
-    fireEvent.click(await screen.findByRole('button', { name: 'Open menu' }));
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    const sections = await screen.findByRole('navigation', { name: 'Admin sections' });
     return {
-        sections: within(screen.getByRole('navigation', { name: 'Admin sections' })),
+        sections: within(sections),
         menu: within(document.getElementById('admin-menu')!),
     };
 };
