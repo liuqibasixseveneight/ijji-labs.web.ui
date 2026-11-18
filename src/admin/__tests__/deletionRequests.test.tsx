@@ -106,7 +106,8 @@ describe('the deletion requests board', () => {
 
         const nav = await screen.findByRole('navigation', { name: 'Admin' });
         expect(
-            within(nav).getByRole('link', { name: /^Deletion requests\s*2 open$/ }),
+            // Both labels are in the DOM here (CSS shows one): 'Deletions' on phones.
+            within(nav).getByRole('link', { name: /Deletion requests\s*2 open$/ }),
         ).toHaveAttribute('href', '/deletion-requests');
         const overview = within(screen.getByRole('main')).getByRole('link', {
             name: /^Deletion requests 2 open/,

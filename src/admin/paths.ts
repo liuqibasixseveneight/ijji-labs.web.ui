@@ -4,4 +4,5 @@ export const adminPaths = {
     signIn: '/sign-in',
     deletionRequests: '/deletion-requests',
     deletionRequest: (id: string) => `/deletion-requests/${id}`,
+    website: '/website',
 } as const;

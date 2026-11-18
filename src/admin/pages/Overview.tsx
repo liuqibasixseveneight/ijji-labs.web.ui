@@ -1,4 +1,4 @@
-import { Link, useRouteLoaderData } from 'react-router-dom';
+import { Link, useLoaderData, useRouteLoaderData } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { ArtisticFrame } from '../../components/ui/atoms/ArtisticFrame/ArtisticFrame.tsx';
@@ -8,6 +8,8 @@ import { SignOutEverywhere } from '../components/SignOutEverywhere.tsx';
 import { daysLeft, describeDaysLeft, OPEN, urgency } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
 import type { AdminData } from '../routes.tsx';
+import { StatusBadge } from '../components/website/charts.tsx';
+import { deployStatus, scoreLevel, SCORE_LABELS, type Website } from '../website.ts';
 
 /** The sections still to come, as each step of the dashboard is built. */
 const COMING = [
@@ -15,10 +17,6 @@ const COMING = [
         title: 'Supabase',
         description:
             'Users, sign-ups, database health, errors and advisors, for production and develop.',
-    },
-    {
-        title: 'Website',
-        description: 'Deploys, form traffic, function health, uptime and Lighthouse scores.',
     },
     {
         title: 'IJJI Tracker',
@@ -80,6 +78,76 @@ const DeletionRequestsCard = () => {
     );
 };
 
+/** The website at a glance: are the pages up, the last deploy, the home page's mobile score. */
+const WebsiteCard = () => {
+    const website = useLoaderData() as Website | null;
+    const checks = website?.uptime.data?.filter((c) => c.latest) ?? [];
+    const down = checks.filter((c) => !c.latest!.ok);
+    const deploy = website?.deploys.data?.[0];
+    const performance =
+        website?.lighthouse.data?.find((r) => r.path === '/' && r.strategy === 'mobile')?.latest
+            ?.scores.performance ?? null;
+
+    return (
+        <Link to={adminPaths.website} className='group block h-full'>
+            <ArtisticFrame
+                cutSize={28}
+                className={clsx(
+                    frame,
+                    down.length
+                        ? 'bg-red-100 group-hover:bg-red-200'
+                        : 'group-hover:bg-brand-primary group-focus-visible:bg-brand-primary',
+                )}
+            >
+                <div className={card}>
+                    <h2 className='text-lg font-bold flex items-center justify-between gap-4'>
+                        Website
+                        <span
+                            aria-hidden='true'
+                            className='transition-transform group-hover:translate-x-1'
+                        >
+                            →
+                        </span>
+                    </h2>
+                    {!website ? (
+                        <p className='text-neutral-700'>
+                            Couldn’t load it. Open the page to try again.
+                        </p>
+                    ) : (
+                        <ul className='flex flex-col gap-2 text-neutral-800'>
+                            <li className='flex flex-wrap items-center gap-2'>
+                                {!checks.length ? (
+                                    <StatusBadge level='neutral' label='Not checked yet' />
+                                ) : down.length ? (
+                                    <StatusBadge level='critical' label={`${down.length} down`} />
+                                ) : (
+                                    <StatusBadge level='good' label='All up' />
+                                )}
+                                <span>Key pages</span>
+                            </li>
+                            {deploy && (
+                                <li className='flex flex-wrap items-center gap-2'>
+                                    <StatusBadge {...deployStatus(deploy.state)} />
+                                    <span>Last deploy</span>
+                                </li>
+                            )}
+                            {performance !== null && (
+                                <li className='flex flex-wrap items-center gap-2'>
+                                    <StatusBadge
+                                        level={scoreLevel(performance)}
+                                        label={`${performance} · ${SCORE_LABELS[scoreLevel(performance)]}`}
+                                    />
+                                    <span>Mobile performance</span>
+                                </li>
+                            )}
+                        </ul>
+                    )}
+                </div>
+            </ArtisticFrame>
+        </Link>
+    );
+};
+
 /** The dashboard's home: what needs doing, and the sections still to come. */
 export const Overview = () => {
     const { me } = useRouteLoaderData('admin') as AdminData;
@@ -101,6 +169,9 @@ export const Overview = () => {
                 <ul className='grid gap-4 sm:grid-cols-2'>
                     <li>
                         <DeletionRequestsCard />
+                    </li>
+                    <li>
+                        <WebsiteCard />
                     </li>
                     {COMING.map(({ title, description }) => (
                         <li key={title}>

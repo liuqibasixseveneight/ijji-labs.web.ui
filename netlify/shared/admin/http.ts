@@ -1,3 +1,5 @@
+import type { Context } from '@netlify/functions';
+
 import { adminEnv, type AdminEnv } from './env.ts';
 import { readCookie, verifySession, type Session } from './session.ts';
 import { getEpoch } from './state.ts';
@@ -37,7 +39,12 @@ export const currentSession = async (request: Request, env: AdminEnv) => {
     return session.epoch === (await getEpoch()) ? session : null;
 };
 
-type AdminHandler = (request: Request, session: Session, env: AdminEnv) => Promise<Response>;
+type AdminHandler = (
+    request: Request,
+    session: Session,
+    env: AdminEnv,
+    context?: Context,
+) => Promise<Response>;
 
 /**
  * Wraps every admin endpoint. In order: only the listed methods (405), only from our own
@@ -46,7 +53,7 @@ type AdminHandler = (request: Request, session: Session, env: AdminEnv) => Promi
  */
 export const withAdmin =
     (handler: AdminHandler, { methods = ['GET'] }: { methods?: string[] } = {}) =>
-    async (request: Request): Promise<Response> => {
+    async (request: Request, context?: Context): Promise<Response> => {
         if (!methods.includes(request.method)) return refuse(405);
         if (!fromOurPages(request)) return refuse(403);
 
@@ -56,5 +63,5 @@ export const withAdmin =
         const session = await currentSession(request, env);
         if (!session) return refuse(401);
 
-        return handler(request, session, env);
+        return handler(request, session, env, context);
     };

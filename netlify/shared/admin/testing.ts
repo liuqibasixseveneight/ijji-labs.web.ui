@@ -27,6 +27,9 @@ export const memoryBlobs = () => {
         setJSON: async (key: string, value: unknown) => {
             data.set(key, JSON.stringify(value));
         },
+        set: async (key: string, value: string) => {
+            data.set(key, JSON.stringify(value));
+        },
         delete: async (key: string) => {
             data.delete(key);
         },
