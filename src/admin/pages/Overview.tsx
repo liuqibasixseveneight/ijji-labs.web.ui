@@ -4,7 +4,6 @@ import { clsx } from 'clsx';
 import { ArtisticFrame } from '../../components/ui/atoms/ArtisticFrame/ArtisticFrame.tsx';
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
-import { SignOutEverywhere } from '../components/SignOutEverywhere.tsx';
 import { daysLeft, describeDaysLeft, OPEN, urgency } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
 import { prefetchOn, type OverviewData } from '../data.ts';
@@ -259,10 +258,8 @@ export const Overview = () => {
                 <h1 id='overview-title' className='text-4xl font-extrabold mb-2'>
                     Overview
                 </h1>
-                <p className='text-neutral-600 mb-10 flex flex-wrap gap-x-3 gap-y-1'>
-                    <span>Signed in until {timeFormat.format(me.expiresAt)}.</span>
-                    {/* In the header from sm up. */}
-                    <SignOutEverywhere className='sm:hidden link-highlight link-marked' />
+                <p className='text-neutral-600 mb-10'>
+                    Signed in until {timeFormat.format(me.expiresAt)}.
                 </p>
 
                 {/* Every card the same size: equal columns, and equal rows (auto-rows-fr). */}

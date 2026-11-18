@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axeViolations } from '../../test/axe.ts';
 import { renderApp } from '../../test/renderApp.tsx';
 import { adminRoutes } from '../routes.tsx';
+import { openMenu } from './menu.ts';
 import { clearCache } from '../cache.ts';
 import { resetCollapsed } from '../collapsed.ts';
 
@@ -199,17 +200,20 @@ describe('the admin dashboard', () => {
     });
 
     it.each([
-        ['Sign out', 'banner', 'DELETE /api/admin/session'],
-        // In the header from tablets up; on the Overview on phones.
-        ['Sign out everywhere', 'banner', 'DELETE /api/admin/session?everywhere=1'],
-        ['Sign out everywhere', 'main', 'DELETE /api/admin/session?everywhere=1'],
+        // The navbar's button (from tablets up); the menu has both, on every screen.
+        ['Sign out', 'navbar', 'DELETE /api/admin/session'],
+        ['Sign out', 'menu', 'DELETE /api/admin/session'],
+        ['Sign out everywhere', 'menu', 'DELETE /api/admin/session?everywhere=1'],
     ] as const)(
         '%s (in the %s) ends the session and goes back to sign in',
         async (name, where, call) => {
             const fetch = api({ 'GET /api/admin/me': SIGNED_IN, [call]: { status: 200 } });
             const { user, router } = renderAdmin('/');
 
-            const area = within(await screen.findByRole(where));
+            const area =
+                where === 'navbar'
+                    ? within(await screen.findByRole('navigation', { name: 'Admin' }))
+                    : (await openMenu()).menu;
             await user.click(area.getByRole('button', { name: new RegExp(`^${name}$`, 'i') }));
 
             await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));

@@ -1,9 +1,9 @@
-import { useState, useEffect, useEffectEvent, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { paths } from '../../../../router/paths.ts';
 import { Button, HamburgerIcon, Logo } from '../../atoms';
-import { NavMenu } from '../../molecules';
+import { NavMenu, useNavMenu } from '../../molecules';
 import { navbarItems } from './navbarItems.ts';
 import type { NavbarProps } from './types.ts';
 
@@ -16,45 +16,12 @@ const FADE_DISTANCE = 160;
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
 export const Navbar = ({ isGradientDark }: NavbarProps) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, setIsOpen, toggle, buttonRef } = useNavMenu();
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
-    const hamburgerRef = useRef<HTMLButtonElement>(null);
     const fillRef = useRef<HTMLDivElement>(null);
 
     const isHome = location.pathname === paths.home;
-
-    const handleOpenNavMenu = () => {
-        setIsOpen((prev) => !prev);
-    };
-
-    // A new page starts at the top, unless the link names a section (/projects#project-dedalus).
-    const handleRouteChange = useEffectEvent(() => {
-        const target = location.hash && document.getElementById(location.hash.slice(1));
-
-        if (target) target.scrollIntoView();
-        else window.scrollTo(0, 0);
-
-        setIsOpen(false);
-    });
-
-    useEffect(() => {
-        handleRouteChange();
-    }, [location.pathname]);
-
-    // Esc closes the menu and puts focus back on the button that opened it.
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key !== 'Escape') return;
-            setIsOpen(false);
-            hamburgerRef.current?.focus();
-        };
-
-        document.addEventListener('keydown', onKeyDown);
-        return () => document.removeEventListener('keydown', onKeyDown);
-    }, [isOpen]);
 
     // At the top of a page the navbar is see-through, showing the page behind it. As the page
     // scrolls, its dark background fades in over FADE_DISTANCE pixels (on Home, as the
@@ -113,9 +80,9 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
                         />
 
                         <HamburgerIcon
-                            ref={hamburgerRef}
+                            ref={buttonRef}
                             isOpen={isOpen}
-                            setIsOpen={handleOpenNavMenu}
+                            setIsOpen={toggle}
                             isWhite={isWhite}
                             controls={NAV_MENU_ID}
                         />

@@ -30,7 +30,7 @@ export const NavMenuItem = ({
     >
         <NavLink
             to={link.to}
-            end
+            end={link.end ?? true}
             onClick={() => setIsOpen(false)}
             onMouseEnter={onHover}
             onMouseLeave={onLeave}

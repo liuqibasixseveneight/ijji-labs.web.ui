@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { axeViolations } from '../../test/axe.ts';
 import { adminRoutes } from '../routes.tsx';
+import { sectionLink } from './menu.ts';
 import {
     environmentFrom,
     formatBytes,
@@ -137,12 +138,9 @@ describe('the Supabase page', () => {
             await screen.findByRole('heading', { level: 1, name: 'Supabase' }),
         ).toBeInTheDocument();
         expect(document.title).toBe('Supabase · Admin · ijji labs');
-        expect(
-            within(screen.getByRole('navigation', { name: 'Admin' })).getByRole('link', {
-                name: 'Supabase',
-            }),
-        ).toHaveAttribute('aria-current', 'page');
         expect(await axeViolations(container)).toEqual([]);
+        // In the menu, marked as the page you're on.
+        expect(await sectionLink('Supabase')).toHaveAttribute('aria-current', 'page');
     });
 
     it('shows the project, its services, and a link to it in Supabase', async () => {

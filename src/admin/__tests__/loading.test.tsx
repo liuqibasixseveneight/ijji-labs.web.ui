@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminRoutes } from '../routes.tsx';
+import { sectionLink } from './menu.ts';
 import { clearCache } from '../cache.ts';
 import { resetCollapsed } from '../collapsed.ts';
 
@@ -84,8 +85,6 @@ const calls = (part: string) =>
 const renderAdmin = (path: string) =>
     render(<RouterProvider router={createMemoryRouter(adminRoutes, { initialEntries: [path] })} />);
 
-const nav = () => within(screen.getByRole('navigation', { name: 'Admin' }));
-
 describe('moving around the dashboard', () => {
     beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
     afterEach(() => vi.unstubAllGlobals());
@@ -114,9 +113,9 @@ describe('moving around the dashboard', () => {
         renderAdmin('/website');
         await screen.findByRole('region', { name: 'Forms' });
 
-        await user.click(nav().getByRole('link', { name: 'Overview' }));
+        await user.click(await sectionLink('Overview'));
         await screen.findByRole('heading', { level: 1, name: 'Overview' });
-        await user.click(nav().getByRole('link', { name: 'Website' }));
+        await user.click(await sectionLink('Website'));
 
         // Straight back to the cards, with no skeleton and no second request.
         expect(await screen.findByRole('region', { name: 'Forms' })).toBeInTheDocument();
@@ -124,17 +123,17 @@ describe('moving around the dashboard', () => {
         expect(calls('/website')).toBe(1);
     });
 
-    it('loads a page’s data when its link is hovered, ready for the click', async () => {
+    it('loads the sections’ data when the menu opens, ready for the click', async () => {
         const user = userEvent.setup();
         api();
         renderAdmin('/website');
         await screen.findByRole('region', { name: 'Forms' });
         expect(calls('/supabase')).toBe(0);
 
-        // Hovering starts the load; the click then uses it rather than asking again.
-        fireEvent.mouseEnter(nav().getByRole('link', { name: 'Supabase' }));
+        // Opening the menu starts the load; the click then uses it rather than asking again.
+        const link = await sectionLink('Supabase');
         expect(calls('/supabase?env=prod')).toBe(1);
-        await user.click(nav().getByRole('link', { name: 'Supabase' }));
+        await user.click(link);
         expect(await screen.findByRole('region', { name: 'Production' })).toBeInTheDocument();
         expect(calls('/supabase?env=prod')).toBe(1);
 
@@ -181,8 +180,10 @@ describe('moving around the dashboard', () => {
         await screen.findByRole('heading', { level: 1, name: 'Overview' });
         expect(calls('/deletion-requests')).toBe(1);
 
-        await user.click(nav().getByRole('link', { name: 'Website' }));
-        await user.click(nav().getByRole('link', { name: /Deletion/ }));
+        await user.click(await sectionLink('Website'));
+        // The menu closes as each page opens: wait for it before opening the menu again.
+        await screen.findByRole('heading', { level: 1, name: 'Website' });
+        await user.click(await sectionLink('Deletions'));
         await user.type(await screen.findByRole('searchbox'), 'abc');
 
         expect(calls('/me')).toBe(1);

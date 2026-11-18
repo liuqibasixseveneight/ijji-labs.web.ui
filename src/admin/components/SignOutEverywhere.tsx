@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 
+import { RollingText } from '../../components/ui/atoms/RollingText/RollingText.tsx';
 import { signOut } from '../api.ts';
 import { adminPaths } from '../paths.ts';
 
@@ -15,10 +16,10 @@ export const SignOutEverywhere = ({ className }: { className?: string }) => {
                 await signOut({ everywhere: true });
                 navigate(adminPaths.signIn, { replace: true });
             }}
-            // Styled where it's used: as a text link on the Overview, as a header control.
-            className={clsx('text-sm cursor-pointer', className)}
+            // Styled where it's used (the menu's footer). Its label rolls, as the site's links do.
+            className={clsx('group cursor-pointer', className)}
         >
-            Sign out everywhere
+            <RollingText>Sign out everywhere</RollingText>
         </button>
     );
 };

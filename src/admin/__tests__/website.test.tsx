@@ -7,6 +7,7 @@ import { axeViolations } from '../../test/axe.ts';
 import { clearCache } from '../cache.ts';
 import { resetCollapsed } from '../collapsed.ts';
 import { adminRoutes } from '../routes.tsx';
+import { sectionLink } from './menu.ts';
 import {
     deployStatus,
     describeMetrics,
@@ -199,12 +200,9 @@ describe('the website page', () => {
             await screen.findByRole('heading', { level: 1, name: 'Website' }),
         ).toBeInTheDocument();
         expect(document.title).toBe('Website · Admin · ijji labs');
-        expect(
-            within(screen.getByRole('navigation', { name: 'Admin' })).getByRole('link', {
-                name: 'Website',
-            }),
-        ).toHaveAttribute('aria-current', 'page');
         expect(await axeViolations(container)).toEqual([]);
+        // In the menu, marked as the page you're on.
+        expect(await sectionLink('Website')).toHaveAttribute('aria-current', 'page');
     });
 
     it('shows each page as up or down, with its uptime and recent checks', async () => {

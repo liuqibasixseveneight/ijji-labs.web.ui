@@ -17,6 +17,7 @@ import {
 } from '../deletionRequests.ts';
 import { Email } from '../components/Email.tsx';
 import { adminRoutes } from '../routes.tsx';
+import { sectionLink } from './menu.ts';
 import { clearCache } from '../cache.ts';
 import { resetCollapsed } from '../collapsed.ts';
 
@@ -113,11 +114,12 @@ describe('the deletion requests board', () => {
         api([NEW, URGENT, DONE]);
         renderAdmin('/');
 
-        const nav = await screen.findByRole('navigation', { name: 'Admin' });
-        expect(
-            // Both labels are in the DOM here (CSS shows one): 'Deletions' on phones.
-            within(nav).getByRole('link', { name: /Deletion requests\s*2 open$/ }),
-        ).toHaveAttribute('href', '/deletion-requests');
+        // On the menu button, and on the Deletions row in the menu.
+        const navbar = within(await screen.findByRole('navigation', { name: 'Admin' }));
+        expect(navbar.getByText('2 deletion requests open')).toBeInTheDocument();
+        const link = await sectionLink('Deletions');
+        expect(link).toHaveAttribute('href', '/deletion-requests');
+        expect(link).toHaveTextContent('2 open');
         const overview = within(screen.getByRole('main')).getByRole('link', {
             name: /^Deletion requests 2 open/,
         });
