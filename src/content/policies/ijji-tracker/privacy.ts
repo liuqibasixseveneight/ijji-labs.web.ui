@@ -14,7 +14,7 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
     title: 'IJJI Tracker privacy policy',
     summary:
         'What IJJI Tracker keeps about you, why, where, for how long, and how to see it, take it with you or delete it.',
-    effectiveDate: '2026-11-17',
+    effectiveDate: '2026-11-18',
     sections: [
         {
             id: 'in-short',
@@ -84,7 +84,13 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
                 {
                     type: 'paragraph',
                     text: [
-                        'We use this only to run the app for you: the lawful basis is that it is needed to provide the service you signed up for. We also limit repeated failed attempts to protect accounts, which is in our and your legitimate interest in keeping the app secure.',
+                        'We use this to run the app for you: the lawful basis is that it is needed to provide the service you signed up for. We also limit repeated failed attempts to protect accounts, which is in our and your legitimate interest in keeping the app secure.',
+                    ],
+                },
+                {
+                    type: 'paragraph',
+                    text: [
+                        'We also look at totals across everyone: how many accounts there are, and how many sign-ups and sessions there are each day. These are counts only, worked out inside the database, so they never show who you are or what you recorded. They help us see how the app is used and keep it running well, which is in our legitimate interest in running the service.',
                     ],
                 },
             ],

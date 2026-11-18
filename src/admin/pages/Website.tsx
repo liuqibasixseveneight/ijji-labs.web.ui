@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
 import { useLoaderData } from 'react-router-dom';
 
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
+import { Card } from '../components/Card.tsx';
 import { panel } from '../components/styles.ts';
 import { FormBars, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
 import { LighthouseResults } from '../components/website/Lighthouse.tsx';
@@ -14,7 +14,6 @@ import {
     OUTCOME_LABELS,
     OUTCOMES,
     sum,
-    type Part,
     type Website as WebsiteData,
 } from '../website.ts';
 
@@ -24,48 +23,6 @@ const dateTime = new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
 });
-
-/**
- * A card on the page: its title, a line on what it shows, and either its contents or why its
- * data couldn't be had. Every card on the page is built from this, so they all look alike.
- */
-const Card = <T,>({
-    id,
-    title,
-    hint,
-    part,
-    empty,
-    children,
-}: {
-    id: string;
-    title: string;
-    hint: string;
-    part: Part<T>;
-    empty?: (data: T) => string | null;
-    children: (data: T) => ReactNode;
-}) => {
-    const emptyMessage = part.data !== null && empty ? empty(part.data) : null;
-    return (
-        <section aria-labelledby={id} className={panel}>
-            <header className='mb-5 pb-4 border-b border-neutral-200'>
-                <h2 id={id} className='text-xl font-bold'>
-                    {title}
-                </h2>
-                <p className='text-sm text-neutral-600 mt-1'>{hint}</p>
-            </header>
-            {part.data === null ? (
-                <p className='flex flex-wrap items-center gap-2 text-neutral-700'>
-                    <StatusBadge level='warning' label='Not available' />
-                    {part.error}
-                </p>
-            ) : emptyMessage ? (
-                <p className='text-neutral-600'>{emptyMessage}</p>
-            ) : (
-                children(part.data)
-            )}
-        </section>
-    );
-};
 
 /** A tile's label: tighter than the eyebrow, so "Accessibility" fits a phone-width tile. */
 const tileLabel = 'text-[11px] font-bold tracking-wide uppercase text-neutral-600';
