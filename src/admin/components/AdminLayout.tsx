@@ -1,9 +1,18 @@
-import { Link, NavLink, Outlet, useNavigate, useRouteLoaderData } from 'react-router-dom';
+import {
+    Link,
+    NavLink,
+    Outlet,
+    useNavigate,
+    useNavigation,
+    useRevalidator,
+    useRouteLoaderData,
+} from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { Button } from '../../components/ui/atoms/Button/Button.tsx';
 import { signOut } from '../api.ts';
 import { SignOutEverywhere } from './SignOutEverywhere.tsx';
+import { prefetchOn } from '../data.ts';
 import { OPEN } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
 import type { AdminData } from '../routes.tsx';
@@ -21,6 +30,9 @@ export const AdminLayout = () => {
     const navigate = useNavigate();
     const { deletions } = useRouteLoaderData('admin') as AdminData;
     const openCount = deletions?.requests.filter((r) => OPEN.includes(r.status)).length ?? 0;
+    const navigation = useNavigation();
+    const revalidator = useRevalidator();
+    const busy = navigation.state !== 'idle' || revalidator.state !== 'idle';
 
     const leave = async () => {
         await signOut();
@@ -35,6 +47,17 @@ export const AdminLayout = () => {
             >
                 Skip to content
             </a>
+
+            {/* A thin bar along the top while a page or its data is on its way. */}
+            <div
+                aria-hidden='true'
+                className={clsx(
+                    'fixed inset-x-0 top-0 z-50 h-0.5 overflow-hidden transition-opacity duration-200',
+                    busy ? 'opacity-100 delay-150' : 'opacity-0',
+                )}
+            >
+                <div className='h-full w-1/3 bg-brand-primary animate-[admin-progress_1.1s_ease-in-out_infinite]' />
+            </div>
 
             <header className='bg-ui-background-primary text-white'>
                 {/* One row at every width: on phones the logo is smaller, and "Sign out
@@ -63,17 +86,30 @@ export const AdminLayout = () => {
                     {/* Scrolls sideways if the links don't fit (the narrowest phones). */}
                     <ul className='flex gap-3 min-[360px]:gap-4 sm:gap-6 whitespace-nowrap overflow-x-auto [scrollbar-width:none]'>
                         <li>
-                            <NavLink to={adminPaths.overview} end className={navLink}>
+                            <NavLink
+                                to={adminPaths.overview}
+                                end
+                                {...prefetchOn(adminPaths.overview)}
+                                className={navLink}
+                            >
                                 Overview
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to={adminPaths.website} className={navLink}>
+                            <NavLink
+                                to={adminPaths.website}
+                                {...prefetchOn(adminPaths.website)}
+                                className={navLink}
+                            >
                                 Website
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to={adminPaths.supabase} className={navLink}>
+                            <NavLink
+                                to={adminPaths.supabase}
+                                {...prefetchOn(adminPaths.supabase)}
+                                className={navLink}
+                            >
                                 Supabase
                             </NavLink>
                         </li>

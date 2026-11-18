@@ -1,12 +1,6 @@
 import { redirect, type ActionFunctionArgs, type RouteObject } from 'react-router-dom';
 
-import {
-    changeDeletionRequest,
-    getDeletionRequests,
-    getMe,
-    getSupabase,
-    getWebsite,
-} from './api.ts';
+import { changeDeletionRequest, getDeletionRequests, getMe } from './api.ts';
 import { AdminLayout } from './components/AdminLayout.tsx';
 import { STATUSES, type Status } from './deletionRequests.ts';
 import { adminPaths } from './paths.ts';
@@ -16,6 +10,7 @@ import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
 import { Supabase } from './pages/Supabase.tsx';
+import { overviewData, supabaseData, websiteData } from './data.ts';
 import { environmentFrom } from './supabase.ts';
 import { Website } from './pages/Website.tsx';
 
@@ -31,13 +26,18 @@ export const requireAdmin = async () => {
 
 export type AdminData = Awaited<ReturnType<typeof requireAdmin>>;
 
-/** The Overview's cards: the website, and the production Supabase project. */
-export const loadOverview = async () => {
-    const [website, supabase] = await Promise.all([getWebsite(), getSupabase('prod')]);
-    return { website, supabase };
-};
-
-export type OverviewData = Awaited<ReturnType<typeof loadOverview>>;
+/**
+ * The session and deletion requests load once, then again only after a change is saved or
+ * on a refresh: not on every page change, or on every keystroke in a page's search (which
+ * goes in the URL).
+ */
+export const shouldRevalidateAdmin: NonNullable<RouteObject['shouldRevalidate']> = ({
+    currentUrl,
+    nextUrl,
+    formMethod,
+    defaultShouldRevalidate,
+}) =>
+    formMethod !== undefined || currentUrl.href === nextUrl.href ? defaultShouldRevalidate : false;
 
 /** Saves a status change from the deletion requests page; the page reloads its data after. */
 export const changeDeletionRequestAction = async ({ request }: ActionFunctionArgs) => {
@@ -63,15 +63,18 @@ export const adminRoutes: RouteObject[] = [
         path: '/',
         id: 'admin',
         loader: requireAdmin,
+        shouldRevalidate: shouldRevalidateAdmin,
         element: <AdminLayout />,
         children: [
-            { index: true, element: <Overview />, loader: loadOverview },
-            { path: adminPaths.website.slice(1), element: <Website />, loader: getWebsite },
+            // These pages' loaders don't wait: they hand over cached data or a promise
+            // (src/admin/data.ts), so the page appears at once with a skeleton or the last data.
+            { index: true, element: <Overview />, loader: overviewData },
+            { path: adminPaths.website.slice(1), element: <Website />, loader: websiteData },
             {
                 // ?env=dev for the develop project; production otherwise.
                 path: adminPaths.supabase.slice(1),
                 element: <Supabase />,
-                loader: ({ request }) => getSupabase(environmentFrom(new URL(request.url).search)),
+                loader: ({ request }) => supabaseData(environmentFrom(new URL(request.url).search)),
             },
             {
                 path: adminPaths.deletionRequests.slice(1),

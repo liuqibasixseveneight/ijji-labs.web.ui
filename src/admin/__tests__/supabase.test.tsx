@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +14,10 @@ import {
     seriesDays,
     type Supabase,
 } from '../supabase.ts';
+import { clearCache } from '../cache.ts';
+
+// The dashboard keeps loaded data in memory for a minute: each test starts without it.
+afterEach(() => clearCache());
 
 const NOW = Date.UTC(2026, 10, 18, 14);
 const REF = 'abcdefghijklmnopqrst';
@@ -155,7 +159,7 @@ describe('the Supabase page', () => {
     it('counts people and sessions, with a table behind each chart', async () => {
         api(() => supabase());
         renderAdmin('/supabase');
-        await screen.findByRole('heading', { name: 'People' });
+        await screen.findByRole('region', { name: 'People' });
 
         const people = section('People');
         expect(people.getByText('Accounts').nextElementSibling).toHaveTextContent('1,234');
@@ -174,7 +178,7 @@ describe('the Supabase page', () => {
     it('shows the database against the free plan, its tables and migrations', async () => {
         api(() => supabase());
         renderAdmin('/supabase');
-        await screen.findByRole('heading', { name: 'Database' });
+        await screen.findByRole('region', { name: 'Database' });
 
         const db = section('Database');
         expect(db.getByText('12.0 MB')).toBeInTheDocument();
@@ -189,7 +193,7 @@ describe('the Supabase page', () => {
     it('lists what the advisors flag, with how to fix it, and says when there’s nothing', async () => {
         api(() => supabase());
         renderAdmin('/supabase');
-        await screen.findByRole('heading', { name: 'Security Advisor' });
+        await screen.findByRole('region', { name: 'Security Advisor' });
 
         const security = section('Security Advisor');
         expect(
@@ -204,7 +208,7 @@ describe('the Supabase page', () => {
     it('shows the last day’s API traffic and its commonest errors', async () => {
         api(() => supabase());
         renderAdmin('/supabase');
-        await screen.findByRole('heading', { name: 'API traffic' });
+        await screen.findByRole('region', { name: 'API traffic' });
 
         const traffic = section('API traffic');
         expect(
@@ -229,7 +233,10 @@ describe('the Supabase page', () => {
 
         await user.click(tabs.getByRole('link', { name: 'Develop' }));
 
-        expect(await screen.findByRole('region', { name: 'Develop' })).toBeInTheDocument();
+        // A whole page drawn afresh: allow for a busy machine running every test file at once.
+        expect(
+            await screen.findByRole('region', { name: 'Develop' }, { timeout: 3000 }),
+        ).toBeInTheDocument();
         expect(tabs.getByRole('link', { name: 'Develop' })).toHaveAttribute('aria-current', 'page');
         expect(vi.mocked(fetch)).toHaveBeenCalledWith(
             '/api/admin/supabase?env=dev',
@@ -274,14 +281,18 @@ describe('the Supabase page', () => {
         api(() => null);
         renderAdmin('/supabase');
         expect(
-            await screen.findByText('Couldn’t load Supabase’s data. Reload to try again.'),
+            await screen.findByText('Couldn’t load Supabase’s data. Refresh to try again.'),
         ).toBeInTheDocument();
     });
 
     it('sums up production on the Overview', async () => {
         api(() => supabase());
         renderAdmin('/');
-        const card = (await screen.findByRole('heading', { name: 'Supabase' })).closest('a')!;
+        await screen.findByRole('heading', { name: 'Supabase' });
+        // Drawn first with placeholder lines, then again with its data.
+        const find = () => screen.getByRole('heading', { name: 'Supabase' }).closest('a')!;
+        await waitFor(() => expect(find()).not.toHaveTextContent('Loading…'));
+        const card = find();
 
         expect(card).toHaveAttribute('href', '/supabase');
         expect(card).toHaveTextContent('Active');

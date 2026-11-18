@@ -39,6 +39,16 @@ body {
     color: #0d0f0f;
 }
 
+/* The admin dashboard's loading bar: a segment sweeping across the top. */
+@keyframes admin-progress {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(300%);
+    }
+}
+
 @keyframes scroll-chevron {
     0%,
     100% {

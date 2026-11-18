@@ -6,6 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axeViolations } from '../../test/axe.ts';
 import { renderApp } from '../../test/renderApp.tsx';
 import { adminRoutes } from '../routes.tsx';
+import { clearCache } from '../cache.ts';
+
+// The dashboard keeps loaded data in memory for a minute: each test starts without it.
+afterEach(() => clearCache());
 
 type Reply = { status: number; body?: object };
 

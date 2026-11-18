@@ -49,8 +49,11 @@ export const readFormStats = async (days = 30, now = Date.now()): Promise<FormSt
         FORMS.map((form) => [form, { byDay: dates.map(zero), total: zero() }]),
     ) as FormStats['forms'];
 
-    for (const form of FORMS) {
-        const { blobs } = await stats().list({ prefix: `${form}/` });
+    // Both forms' lists at once: each is a round trip to the store.
+    const lists = await Promise.all(
+        FORMS.map(async (form) => ({ form, ...(await stats().list({ prefix: `${form}/` })) })),
+    );
+    for (const { form, blobs } of lists) {
         for (const { key } of blobs) {
             const [, date, outcome] = key.split('/');
             const i = index.get(date);

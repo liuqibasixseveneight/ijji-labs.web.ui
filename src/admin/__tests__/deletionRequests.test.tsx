@@ -17,6 +17,10 @@ import {
 } from '../deletionRequests.ts';
 import { Email } from '../components/Email.tsx';
 import { adminRoutes } from '../routes.tsx';
+import { clearCache } from '../cache.ts';
+
+// The dashboard keeps loaded data in memory for a minute: each test starts without it.
+afterEach(() => clearCache());
 
 const NOW = Date.UTC(2026, 10, 20, 12);
 const SQL_EDITOR = 'https://supabase.com/dashboard/project/prodref/sql/new';

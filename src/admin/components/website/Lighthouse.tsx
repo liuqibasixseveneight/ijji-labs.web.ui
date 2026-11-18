@@ -3,6 +3,7 @@ import { useRevalidator } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { runLighthouse } from '../../api.ts';
+import { invalidate } from '../../cache.ts';
 import { secondaryAction } from '../styles.ts';
 import {
     CATEGORIES,
@@ -439,6 +440,8 @@ export const LighthouseResults = ({ rows, now }: { rows: LighthouseRow[]; now: n
                                 : `${failed} of ${chosen.length} didn’t run: their panels say why.`,
                     );
                 }
+                // The cached website data is out of date now: load it again for the new scores.
+                invalidate('website');
                 void revalidator.revalidate();
             });
         }
