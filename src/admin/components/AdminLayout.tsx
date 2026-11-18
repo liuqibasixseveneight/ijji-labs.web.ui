@@ -60,7 +60,8 @@ export const AdminLayout = () => {
                 </div>
 
                 <nav aria-label='Admin' className='max-w-380 mx-auto px-4 sm:px-6 md:px-8'>
-                    <ul className='flex gap-5 sm:gap-6 whitespace-nowrap'>
+                    {/* Scrolls sideways if the links don't fit (the narrowest phones). */}
+                    <ul className='flex gap-3 min-[360px]:gap-4 sm:gap-6 whitespace-nowrap overflow-x-auto [scrollbar-width:none]'>
                         <li>
                             <NavLink to={adminPaths.overview} end className={navLink}>
                                 Overview
@@ -72,8 +73,13 @@ export const AdminLayout = () => {
                             </NavLink>
                         </li>
                         <li>
+                            <NavLink to={adminPaths.supabase} className={navLink}>
+                                Supabase
+                            </NavLink>
+                        </li>
+                        <li>
                             <NavLink to={adminPaths.deletionRequests} className={navLink}>
-                                {/* Shorter on phones, so the three links fit one row. */}
+                                {/* Shorter on phones, so the links fit one row. */}
                                 <span className='sm:hidden'>Deletions</span>
                                 <span className='hidden sm:inline'>Deletion requests</span>
                                 {/* The spaces keep it "Deletion requests 2 open" for screen readers. */}

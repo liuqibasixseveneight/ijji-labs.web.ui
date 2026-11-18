@@ -1,5 +1,6 @@
 import type { DeletionRequest, Status } from './deletionRequests.ts';
 import type { SignInData } from './schema.ts';
+import { PARTS, type Environment, type Supabase } from './supabase.ts';
 import type { Website } from './website.ts';
 
 // The dashboard talks only to this site's own /api/admin/* functions, which hold every key.
@@ -111,6 +112,20 @@ export const runLighthouse = async (key: string): Promise<LighthouseRun> => {
         };
     } catch {
         return { ok: false, error: 'Couldn’t reach the server. Try again.' };
+    }
+};
+
+/** One Supabase project's data (counts, health, advisors, traffic); null if it couldn't load. */
+export const getSupabase = async (env: Environment): Promise<Supabase | null> => {
+    try {
+        const response = await request(`supabase?env=${env}`);
+        if (!response.ok) return null;
+        const body = await response.json();
+        return body && PARTS.every((part) => body[part] && 'data' in body[part])
+            ? (body as Supabase)
+            : null;
+    } catch {
+        return null;
     }
 };
 
