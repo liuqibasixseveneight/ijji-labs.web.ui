@@ -65,6 +65,37 @@ These were measured with Lighthouse (mobile) on the built site: 100 for accessib
 - Storybook (`@storybook/react-vite`): stories beside components. `Screens` renders each full page via the real routes (`parameters: { router: false }` skips the global MemoryRouter decorator); `Layout`, `Apps` and `Organisms/PolicyDocument` show the building blocks.
 - Coverage thresholds are in `vite.config.ts`; lines are the meaningful number because of the React Compiler's output.
 
+## Admin dashboard
+
+A private dashboard at `/admin` for the studio's one admin. It covers the website (uptime, Lighthouse, deploys, forms), IJJI Tracker's Supabase projects (counts only), its EAS builds, and the queue of account-deletion requests. `docs/ADMIN.md` is the runbook: env vars, signing in, rotating secrets, and what each alert means.
+
+- **Its own entry, never the public site's.** It lives in `admin/index.html` and `src/admin/main.tsx`, a client-only router with basename `/admin`. It's not in `routes.tsx`, `prerenderPaths()`, the sitemap, `llms*.txt`, `robots.txt` or the screen map. ESLint stops public code importing `src/admin`, and the build check fails if admin code or a secret's name reaches the public bundle. Admin code may import from `src/components`, `src/lib` and `src/content`.
+- **Refused at every layer:**
+    - The edge gate (`netlify/edge-functions/admin-gate/`) answers 404 to anyone without a valid session, except on `/admin/sign-in`.
+    - Every admin function is wrapped in `withAdmin` (`netlify/shared/admin/http.ts`). It checks the HMAC-signed `__Host-ijji_admin` cookie (4 hours, MFA, allowlist, the sign-out-everywhere epoch), the Origin and the `X-Admin-Request` header.
+    - Functions live at `/api/admin/*` (Functions v2 `config.path`). `netlify/shared/admin/refusals.test.ts` picks up every `admin-*` function and checks it refuses everyone else.
+- **Server side, read-only, privacy first:**
+    - Upstream wrappers only GET a fixed list of paths: `netlifyApi.ts`, and `supabaseMgmt.ts` for the Management API, with a token per project.
+    - `expo.ts` sends one fixed GraphQL query. `supabaseProject.ts` only calls the app's counts-only `admin_stats()` and `admin_db_stats()`, which live in ijji-tracker.mobile's migrations and only `service_role` can run.
+    - Replies are checked against a shape and only picked fields are passed on. Anything from logs, advisors or build errors goes through `scrub.ts`, which removes emails, ids, IPs and tokens.
+    - Each page's data comes as parts (`{ data, error }`), so one failing source shows its own reason and the rest still load.
+    - The only writes are a deletion request's status, and a Lighthouse run (at most once every 10 minutes per page and device).
+- **Blobs** go through `netlify/shared/blobs.ts` (pinned to eu-central-1). Lambda-style functions need `connectBlobs(event)` and eventual consistency.
+- **The client:**
+    - Loaders don't wait. `src/admin/data.ts` hands each page cached data, or a promise and the last data, through `cache.ts`, which keeps data in memory for a minute and never in browser storage.
+    - Pages render with `<Deferred>`, showing a skeleton (`Skeleton.tsx`) the first time.
+    - Links prefetch on intent (`prefetchOn`), and opening the menu prefetches the sections.
+    - The root loader (session and deletion requests) reloads only after a save or a refresh, not on every page change or URL search change.
+    - A section page is `PageHeader` (title, the "Updated" time, Refresh, Collapse all, an optional switcher) plus `Card`s. Cards are collapsible, remembered per card in `localStorage` (`collapsed.ts`), with a `summary` shown while collapsed. Use the same pieces for a new section.
+- **Looks:**
+    - The navbar is built as the site's (`AdminNavbar`), from the site's `HamburgerIcon`, `NavMenu` and `useNavMenu`, with Lenis scrolling from `src/lib/smoothScroll.ts`. Change the shared pieces with both in mind.
+    - Text links use `link-highlight link-marked`, as the policy pages do. Buttons use `secondaryAction`, and are `aria-disabled` rather than `disabled` while busy, so they keep focus.
+    - Every page is a `Section tone='light'` (dark focus ring); the navbar keeps the yellow one.
+- **Tests:**
+    - Render with the admin routes and stub `fetch`. Each admin test file clears the cache and collapsed cards between tests (`clearCache()`, `resetCollapsed()`).
+    - Sections are reached through the menu (`src/admin/__tests__/menu.ts`). Wait for a card's region, not its heading, since the skeleton has the same headings.
+    - Testing Library waits up to 3 s (`src/test/setup.ts`).
+
 ## Conventions
 
 - Named exports with arrow-function components (`export const Foo = () => …`).

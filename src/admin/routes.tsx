@@ -9,8 +9,9 @@ import { DeletionRequest } from './pages/DeletionRequest.tsx';
 import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
+import { IjjiTracker } from './pages/IjjiTracker.tsx';
 import { Supabase } from './pages/Supabase.tsx';
-import { overviewData, supabaseData, websiteData } from './data.ts';
+import { appData, overviewData, supabaseData, websiteData } from './data.ts';
 import { environmentFrom } from './supabase.ts';
 import { Website } from './pages/Website.tsx';
 
@@ -76,6 +77,7 @@ export const adminRoutes: RouteObject[] = [
                 element: <Supabase />,
                 loader: ({ request }) => supabaseData(environmentFrom(new URL(request.url).search)),
             },
+            { path: adminPaths.app.slice(1), element: <IjjiTracker />, loader: appData },
             {
                 path: adminPaths.deletionRequests.slice(1),
                 element: <DeletionRequests />,

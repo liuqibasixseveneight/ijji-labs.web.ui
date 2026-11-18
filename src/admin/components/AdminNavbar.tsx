@@ -82,9 +82,15 @@ export const AdminNavbar = () => {
         },
         { label: 'Supabase', to: adminPaths.supabase, num: '02', description: 'Usage and health' },
         {
+            label: 'IJJI Tracker',
+            to: adminPaths.app,
+            num: '03',
+            description: 'Builds and submissions',
+        },
+        {
             label: 'Deletions',
             to: adminPaths.deletionRequests,
-            num: '03',
+            num: '04',
             description: open ? `${open} open` : 'Nothing to do',
             end: false,
         },

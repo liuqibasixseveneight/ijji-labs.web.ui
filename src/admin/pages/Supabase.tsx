@@ -6,6 +6,7 @@ import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import type { Loaded } from '../cache.ts';
 import { Card } from '../components/Card.tsx';
+import { OpenIn } from '../components/OpenIn.tsx';
 import { Deferred } from '../components/Deferred.tsx';
 import { PageHeader } from '../components/PageHeader.tsx';
 import {
@@ -17,7 +18,7 @@ import {
     SkeletonTiles,
 } from '../components/Skeleton.tsx';
 import { prefetchOn } from '../data.ts';
-import { panel, secondaryAction } from '../components/styles.ts';
+import { panel } from '../components/styles.ts';
 import { Bars, Meter } from '../components/supabase/charts.tsx';
 import { StatusBadge } from '../components/website/charts.tsx';
 import { adminPaths } from '../paths.ts';
@@ -68,15 +69,6 @@ const Stat = ({
         <dd className='text-2xl font-extrabold tabular-nums'>{value}</dd>
         {note && <dd className='text-xs text-neutral-600'>{note}</dd>}
     </div>
-);
-
-/** A link out to Supabase's dashboard, saying it opens a new tab. */
-const OpenIn = ({ href, children }: { href: string; children: ReactNode }) => (
-    <a href={href} target='_blank' rel='noreferrer' className={clsx(secondaryAction, 'shrink-0')}>
-        {children}
-        <span aria-hidden='true'>↗</span>
-        <span className='sr-only'> (opens Supabase in a new tab)</span>
-    </a>
 );
 
 /** Production or develop, as two linked tabs. */
@@ -278,7 +270,10 @@ export const Supabase = () => {
                                     part={data.project}
                                     action={
                                         data.ref && (
-                                            <OpenIn href={dashboardUrl(data.ref)}>
+                                            <OpenIn
+                                                service='Supabase'
+                                                href={dashboardUrl(data.ref)}
+                                            >
                                                 Open in Supabase
                                             </OpenIn>
                                         )
@@ -468,6 +463,7 @@ export const Supabase = () => {
                                     action={
                                         data.ref && (
                                             <OpenIn
+                                                service='Supabase'
                                                 href={dashboardUrl(data.ref, '/database/tables')}
                                             >
                                                 Tables
@@ -552,6 +548,7 @@ export const Supabase = () => {
                                             action={
                                                 data.ref && (
                                                     <OpenIn
+                                                        service='Supabase'
                                                         href={dashboardUrl(
                                                             data.ref,
                                                             `/advisors/${kind}`,
@@ -579,7 +576,10 @@ export const Supabase = () => {
                                     part={data.traffic}
                                     action={
                                         data.ref && (
-                                            <OpenIn href={dashboardUrl(data.ref, '/logs/explorer')}>
+                                            <OpenIn
+                                                service='Supabase'
+                                                href={dashboardUrl(data.ref, '/logs/explorer')}
+                                            >
                                                 Logs
                                             </OpenIn>
                                         )

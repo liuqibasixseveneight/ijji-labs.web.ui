@@ -71,6 +71,7 @@ describe('the dashboard’s navbar', () => {
             expect.stringContaining('Overview'),
             expect.stringContaining('Website'),
             expect.stringContaining('Supabase'),
+            expect.stringContaining('IJJI Tracker'),
             expect.stringContaining('Deletions'),
         ]);
         // The page you're on, and where nothing needs doing.

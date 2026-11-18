@@ -1,5 +1,6 @@
 import type { DeletionRequest, Status } from './deletionRequests.ts';
 import type { SignInData } from './schema.ts';
+import type { AppData } from './app.ts';
 import { clearCache } from './cache.ts';
 import { PARTS, type Environment, type Supabase } from './supabase.ts';
 import type { Website } from './website.ts';
@@ -126,6 +127,20 @@ export const getSupabase = async (env: Environment): Promise<Supabase | null> =>
         const body = await response.json();
         return body && PARTS.every((part) => body[part] && 'data' in body[part])
             ? (body as Supabase)
+            : null;
+    } catch {
+        return null;
+    }
+};
+
+/** IJJI Tracker's EAS builds and store submissions; null if they couldn't load. */
+export const getApp = async (): Promise<AppData | null> => {
+    try {
+        const response = await request('app');
+        if (!response.ok) return null;
+        const body = await response.json();
+        return body && ['builds', 'submissions'].every((part) => body[part] && 'data' in body[part])
+            ? (body as AppData)
             : null;
     } catch {
         return null;
