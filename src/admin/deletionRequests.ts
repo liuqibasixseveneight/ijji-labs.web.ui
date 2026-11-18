@@ -128,3 +128,44 @@ begin
     raise notice 'Deleted %', uid;
 end $$;`;
 };
+
+/** How the board orders requests. Closed columns always show the latest closed first. */
+export const SORTS = {
+    due: 'Due soonest',
+    newest: 'Newest first',
+    oldest: 'Oldest first',
+} as const;
+export type Sort = keyof typeof SORTS;
+
+export const isSort = (value: string | null): value is Sort =>
+    value !== null && Object.hasOwn(SORTS, value);
+
+/**
+ * Whether a request matches a search: every word must appear somewhere in its email, reason,
+ * app, notes or id. Case doesn't matter; an empty search matches everything.
+ */
+export const matches = (request: DeletionRequest, query: string) => {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return true;
+    const haystack = [
+        request.email,
+        request.reason,
+        request.appName,
+        request.app,
+        request.id,
+        ...request.history.map((step) => step.note),
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+    return words.every((word) => haystack.includes(word));
+};
+
+/** A column's requests in order: open ones by the chosen sort, closed ones latest first. */
+export const sortRequests = (requests: DeletionRequest[], sort: Sort) =>
+    [...requests].sort((a, b) => {
+        if (!OPEN.includes(a.status)) return (b.closedAt ?? 0) - (a.closedAt ?? 0);
+        if (sort === 'newest') return b.receivedAt - a.receivedAt;
+        if (sort === 'oldest') return a.receivedAt - b.receivedAt;
+        return a.dueAt - b.dueAt;
+    });
