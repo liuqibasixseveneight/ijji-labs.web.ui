@@ -141,7 +141,8 @@ type BoardProps = {
  * Every request as a card in its status's column, in the chosen order (closed columns latest
  * first), the first {@link PAGE_SIZE} of each with a button to show more. Move a card with its column select (any
  * screen), or drag it to another column on a desktop; closing one asks first. On phones the
- * columns sit side by side and swipe, each nearly the screen's width.
+ * columns sit side by side and swipe, each nearly the screen's width; they snap to the
+ * page's 24px margin (scroll-padding), not the screen's edge.
  */
 export const Board = ({ requests, now, sort, searching = false }: BoardProps) => {
     const { move, pending } = useMove();
@@ -171,7 +172,7 @@ export const Board = ({ requests, now, sort, searching = false }: BoardProps) =>
     }
 
     return (
-        <div className='-mx-6 px-6 md:mx-0 md:px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 md:items-start md:overflow-visible md:pb-0'>
+        <div className='-mx-6 px-6 scroll-px-6 md:mx-0 md:px-0 md:scroll-px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 md:items-start md:overflow-visible md:pb-0'>
             {COLUMNS.map((column) => {
                 const cards = sortRequests(
                     shown.filter((request) => request.status === column.status),

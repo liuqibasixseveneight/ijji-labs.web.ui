@@ -10,7 +10,7 @@ export const ProcessSteps = () => (
         <h2 id='process-title' className='sr-only'>
             How to handle a request
         </h2>
-        <ol className='-mx-6 px-6 sm:mx-0 sm:px-0 flex gap-3 overflow-x-auto snap-x pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:pb-0'>
+        <ol className='-mx-6 px-6 scroll-px-6 sm:mx-0 sm:px-0 sm:scroll-px-0 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:pb-0'>
             {STEPS.map((step, index) => (
                 <li
                     key={step.title}
