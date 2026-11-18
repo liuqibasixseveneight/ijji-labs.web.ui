@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
+
+// findBy… and waitFor wait up to 3 s, not 1: whole pages render slower when every test file
+// runs at once under coverage. A test still fails if what it waits for never comes.
+configure({ asyncUtilTimeout: 3000 });
 
 afterEach(() => {
     cleanup();

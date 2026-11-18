@@ -6,9 +6,8 @@ import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import type { Loaded } from '../cache.ts';
 import { Card } from '../components/Card.tsx';
-import { CollapseAll } from '../components/CollapseAll.tsx';
 import { Deferred } from '../components/Deferred.tsx';
-import { Refresh } from '../components/Refresh.tsx';
+import { PageHeader } from '../components/PageHeader.tsx';
 import {
     Bone,
     LoadingStatus,
@@ -82,7 +81,7 @@ const OpenIn = ({ href, children }: { href: string; children: ReactNode }) => (
 
 /** Production or develop, as two linked tabs. */
 const EnvironmentSwitch = ({ current }: { current: SupabaseData['env'] }) => (
-    <nav aria-label='Project' className='inline-flex rounded-xl bg-neutral-100 p-1 gap-1'>
+    <nav aria-label='Project' className='flex sm:inline-flex rounded-xl bg-neutral-100 p-1 gap-1'>
         {ENVIRONMENTS.map((env) => (
             <Link
                 key={env}
@@ -90,7 +89,7 @@ const EnvironmentSwitch = ({ current }: { current: SupabaseData['env'] }) => (
                 {...prefetchOn(`${adminPaths.supabase}${env === 'prod' ? '' : '?env=dev'}`)}
                 aria-current={env === current ? 'page' : undefined}
                 className={clsx(
-                    'rounded-lg px-4 py-2 text-sm font-semibold',
+                    'flex-1 sm:flex-none rounded-lg px-4 py-2 text-sm font-semibold text-center',
                     env === current
                         ? 'bg-white text-neutral-900 shadow-sm'
                         : 'text-neutral-700 hover:text-neutral-900',
@@ -250,24 +249,15 @@ export const Supabase = () => {
         <>
             <AdminMeta title='Supabase' />
             <Section tone='light' spacing='md' labelledBy='supabase-title'>
-                <div className='flex flex-wrap items-end justify-between gap-x-6 gap-y-4 mb-8'>
-                    <div>
-                        <h1
-                            id='supabase-title'
-                            className='text-3xl sm:text-4xl font-extrabold mb-2'
-                        >
-                            Supabase
-                        </h1>
-                        <p className='text-neutral-600'>
-                            IJJI Tracker’s projects. Counts only: never anyone’s details.
-                        </p>
-                    </div>
-                    <div className='flex flex-wrap items-center gap-x-4 gap-y-3'>
-                        <Refresh loaded={loaded} cacheKey={`supabase:${env}`} />
-                        <CollapseAll ids={CARD_IDS} />
-                        <EnvironmentSwitch current={env} />
-                    </div>
-                </div>
+                <PageHeader
+                    id='supabase-title'
+                    title='Supabase'
+                    lede='IJJI Tracker’s projects. Counts only: never anyone’s details.'
+                    loaded={loaded}
+                    cacheKey={`supabase:${env}`}
+                    cardIds={CARD_IDS}
+                    switcher={<EnvironmentSwitch current={env} />}
+                />
 
                 {/* Keyed by project: switching shows the other's skeleton, not this one's data. */}
                 <Deferred key={env} loaded={loaded} fallback={<SupabaseSkeleton env={env} />}>

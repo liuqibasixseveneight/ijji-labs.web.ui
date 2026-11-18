@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
 import { useLoaderData } from 'react-router-dom';
 
 import type { Loaded } from '../cache.ts';
 import { Deferred } from '../components/Deferred.tsx';
-import { Refresh } from '../components/Refresh.tsx';
+import { PageHeader } from '../components/PageHeader.tsx';
 import {
     Bone,
     LoadingStatus,
@@ -16,7 +15,6 @@ import {
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import { Card } from '../components/Card.tsx';
-import { CollapseAll } from '../components/CollapseAll.tsx';
 import { panel } from '../components/styles.ts';
 import { FormBars, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
 import { LighthouseResults } from '../components/website/Lighthouse.tsx';
@@ -105,21 +103,6 @@ const WebsiteSkeleton = () => (
     </div>
 );
 
-/** The page's title, with when its data is from and a refresh beside it. */
-const Header = ({ aside }: { aside: ReactNode }) => (
-    <div className='flex flex-wrap items-end justify-between gap-x-6 gap-y-3 mb-8'>
-        <div>
-            <h1 id='website-title' className='text-3xl sm:text-4xl font-extrabold mb-2'>
-                Website
-            </h1>
-            <p className='text-neutral-600'>
-                ijji-labs.com: uptime, Lighthouse, deploys and forms.
-            </p>
-        </div>
-        {aside}
-    </div>
-);
-
 /** A tile's label: tighter than the eyebrow, so "Accessibility" fits a phone-width tile. */
 const tileLabel = 'text-[11px] font-bold tracking-wide uppercase text-neutral-600';
 
@@ -134,13 +117,13 @@ export const Website = () => {
         <>
             <AdminMeta title='Website' />
             <Section tone='light' spacing='md' labelledBy='website-title'>
-                <Header
-                    aside={
-                        <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
-                            <Refresh loaded={loaded} cacheKey='website' />
-                            <CollapseAll ids={CARD_IDS} />
-                        </div>
-                    }
+                <PageHeader
+                    id='website-title'
+                    title='Website'
+                    lede='ijji-labs.com: uptime, Lighthouse, deploys and forms.'
+                    loaded={loaded}
+                    cacheKey='website'
+                    cardIds={CARD_IDS}
                 />
                 <Deferred loaded={loaded} fallback={<WebsiteSkeleton />}>
                     {(website) => (
