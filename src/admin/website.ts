@@ -38,27 +38,28 @@ export type LighthouseRow = {
 };
 
 /**
- * A run's timings as short facts ("LCP 1.8 s", "TBT 1,180 ms"), with whether each is in
- * Lighthouse's good range, so a dropped score shows its cause.
+ * A run's timings, each with Lighthouse's abbreviation, a plain name ("Blocking time"), its
+ * value ("1,180 ms") and whether it's in Lighthouse's good range, so a dropped score shows
+ * its cause.
  */
 export const describeMetrics = (metrics: Metrics | undefined) => {
     if (!metrics) return [];
     const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
-    const facts: { label: string; value: string; good: boolean }[] = [];
-    if (metrics.fcp !== null)
-        facts.push({ label: 'FCP', value: seconds(metrics.fcp), good: metrics.fcp <= 1800 });
+    const facts: { label: string; name: string; value: string; good: boolean }[] = [];
+    const add = (label: string, name: string, value: string, good: boolean) =>
+        facts.push({ label, name, value, good });
+    if (metrics.fcp !== null) add('FCP', 'First paint', seconds(metrics.fcp), metrics.fcp <= 1800);
     if (metrics.lcp !== null)
-        facts.push({ label: 'LCP', value: seconds(metrics.lcp), good: metrics.lcp <= 2500 });
+        add('LCP', 'Largest paint', seconds(metrics.lcp), metrics.lcp <= 2500);
     if (metrics.tbt !== null)
-        facts.push({
-            label: 'TBT',
-            value: `${metrics.tbt.toLocaleString('en-GB')} ms`,
-            good: metrics.tbt <= 200,
-        });
-    if (metrics.cls !== null)
-        facts.push({ label: 'CLS', value: String(metrics.cls), good: metrics.cls <= 0.1 });
-    if (metrics.si !== null)
-        facts.push({ label: 'Speed Index', value: seconds(metrics.si), good: metrics.si <= 3400 });
+        add(
+            'TBT',
+            'Blocking time',
+            `${metrics.tbt.toLocaleString('en-GB')} ms`,
+            metrics.tbt <= 200,
+        );
+    if (metrics.cls !== null) add('CLS', 'Layout shift', String(metrics.cls), metrics.cls <= 0.1);
+    if (metrics.si !== null) add('SI', 'Speed index', seconds(metrics.si), metrics.si <= 3400);
     return facts;
 };
 

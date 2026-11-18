@@ -84,41 +84,6 @@ export const UptimeStrip = ({ recent }: { recent: CheckSummary['recent'] }) => {
     );
 };
 
-/** One score's recent history as a thin line, for the trend beside the latest number. */
-export const Sparkline = ({ values, label }: { values: number[]; label: string }) => {
-    if (values.length < 2) return null;
-    const width = 96;
-    const height = 28;
-    const points = values
-        .map((value, i) => {
-            const x = (i / (values.length - 1)) * (width - 4) + 2;
-            const y = height - 2 - (value / 100) * (height - 4);
-            return `${x.toFixed(1)},${y.toFixed(1)}`;
-        })
-        .join(' ');
-    return (
-        <svg
-            role='img'
-            aria-label={`${label}: ${values.join(', ')}`}
-            width={width}
-            height={height}
-            viewBox={`0 0 ${width} ${height}`}
-            className='shrink-0'
-        >
-            <title>{`${label}: ${values.join(', ')}`}</title>
-            <line x1='2' x2={width - 2} y1={height - 2} y2={height - 2} stroke='#e1e0d9' />
-            <polyline
-                points={points}
-                fill='none'
-                stroke={SERIES}
-                strokeWidth='2'
-                strokeLinejoin='round'
-                strokeLinecap='round'
-            />
-        </svg>
-    );
-};
-
 const dayFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
 
 /**

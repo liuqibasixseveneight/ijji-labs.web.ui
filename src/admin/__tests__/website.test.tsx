@@ -196,25 +196,42 @@ describe('the website page', () => {
         ).toBeInTheDocument();
     });
 
-    it('shows Lighthouse scores with their band, the timings, a dash before the first run, and the trend', async () => {
+    it('shows each page’s Lighthouse results: a ring, the other scores, plain-English timings and the trend', async () => {
         api(website());
         renderAdmin('/website');
         await screen.findByRole('heading', { name: 'Lighthouse' });
 
-        const [mobile, desktop] = section('Lighthouse').getAllByRole('listitem');
-        expect(mobile).toHaveTextContent('Mobile');
-        expect(within(mobile).getByText('88')).toBeInTheDocument();
-        expect(mobile).toHaveTextContent('Needs work');
-        expect(mobile).toHaveTextContent('Poor');
-        // The timings say why: a slow one is flagged in words, not just red.
-        expect(mobile).toHaveTextContent('LCP 1.8 s');
-        expect(within(mobile).getByText(/TBT 1,180 ms/)).toHaveTextContent('TBT 1,180 ms (slow)');
-        expect(
-            within(mobile).getByRole('img', { name: /performance over 30 days: 91, 88/ }),
-        ).toBeInTheDocument();
+        // The page's block is named by its heading ("Home /"); its panels by page and device.
+        const home = within(section('Lighthouse').getByRole('region', { name: 'Home /' }));
+        const mobile = within(home.getByRole('region', { name: 'Home, mobile' }));
 
-        expect(desktop).toHaveTextContent('Not run yet');
-        expect(within(desktop).getAllByText('—')).toHaveLength(4);
+        // Performance as a ring, with its band in words.
+        const ring = mobile.getByRole('figure', { name: 'Performance 88, needs work' });
+        expect(ring).toHaveTextContent('88');
+        expect(ring).toHaveTextContent('Needs work');
+
+        // The other three as a list, each with its band for screen readers.
+        expect(mobile.getByText('Accessibility').nextElementSibling).toHaveTextContent(
+            '100 (good)',
+        );
+        expect(mobile.getByText('SEO').nextElementSibling).toHaveTextContent('45 (poor)');
+
+        // Timings in plain words, a slow one marked.
+        expect(mobile.getByText('Largest paint').closest('div')).toHaveTextContent('1.8 s');
+        expect(mobile.getByText('Blocking time').closest('div')).toHaveTextContent(
+            '1,180 ms (slow)',
+        );
+        expect(mobile.getByTitle('TBT')).toBeInTheDocument();
+
+        expect(
+            mobile.getByRole('img', { name: /performance over 2 days: 91, 88/ }),
+        ).toBeInTheDocument();
+        expect(mobile.getByText('88–91')).toBeInTheDocument();
+
+        // A page or device not run yet says so.
+        const desktop = within(home.getByRole('region', { name: 'Home, desktop' }));
+        expect(desktop.getByText('Not run yet')).toBeInTheDocument();
+        expect(desktop.getByText('The first run is at 03:00 UTC.')).toBeInTheDocument();
     });
 
     it('lists deploys with their state, linking to Netlify', async () => {
@@ -342,14 +359,14 @@ describe('the website helpers', () => {
 
     it('describe timings against Lighthouse’s good thresholds', () => {
         expect(describeMetrics({ fcp: 1800, lcp: 2600, tbt: 200, cls: 0.11, si: 3400 })).toEqual([
-            { label: 'FCP', value: '1.8 s', good: true },
-            { label: 'LCP', value: '2.6 s', good: false },
-            { label: 'TBT', value: '200 ms', good: true },
-            { label: 'CLS', value: '0.11', good: false },
-            { label: 'Speed Index', value: '3.4 s', good: true },
+            { label: 'FCP', name: 'First paint', value: '1.8 s', good: true },
+            { label: 'LCP', name: 'Largest paint', value: '2.6 s', good: false },
+            { label: 'TBT', name: 'Blocking time', value: '200 ms', good: true },
+            { label: 'CLS', name: 'Layout shift', value: '0.11', good: false },
+            { label: 'SI', name: 'Speed index', value: '3.4 s', good: true },
         ]);
         expect(describeMetrics({ fcp: null, lcp: null, tbt: 1180, cls: null, si: null })).toEqual([
-            { label: 'TBT', value: '1,180 ms', good: false },
+            { label: 'TBT', name: 'Blocking time', value: '1,180 ms', good: false },
         ]);
         expect(describeMetrics(undefined)).toEqual([]);
     });
