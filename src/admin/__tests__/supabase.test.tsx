@@ -251,7 +251,10 @@ describe('the Supabase page', () => {
                 },
                 health: { data: null, error: 'The project is paused.' },
                 usage: { data: null, error: 'The project is paused.' },
-                traffic: { data: null, error: 'SUPABASE_ACCESS_TOKEN isn’t set in Netlify yet.' },
+                traffic: {
+                    data: null,
+                    error: 'SUPABASE_PROD_ACCESS_TOKEN isn’t set in Netlify yet.',
+                },
             }),
         );
         renderAdmin('/supabase');
@@ -261,7 +264,9 @@ describe('the Supabase page', () => {
         expect(project.getByText(/Free projects pause after a week/)).toBeInTheDocument();
         expect(section('People').getByText('The project is paused.')).toBeInTheDocument();
         expect(
-            section('API traffic').getByText('SUPABASE_ACCESS_TOKEN isn’t set in Netlify yet.'),
+            section('API traffic').getByText(
+                'SUPABASE_PROD_ACCESS_TOKEN isn’t set in Netlify yet.',
+            ),
         ).toBeInTheDocument();
     });
 

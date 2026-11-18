@@ -24,7 +24,9 @@ const SUPABASE = {
     SUPABASE_PROD_SERVICE_KEY: 'sb_secret_prod-key-prod-key',
     SUPABASE_DEV_URL: `https://${DEV_REF}.supabase.co`,
     SUPABASE_DEV_SERVICE_KEY: 'eyJhbGciOi.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.c2lnbmF0dXJl',
-    SUPABASE_ACCESS_TOKEN: 'sbp_personal-access-token',
+    // Separate organisations, so a token each.
+    SUPABASE_PROD_ACCESS_TOKEN: 'sbp_prod-access-token',
+    SUPABASE_DEV_ACCESS_TOKEN: 'sbp_dev-access-token',
 };
 
 // What a person's details look like, planted in Supabase's replies: none may come out.
@@ -146,6 +148,7 @@ describe('the Supabase endpoint', () => {
     });
     afterEach(() => {
         for (const key of Object.keys(SUPABASE)) delete process.env[key];
+        delete process.env.SUPABASE_ACCESS_TOKEN;
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
@@ -216,7 +219,7 @@ describe('the Supabase endpoint', () => {
             const headers = init.headers as Record<string, string>;
             if (url.hostname === 'api.supabase.com') {
                 expect(init.method).toBe('GET');
-                expect(headers.Authorization).toBe('Bearer sbp_personal-access-token');
+                expect(headers.Authorization).toBe('Bearer sbp_prod-access-token');
                 expect(headers.apikey).toBeUndefined();
             } else {
                 expect(url.origin).toBe(`https://${PROD_REF}.supabase.co`);
@@ -236,22 +239,44 @@ describe('the Supabase endpoint', () => {
         expect(rpc.url.origin).toBe(`https://${DEV_REF}.supabase.co`);
         // An older JWT service key goes as a bearer token as well.
         expect((rpc.init.headers as Record<string, string>).Authorization).toMatch(/^Bearer eyJ/);
+        // Develop's own access token, for its own organisation.
+        for (const { url, init } of calls().filter((c) => c.url.hostname === 'api.supabase.com')) {
+            expect(url.pathname).toContain(DEV_REF);
+            expect((init.headers as Record<string, string>).Authorization).toBe(
+                'Bearer sbp_dev-access-token',
+            );
+        }
 
         expect((await call('?env=staging')).status).toBe(400);
     });
 
     it('says what isn’t set up yet, part by part', async () => {
         upstream();
-        delete process.env.SUPABASE_ACCESS_TOKEN;
+        delete process.env.SUPABASE_PROD_ACCESS_TOKEN;
         delete process.env.SUPABASE_PROD_SERVICE_KEY;
         const body = await (await call()).json();
-        expect(body.project.error).toBe('SUPABASE_ACCESS_TOKEN isn’t set in Netlify yet.');
+        expect(body.project.error).toBe('SUPABASE_PROD_ACCESS_TOKEN isn’t set in Netlify yet.');
         expect(body.usage.error).toBe('SUPABASE_PROD_SERVICE_KEY isn’t set in Netlify yet.');
 
         delete process.env.SUPABASE_DEV_URL;
         const dev = await (await call('?env=dev')).json();
         expect(dev.ref).toBeNull();
         expect(dev.usage.error).toBe('SUPABASE_DEV_URL isn’t set in Netlify yet.');
+    });
+
+    it('takes one token for both projects, if that’s what’s set', async () => {
+        upstream();
+        delete process.env.SUPABASE_PROD_ACCESS_TOKEN;
+        process.env.SUPABASE_ACCESS_TOKEN = 'sbp_one-for-both';
+        const body = await (await call()).json();
+        expect(body.project.data).not.toBeNull();
+        const mgmt = calls().filter((c) => c.url.hostname === 'api.supabase.com');
+        expect(mgmt.length).toBeGreaterThan(0);
+        for (const { init } of mgmt) {
+            expect((init.headers as Record<string, string>).Authorization).toBe(
+                'Bearer sbp_one-for-both',
+            );
+        }
     });
 
     it('says a paused project is paused, without waiting on it', async () => {

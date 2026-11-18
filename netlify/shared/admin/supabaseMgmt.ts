@@ -1,7 +1,8 @@
 import { scrub, scrubPath } from './scrub.ts';
 
-// Supabase's Management API, read-only, from the admin functions. The personal access token
-// (SUPABASE_ACCESS_TOKEN) can change anything in the organisations it belongs to, so this
+// Supabase's Management API, read-only, from the admin functions. A personal access token
+// (SUPABASE_PROD_ACCESS_TOKEN, SUPABASE_DEV_ACCESS_TOKEN) may be able to change anything in its
+// organisation, so this
 // file only ever sends GET, only to the paths below, for a project ref of the right shape,
 // and passes on picked fields (scrubbed) rather than Supabase's replies.
 
@@ -26,7 +27,9 @@ export const get = async (token: string, path: string, query: Record<string, str
         signal: AbortSignal.timeout(10_000),
     });
     if (response.status === 401 || response.status === 403) {
-        throw new Error('Supabase refused the access token: check SUPABASE_ACCESS_TOKEN.');
+        throw new Error(
+            'Supabase refused the access token: check it’s for this project’s organisation and can read it.',
+        );
     }
     if (!response.ok) throw new Error(`Supabase’s API answered ${response.status}`);
     return response.json();
