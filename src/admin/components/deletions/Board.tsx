@@ -13,6 +13,7 @@ import {
 } from '../../deletionRequests.ts';
 import { adminPaths } from '../../paths.ts';
 import { CopyButton } from '../CopyButton.tsx';
+import { Email } from '../Email.tsx';
 import { StatusSelect } from './StatusSelect.tsx';
 import { useMove } from './useMove.ts';
 
@@ -82,9 +83,9 @@ const Card = ({ request, now, moving }: CardProps) => {
                     <Link
                         to={adminPaths.deletionRequest(request.id)}
                         draggable={false}
-                        className="font-bold [overflow-wrap:anywhere] group-hover:underline underline-offset-4 after:absolute after:inset-0 after:content-['']"
+                        className="font-bold group-hover:underline underline-offset-4 after:absolute after:inset-0 after:content-['']"
                     >
-                        {request.email ?? 'Email removed'}
+                        {request.email ? <Email address={request.email} /> : 'Email removed'}
                     </Link>
                 </h3>
                 {request.email && (

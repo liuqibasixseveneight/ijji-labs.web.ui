@@ -8,6 +8,7 @@ import { TextareaInput } from '../../components/ui/atoms/TextareaInput/TextareaI
 import { FormError } from '../../components/ui/molecules/FormStatus/FormStatus.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import { CopyButton } from '../components/CopyButton.tsx';
+import { Email } from '../components/Email.tsx';
 import { DaysLeft } from '../components/deletions/Board.tsx';
 import { RequestSteps } from '../components/deletions/RequestSteps.tsx';
 import { StatusSelect } from '../components/deletions/StatusSelect.tsx';
@@ -63,8 +64,8 @@ const Requester = ({ request }: { request: Request }) => (
             <Fact label='Email address'>
                 {request.email ? (
                     <span className='flex flex-wrap items-center gap-3'>
-                        <span className='text-lg font-bold [overflow-wrap:anywhere]'>
-                            {request.email}
+                        <span className='text-lg font-bold'>
+                            <Email address={request.email} />
                         </span>
                         <CopyButton text={request.email} label='Copy email address' showLabel />
                     </span>
