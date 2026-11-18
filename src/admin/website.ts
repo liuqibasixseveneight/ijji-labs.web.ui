@@ -25,12 +25,41 @@ export const CATEGORY_LABELS: Record<Category, string> = {
     seo: 'SEO',
 };
 
+/** A run's key timings: ms, except CLS. Absent on runs from before they were kept. */
+export type Metrics = Record<'fcp' | 'lcp' | 'tbt' | 'cls' | 'si', number | null>;
+export type LighthouseEntry = { date: string; at: number; scores: Scores; metrics?: Metrics };
+
 export type LighthouseRow = {
     page: string;
     path: string;
     strategy: 'mobile' | 'desktop';
-    latest: { date: string; at: number; scores: Scores } | null;
-    history: { date: string; at: number; scores: Scores }[];
+    latest: LighthouseEntry | null;
+    history: LighthouseEntry[];
+};
+
+/**
+ * A run's timings as short facts ("LCP 1.8 s", "TBT 1,180 ms"), with whether each is in
+ * Lighthouse's good range, so a dropped score shows its cause.
+ */
+export const describeMetrics = (metrics: Metrics | undefined) => {
+    if (!metrics) return [];
+    const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
+    const facts: { label: string; value: string; good: boolean }[] = [];
+    if (metrics.fcp !== null)
+        facts.push({ label: 'FCP', value: seconds(metrics.fcp), good: metrics.fcp <= 1800 });
+    if (metrics.lcp !== null)
+        facts.push({ label: 'LCP', value: seconds(metrics.lcp), good: metrics.lcp <= 2500 });
+    if (metrics.tbt !== null)
+        facts.push({
+            label: 'TBT',
+            value: `${metrics.tbt.toLocaleString('en-GB')} ms`,
+            good: metrics.tbt <= 200,
+        });
+    if (metrics.cls !== null)
+        facts.push({ label: 'CLS', value: String(metrics.cls), good: metrics.cls <= 0.1 });
+    if (metrics.si !== null)
+        facts.push({ label: 'Speed Index', value: seconds(metrics.si), good: metrics.si <= 3400 });
+    return facts;
 };
 
 export type Deploy = {

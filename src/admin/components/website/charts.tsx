@@ -56,20 +56,27 @@ const timeFormat = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
-/** A check's recent runs as a strip of thin bars: green passed, red failed (taller). */
+/**
+ * A check's recent runs as a strip of thin bars: green passed, red failed (taller). The strip
+ * fills its space (full width on phones, 18rem beside the details from md), so it never
+ * overflows a narrow card.
+ */
 export const UptimeStrip = ({ recent }: { recent: CheckSummary['recent'] }) => {
     const passed = recent.filter((run) => run.ok).length;
     return (
         <div
             role='img'
             aria-label={`Last ${recent.length} checks: ${passed} passed, ${recent.length - passed} failed`}
-            className='flex items-end gap-[2px] h-6'
+            className='flex items-end gap-px h-6 w-full md:w-72'
         >
             {recent.map((run) => (
                 <span
                     key={run.at}
                     title={`${timeFormat.format(run.at)} · ${run.ok ? `up, ${run.ms} ms` : 'failed'}`}
-                    className={clsx('w-1 rounded-t-sm', run.ok ? 'h-4' : 'h-6')}
+                    className={clsx(
+                        'flex-1 min-w-0 max-w-1.5 rounded-t-sm',
+                        run.ok ? 'h-4' : 'h-6',
+                    )}
                     style={{ background: run.ok ? STATUS.good : STATUS.critical }}
                 />
             ))}

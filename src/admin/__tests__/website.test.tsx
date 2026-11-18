@@ -4,7 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { axeViolations } from '../../test/axe.ts';
 import { adminRoutes } from '../routes.tsx';
-import { deployStatus, lastDays, scoreLevel, type Counts, type Website } from '../website.ts';
+import {
+    deployStatus,
+    describeMetrics,
+    lastDays,
+    scoreLevel,
+    type Counts,
+    type Website,
+} from '../website.ts';
 
 const NOW = Date.UTC(2026, 10, 20, 12);
 const DAY = 24 * 60 * 60 * 1000;
@@ -50,6 +57,7 @@ const website = (overrides: Partial<Website> = {}): Website => ({
                     date: '2026-11-20',
                     at: NOW,
                     scores: { performance: 88, accessibility: 100, 'best-practices': 100, seo: 45 },
+                    metrics: { fcp: 1800, lcp: 1800, tbt: 1180, cls: 0, si: 6300 },
                 },
                 history: [
                     {
@@ -188,18 +196,24 @@ describe('the website page', () => {
         ).toBeInTheDocument();
     });
 
-    it('shows Lighthouse scores with their band, a dash before the first run, and the trend', async () => {
+    it('shows Lighthouse scores with their band, the timings, a dash before the first run, and the trend', async () => {
         api(website());
         renderAdmin('/website');
         await screen.findByRole('heading', { name: 'Lighthouse' });
 
-        const [, mobile, desktop] = section('Lighthouse').getAllByRole('row');
+        const [mobile, desktop] = section('Lighthouse').getAllByRole('listitem');
+        expect(mobile).toHaveTextContent('Mobile');
         expect(within(mobile).getByText('88')).toBeInTheDocument();
         expect(mobile).toHaveTextContent('Needs work');
         expect(mobile).toHaveTextContent('Poor');
+        // The timings say why: a slow one is flagged in words, not just red.
+        expect(mobile).toHaveTextContent('LCP 1.8 s');
+        expect(within(mobile).getByText(/TBT 1,180 ms/)).toHaveTextContent('TBT 1,180 ms (slow)');
         expect(
             within(mobile).getByRole('img', { name: /performance over 30 days: 91, 88/ }),
         ).toBeInTheDocument();
+
+        expect(desktop).toHaveTextContent('Not run yet');
         expect(within(desktop).getAllByText('—')).toHaveLength(4);
     });
 
@@ -324,6 +338,20 @@ describe('the website helpers', () => {
                 (s) => deployStatus(s).label,
             ),
         ).toEqual(['Published', 'Failed', 'Building', 'Building', 'Cancelled']);
+    });
+
+    it('describe timings against Lighthouse’s good thresholds', () => {
+        expect(describeMetrics({ fcp: 1800, lcp: 2600, tbt: 200, cls: 0.11, si: 3400 })).toEqual([
+            { label: 'FCP', value: '1.8 s', good: true },
+            { label: 'LCP', value: '2.6 s', good: false },
+            { label: 'TBT', value: '200 ms', good: true },
+            { label: 'CLS', value: '0.11', good: false },
+            { label: 'Speed Index', value: '3.4 s', good: true },
+        ]);
+        expect(describeMetrics({ fcp: null, lcp: null, tbt: 1180, cls: null, si: null })).toEqual([
+            { label: 'TBT', value: '1,180 ms', good: false },
+        ]);
+        expect(describeMetrics(undefined)).toEqual([]);
     });
 
     it('add up the last days', () => {
