@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { palettes, defaultPaletteKey, type Palette, type SceneState } from './utils';
 import type * as SceneModule from './utils/scene';
 import type { FluidGradientProps } from './types.ts';
+import { webglRenderer } from './utils/renderer.ts';
 import { type PaletteKey, PalettePicker } from '../../molecules';
 
 const resolvePalette = (palette: PaletteKey | Palette | undefined): Palette => {
@@ -57,6 +58,10 @@ export const FluidGradient = ({
             const run = async () => {
                 // Bail if the component already unmounted while we were waiting
                 if (!canvasRef.current) return;
+
+                // No graphics chip (WebGL drawn on the CPU), or no WebGL: the still gradient
+                // stays, and three.js is never downloaded. See utils/renderer.ts.
+                if (webglRenderer() !== 'hardware') return;
 
                 const sceneModule = await import('./utils/scene');
                 if (cancelled || !canvasRef.current) return;
