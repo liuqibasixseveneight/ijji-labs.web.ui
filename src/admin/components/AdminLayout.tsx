@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 
 import { Button } from '../../components/ui/atoms/Button/Button.tsx';
 import { signOut } from '../api.ts';
+import { SignOutEverywhere } from './SignOutEverywhere.tsx';
 import { OPEN } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
 import type { AdminData } from '../routes.tsx';
@@ -21,9 +22,9 @@ export const AdminLayout = () => {
     const { deletions } = useRouteLoaderData('admin') as AdminData;
     const openCount = deletions?.requests.filter((r) => OPEN.includes(r.status)).length ?? 0;
 
-    const leave = async (everywhere: boolean) => {
-        await signOut({ everywhere });
-        navigate('/sign-in', { replace: true });
+    const leave = async () => {
+        await signOut();
+        navigate(adminPaths.signIn, { replace: true });
     };
 
     return (
@@ -36,33 +37,29 @@ export const AdminLayout = () => {
             </a>
 
             <header className='bg-ui-background-primary text-white'>
-                <div className='max-w-380 mx-auto flex flex-wrap items-center justify-between gap-4 px-6 md:px-8 py-4'>
+                {/* One row at every width: on phones the logo is smaller, and "Sign out
+                    everywhere" moves to the Overview. */}
+                <div className='max-w-380 mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 md:px-8 py-3 sm:py-4'>
                     {/* The site's logo (as in its navbar), with "admin" beside it. */}
                     <Link
                         to={adminPaths.overview}
-                        className='flex items-baseline gap-2 whitespace-nowrap'
+                        className='flex min-w-0 items-baseline gap-1.5 sm:gap-2 whitespace-nowrap'
                     >
-                        <span className='text-3xl md:text-4xl font-extrabold font-newsreader text-white'>
+                        <span className='text-2xl sm:text-3xl md:text-4xl font-extrabold font-newsreader text-white'>
                             ijji labs
                         </span>{' '}
-                        <span className='text-lg md:text-xl font-bold text-brand-primary'>
+                        <span className='text-base sm:text-lg md:text-xl font-bold text-brand-primary'>
                             admin
                         </span>
                     </Link>
 
-                    <div className='flex items-center gap-4'>
-                        <button
-                            type='button'
-                            onClick={() => leave(true)}
-                            className='text-sm text-neutral-400 hover:text-white underline-offset-4 hover:underline cursor-pointer'
-                        >
-                            Sign out everywhere
-                        </button>
-                        <Button size='compact' label='Sign out' onClick={() => leave(false)} />
+                    <div className='flex shrink-0 items-center gap-4'>
+                        <SignOutEverywhere className='hidden sm:inline text-neutral-400 hover:text-white' />
+                        <Button size='compact' label='Sign out' onClick={leave} />
                     </div>
                 </div>
 
-                <nav aria-label='Admin' className='max-w-380 mx-auto px-6 md:px-8'>
+                <nav aria-label='Admin' className='max-w-380 mx-auto px-4 sm:px-6 md:px-8'>
                     <ul className='flex gap-6'>
                         <li>
                             <NavLink to={adminPaths.overview} end className={navLink}>

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -190,19 +190,25 @@ describe('the admin dashboard', () => {
     });
 
     it.each([
-        ['Sign out', 'DELETE /api/admin/session'],
-        ['Sign out everywhere', 'DELETE /api/admin/session?everywhere=1'],
-    ])('%s ends the session and goes back to sign in', async (name, call) => {
-        const fetch = api({ 'GET /api/admin/me': SIGNED_IN, [call]: { status: 200 } });
-        const { user, router } = renderAdmin('/');
+        ['Sign out', 'banner', 'DELETE /api/admin/session'],
+        // In the header from tablets up; on the Overview on phones.
+        ['Sign out everywhere', 'banner', 'DELETE /api/admin/session?everywhere=1'],
+        ['Sign out everywhere', 'main', 'DELETE /api/admin/session?everywhere=1'],
+    ] as const)(
+        '%s (in the %s) ends the session and goes back to sign in',
+        async (name, where, call) => {
+            const fetch = api({ 'GET /api/admin/me': SIGNED_IN, [call]: { status: 200 } });
+            const { user, router } = renderAdmin('/');
 
-        await user.click(await screen.findByRole('button', { name: new RegExp(`^${name}$`, 'i') }));
+            const area = within(await screen.findByRole(where));
+            await user.click(area.getByRole('button', { name: new RegExp(`^${name}$`, 'i') }));
 
-        await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));
-        expect(fetch.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${url}`)).toContain(
-            call,
-        );
-    });
+            await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));
+            expect(
+                fetch.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${url}`),
+            ).toContain(call);
+        },
+    );
 
     it('signs out even if the server can’t be reached', async () => {
         const fetch = vi.fn(async (url: string, init: RequestInit = {}) => {

@@ -13,6 +13,7 @@ import {
     urgency,
     type DeletionRequest,
 } from '../deletionRequests.ts';
+import { Email } from '../components/Email.tsx';
 import { adminRoutes } from '../routes.tsx';
 
 const NOW = Date.UTC(2026, 10, 20, 12);
@@ -462,6 +463,12 @@ describe('a request’s own page', () => {
 });
 
 describe('the help each request comes with', () => {
+    it('lets long emails wrap after the @ and the dots, not mid-word', () => {
+        const { container } = render(<Email address='first.last@example.co.uk' />);
+        expect(container).toHaveTextContent('first.last@example.co.uk');
+        expect(container.querySelectorAll('wbr')).toHaveLength(4);
+    });
+
     it('describes how long is left, and how urgent that is', () => {
         expect(
             [12, 9, 1, 0, -1, -4].map((days) => `${describeDaysLeft(days)} (${urgency(days)})`),
