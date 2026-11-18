@@ -90,6 +90,30 @@ export const changeDeletionRequest = async (change: {
     }
 };
 
+export type LighthouseRun = { ok: true } | { ok: false; error: string; retryAt?: number };
+
+/**
+ * Runs Lighthouse on one page and strategy now (about 20 seconds); never throws. The new
+ * scores come with the website's data, reloaded afterwards.
+ */
+export const runLighthouse = async (key: string): Promise<LighthouseRun> => {
+    try {
+        const response = await request('lighthouse', {
+            method: 'POST',
+            body: JSON.stringify({ key }),
+        });
+        if (response.ok) return { ok: true };
+        const body = await response.json().catch(() => ({}));
+        return {
+            ok: false,
+            error: body.error ?? 'That run didn’t work. Try again.',
+            ...(typeof body.retryAt === 'number' && { retryAt: body.retryAt }),
+        };
+    } catch {
+        return { ok: false, error: 'Couldn’t reach the server. Try again.' };
+    }
+};
+
 /** The website section's data (uptime, Lighthouse, deploys, forms); null if it couldn't load. */
 export const getWebsite = async (): Promise<Website | null> => {
     try {
