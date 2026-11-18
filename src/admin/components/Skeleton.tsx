@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 
+import { useCollapsed } from '../collapsed.ts';
+import { CardBody, CardHeader } from './Card.tsx';
 import { panel } from './styles.ts';
 
 // Placeholders shaped like what's coming, shown while a page's data loads the first time, so
@@ -16,24 +18,37 @@ export const Bone = ({ className }: { className?: string }) => (
     />
 );
 
-/** A card as it will look, its real title and hint over placeholder contents. */
+/**
+ * A card as it will look, its real title and hint over placeholder contents. It can be
+ * collapsed like the card, and stays collapsed if the card was.
+ */
 export const SkeletonCard = ({
+    id,
     title,
     hint,
     children,
 }: {
+    id: string;
     title: string;
     hint: string;
     children: ReactNode;
-}) => (
-    <div className={panel}>
-        <div className='mb-5 pb-4 border-b border-neutral-200'>
-            <h2 className='text-xl font-bold'>{title}</h2>
-            <p className='text-sm text-neutral-600 mt-1'>{hint}</p>
+}) => {
+    const [collapsed, setCollapsed] = useCollapsed(id);
+    return (
+        <div className={panel}>
+            <CardHeader
+                id={id}
+                title={title}
+                hint={hint}
+                collapsed={collapsed}
+                onToggle={() => setCollapsed(!collapsed)}
+            />
+            <CardBody id={id} collapsed={collapsed}>
+                <div aria-hidden='true'>{children}</div>
+            </CardBody>
         </div>
-        <div aria-hidden='true'>{children}</div>
-    </div>
-);
+    );
+};
 
 /** Rows of a list: a badge, a line of text and a shorter one. */
 export const SkeletonRows = ({ count = 3, aside = false }: { count?: number; aside?: boolean }) => (

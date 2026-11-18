@@ -3,10 +3,10 @@ import { Link, useLoaderData, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
-import { markerLink } from '../../components/ui/atoms/TextLink/markerLink.ts';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import type { Loaded } from '../cache.ts';
 import { Card } from '../components/Card.tsx';
+import { CollapseAll } from '../components/CollapseAll.tsx';
 import { Deferred } from '../components/Deferred.tsx';
 import { Refresh } from '../components/Refresh.tsx';
 import {
@@ -118,7 +118,7 @@ const HINTS = {
 const SupabaseSkeleton = ({ env }: { env: SupabaseData['env'] }) => (
     <div className='flex flex-col gap-6'>
         <LoadingStatus>{`Loading ${ENVIRONMENT_LABELS[env].toLowerCase()}’s data…`}</LoadingStatus>
-        <SkeletonCard title={ENVIRONMENT_LABELS[env]} hint={HINTS.project}>
+        <SkeletonCard id='project-title' title={ENVIRONMENT_LABELS[env]} hint={HINTS.project}>
             <div className='flex flex-col gap-4'>
                 <div className='flex items-center gap-3'>
                     <Bone className='h-5 w-16 rounded-full' />
@@ -131,19 +131,19 @@ const SupabaseSkeleton = ({ env }: { env: SupabaseData['env'] }) => (
                 </div>
             </div>
         </SkeletonCard>
-        <SkeletonCard title='People' hint={HINTS.people}>
+        <SkeletonCard id='people-title' title='People' hint={HINTS.people}>
             <div className='flex flex-col gap-5'>
                 <SkeletonTiles count={4} />
                 <SkeletonBars />
             </div>
         </SkeletonCard>
-        <SkeletonCard title='Sessions' hint={HINTS.sessions}>
+        <SkeletonCard id='sessions-title' title='Sessions' hint={HINTS.sessions}>
             <div className='flex flex-col gap-5'>
                 <SkeletonTiles count={4} />
                 <SkeletonBars />
             </div>
         </SkeletonCard>
-        <SkeletonCard title='Database' hint={HINTS.database}>
+        <SkeletonCard id='database-title' title='Database' hint={HINTS.database}>
             <div className='flex flex-col gap-5'>
                 <Bone className='h-8 w-40' />
                 <Bone className='h-2.5 w-full rounded-full' />
@@ -151,14 +151,18 @@ const SupabaseSkeleton = ({ env }: { env: SupabaseData['env'] }) => (
             </div>
         </SkeletonCard>
         <div className='grid gap-6 lg:grid-cols-2'>
-            <SkeletonCard title='Security Advisor' hint={HINTS.security}>
+            <SkeletonCard id='security-title' title='Security Advisor' hint={HINTS.security}>
                 <SkeletonRows count={2} />
             </SkeletonCard>
-            <SkeletonCard title='Performance Advisor' hint={HINTS.performance}>
+            <SkeletonCard
+                id='performance-title'
+                title='Performance Advisor'
+                hint={HINTS.performance}
+            >
                 <SkeletonRows count={2} />
             </SkeletonCard>
         </div>
-        <SkeletonCard title='API traffic' hint={HINTS.traffic}>
+        <SkeletonCard id='traffic-title' title='API traffic' hint={HINTS.traffic}>
             <div className='flex flex-col gap-5'>
                 <SkeletonTiles count={3} />
                 <SkeletonBars />
@@ -166,6 +170,33 @@ const SupabaseSkeleton = ({ env }: { env: SupabaseData['env'] }) => (
         </SkeletonCard>
     </div>
 );
+
+/** Every card on the page, for Collapse all. */
+const CARD_IDS = [
+    'project-title',
+    'people-title',
+    'sessions-title',
+    'database-title',
+    'security-title',
+    'performance-title',
+    'traffic-title',
+];
+
+/** An advisor's findings in a few words: "2 warnings, 1 info". */
+const describeLints = (lints: Lint[]) => {
+    if (lints.length === 0) return 'No findings';
+    const count = (level: Lint['level']) => lints.filter((lint) => lint.level === level).length;
+    return (
+        [
+            [count('ERROR'), 'error', 'errors'],
+            [count('WARN'), 'warning', 'warnings'],
+            [count('INFO'), 'info', 'info'],
+        ] as const
+    )
+        .filter(([n]) => n > 0)
+        .map(([n, one, many]) => `${n} ${n === 1 ? one : many}`)
+        .join(', ');
+};
 
 /** One advisor's findings, most serious first, each with how to fix it. */
 const Findings = ({ lints }: { lints: Lint[] }) =>
@@ -194,10 +225,7 @@ const Findings = ({ lints }: { lints: Lint[] }) =>
                             href={lint.remediation}
                             target='_blank'
                             rel='noreferrer'
-                            className={clsx(
-                                markerLink('light'),
-                                'px-1 -mx-1 text-sm font-semibold self-start',
-                            )}
+                            className='link-highlight link-marked text-sm self-start'
                         >
                             How to fix it
                             <span className='sr-only'>: {lint.title} (opens in a new tab)</span>
@@ -236,6 +264,7 @@ export const Supabase = () => {
                     </div>
                     <div className='flex flex-wrap items-center gap-x-4 gap-y-3'>
                         <Refresh loaded={loaded} cacheKey={`supabase:${env}`} />
+                        <CollapseAll ids={CARD_IDS} />
                         <EnvironmentSwitch current={env} />
                     </div>
                 </div>
@@ -251,6 +280,9 @@ export const Supabase = () => {
                             <div className='flex flex-col gap-6'>
                                 <Card
                                     id='project-title'
+                                    summary={(project) =>
+                                        `${projectState(project.status).label} · ${project.region}`
+                                    }
                                     title={ENVIRONMENT_LABELS[data.env]}
                                     hint={HINTS.project}
                                     part={data.project}
@@ -313,6 +345,9 @@ export const Supabase = () => {
 
                                 <Card
                                     id='people-title'
+                                    summary={(usage) =>
+                                        `${plural(usage.users, 'account')}, ${number.format(lastDaysOf(usage.signupsByDay, 7))} new this week`
+                                    }
                                     title='People'
                                     hint={HINTS.people}
                                     part={data.usage}
@@ -372,6 +407,9 @@ export const Supabase = () => {
 
                                 <Card
                                     id='sessions-title'
+                                    summary={(usage) =>
+                                        `${plural(usage.recorders.week, 'person', 'people')} active this week`
+                                    }
                                     title='Sessions'
                                     hint={HINTS.sessions}
                                     part={data.usage}
@@ -431,6 +469,9 @@ export const Supabase = () => {
 
                                 <Card
                                     id='database-title'
+                                    summary={(db) =>
+                                        `${formatBytes(db.bytes)} of ${formatBytes(db.limitBytes)}`
+                                    }
                                     title='Database'
                                     hint={HINTS.database}
                                     part={data.database}
@@ -506,6 +547,7 @@ export const Supabase = () => {
                                         <Card
                                             key={kind}
                                             id={`${kind}-title`}
+                                            summary={describeLints}
                                             title={
                                                 kind === 'security'
                                                     ? 'Security Advisor'
@@ -537,6 +579,11 @@ export const Supabase = () => {
 
                                 <Card
                                     id='traffic-title'
+                                    summary={(traffic) => {
+                                        const total = (key: 'requests' | 'serverErrors') =>
+                                            traffic.hours.reduce((sum, h) => sum + h[key], 0);
+                                        return `${plural(total('requests'), 'request')}, ${plural(total('serverErrors'), 'server error')}`;
+                                    }}
                                     title='API traffic'
                                     hint={HINTS.traffic}
                                     part={data.traffic}
@@ -598,7 +645,7 @@ export const Supabase = () => {
                                                 )}
                                                 <div>
                                                     <h3 className='text-xs font-bold tracking-wide uppercase text-neutral-600 mb-2'>
-                                                        Commonest server errors
+                                                        Most common server errors
                                                     </h3>
                                                     {traffic.topErrors.length === 0 ? (
                                                         <StatusBadge

@@ -16,6 +16,7 @@ import {
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import { Card } from '../components/Card.tsx';
+import { CollapseAll } from '../components/CollapseAll.tsx';
 import { panel } from '../components/styles.ts';
 import { FormBars, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
 import { LighthouseResults } from '../components/website/Lighthouse.tsx';
@@ -40,19 +41,28 @@ const dateTime = new Intl.DateTimeFormat('en-GB', {
 /** Each card's title and what it shows: on the card, and on its skeleton while it loads. */
 const CARDS = {
     uptime: {
+        id: 'uptime-title',
         title: 'Uptime',
         hint: 'Checked every 10 minutes; two failures in a row emails you. The app pages are linked from the App Store and Google Play.',
     },
     lighthouse: {
+        id: 'lighthouse-title',
         title: 'Lighthouse',
         hint: 'Run daily from 03:00 UTC with PageSpeed Insights, or now. 90 and over is good; the timings show why a score moved.',
     },
-    deploys: { title: 'Deploys', hint: 'The last 20 Netlify deploys of this site, newest first.' },
+    deploys: {
+        id: 'deploys-title',
+        title: 'Deploys',
+        hint: 'The last 20 Netlify deploys of this site, newest first.',
+    },
     forms: {
+        id: 'forms-title',
         title: 'Forms',
         hint: 'Posts per day over 30 days. Counts only: nothing about who sent them is kept.',
     },
 };
+
+const CARD_IDS = Object.values(CARDS).map((card) => card.id);
 
 /** The page as it will look, while its data loads the first time. */
 const WebsiteSkeleton = () => (
@@ -124,7 +134,14 @@ export const Website = () => {
         <>
             <AdminMeta title='Website' />
             <Section tone='light' spacing='md' labelledBy='website-title'>
-                <Header aside={<Refresh loaded={loaded} cacheKey='website' />} />
+                <Header
+                    aside={
+                        <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+                            <Refresh loaded={loaded} cacheKey='website' />
+                            <CollapseAll ids={CARD_IDS} />
+                        </div>
+                    }
+                />
                 <Deferred loaded={loaded} fallback={<WebsiteSkeleton />}>
                     {(website) => (
                         <>
@@ -135,9 +152,16 @@ export const Website = () => {
                             ) : (
                                 <div className='flex flex-col gap-6'>
                                     <Card
-                                        id='uptime-title'
                                         {...CARDS.uptime}
                                         part={website.uptime}
+                                        summary={(checks) => {
+                                            const down = checks.filter(
+                                                (c) => c.latest && !c.latest.ok,
+                                            ).length;
+                                            return down
+                                                ? `${down} of ${checks.length} down`
+                                                : `All ${checks.length} up`;
+                                        }}
                                         empty={(checks) =>
                                             checks.every((c) => !c.latest)
                                                 ? 'No checks yet: the first runs within 10 minutes of deploying.'
@@ -193,9 +217,16 @@ export const Website = () => {
                                     </Card>
 
                                     <Card
-                                        id='lighthouse-title'
                                         {...CARDS.lighthouse}
                                         part={website.lighthouse}
+                                        summary={(rows) => {
+                                            const home = rows.find(
+                                                (r) => r.path === '/' && r.strategy === 'mobile',
+                                            )?.latest?.scores.performance;
+                                            return home === undefined || home === null
+                                                ? null
+                                                : `Home on mobile: performance ${home}`;
+                                        }}
                                     >
                                         {(rows) => (
                                             <LighthouseResults rows={rows} now={website.now} />
@@ -203,9 +234,13 @@ export const Website = () => {
                                     </Card>
 
                                     <Card
-                                        id='deploys-title'
                                         {...CARDS.deploys}
                                         part={website.deploys}
+                                        summary={(deploys) =>
+                                            deploys[0]
+                                                ? `Last: ${deployStatus(deploys[0].state).label.toLowerCase()}, ${dateTime.format(new Date(deploys[0].createdAt))}`
+                                                : null
+                                        }
                                         empty={(deploys) =>
                                             deploys.length ? null : 'No deploys yet.'
                                         }
@@ -225,7 +260,7 @@ export const Website = () => {
                                                                 href={deploy.adminUrl}
                                                                 target='_blank'
                                                                 rel='noreferrer'
-                                                                className='hover:underline underline-offset-4'
+                                                                className='link-highlight link-marked'
                                                             >
                                                                 {deploy.title ??
                                                                     deploy.commitRef?.slice(0, 7) ??
@@ -258,7 +293,18 @@ export const Website = () => {
                                         )}
                                     </Card>
 
-                                    <Card id='forms-title' {...CARDS.forms} part={website.forms}>
+                                    <Card
+                                        {...CARDS.forms}
+                                        part={website.forms}
+                                        summary={(stats) => {
+                                            const posts = (['contact', 'account-deletion'] as const)
+                                                .map((form) =>
+                                                    sum(lastDays(stats.forms[form].byDay, 30)),
+                                                )
+                                                .reduce((a, b) => a + b, 0);
+                                            return `${posts} ${posts === 1 ? 'post' : 'posts'} in 30 days`;
+                                        }}
+                                    >
                                         {(stats) => (
                                             <div className='grid gap-8 lg:grid-cols-2'>
                                                 {(['contact', 'account-deletion'] as const).map(

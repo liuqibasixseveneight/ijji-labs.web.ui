@@ -15,7 +15,8 @@ export const SignOutEverywhere = ({ className }: { className?: string }) => {
                 await signOut({ everywhere: true });
                 navigate(adminPaths.signIn, { replace: true });
             }}
-            className={clsx('text-sm underline-offset-4 hover:underline cursor-pointer', className)}
+            // Styled where it's used: as a text link on the Overview, as a header control.
+            className={clsx('text-sm cursor-pointer', className)}
         >
             Sign out everywhere
         </button>

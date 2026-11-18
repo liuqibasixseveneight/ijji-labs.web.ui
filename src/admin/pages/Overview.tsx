@@ -262,7 +262,7 @@ export const Overview = () => {
                 <p className='text-neutral-600 mb-10 flex flex-wrap gap-x-3 gap-y-1'>
                     <span>Signed in until {timeFormat.format(me.expiresAt)}.</span>
                     {/* In the header from sm up. */}
-                    <SignOutEverywhere className='sm:hidden font-semibold text-neutral-800' />
+                    <SignOutEverywhere className='sm:hidden link-highlight link-marked' />
                 </p>
 
                 {/* Every card the same size: equal columns, and equal rows (auto-rows-fr). */}
