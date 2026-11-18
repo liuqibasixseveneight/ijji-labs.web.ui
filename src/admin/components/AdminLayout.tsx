@@ -60,15 +60,22 @@ export const AdminLayout = () => {
                 </div>
 
                 <nav aria-label='Admin' className='max-w-380 mx-auto px-4 sm:px-6 md:px-8'>
-                    <ul className='flex gap-6'>
+                    <ul className='flex gap-5 sm:gap-6 whitespace-nowrap'>
                         <li>
                             <NavLink to={adminPaths.overview} end className={navLink}>
                                 Overview
                             </NavLink>
                         </li>
                         <li>
+                            <NavLink to={adminPaths.website} className={navLink}>
+                                Website
+                            </NavLink>
+                        </li>
+                        <li>
                             <NavLink to={adminPaths.deletionRequests} className={navLink}>
-                                Deletion requests
+                                {/* Shorter on phones, so the three links fit one row. */}
+                                <span className='sm:hidden'>Deletions</span>
+                                <span className='hidden sm:inline'>Deletion requests</span>
                                 {/* The spaces keep it "Deletion requests 2 open" for screen readers. */}
                                 {openCount > 0 && ' '}
                                 {openCount > 0 && (

@@ -9,6 +9,16 @@ vi.mock('resend', () => ({
     },
 }));
 
+const blobs = vi.hoisted(() => ({
+    current: null as null | ReturnType<typeof import('../../shared/admin/testing.ts').memoryBlobs>,
+}));
+vi.mock('../../shared/blobs.ts', () => ({
+    connectBlobs: () => {},
+    store: () => blobs.current!.store(),
+}));
+
+import { memoryBlobs } from '../../shared/admin/testing.ts';
+import { readFormStats } from '../../shared/formStats.ts';
 import { handler } from './contact.ts';
 import { escapeHtml } from '../../shared/email.ts';
 import { buildEnquiryEmail } from './enquiryEmail.ts';
@@ -33,6 +43,7 @@ const call = async (body: unknown, httpMethod = 'POST') => {
 
 describe('the contact function', () => {
     beforeEach(() => {
+        blobs.current = memoryBlobs();
         send.mockReset().mockResolvedValue({ data: { id: '1' }, error: null });
         process.env.CONTACT_EMAIL_FROM = 'site@example.com';
         process.env.CONTACT_EMAIL_TO = 'hello@example.com';
@@ -97,6 +108,20 @@ describe('the contact function', () => {
 
         expect(result.statusCode).toBe(500);
         expect(JSON.parse(result.body).error).toBe('Failed to send — please try again.');
+    });
+
+    it('counts how each post went, for the dashboard, and nothing about who sent it', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        await call(valid);
+        await call({ ...valid, email: 'nope' });
+        await call({ ...valid, website: 'http://spam.example' });
+        await call(valid, 'GET'); // not a post: not counted
+        send.mockResolvedValue({ data: null, error: { message: 'down' } });
+        await call(valid);
+
+        const { total } = (await readFormStats()).forms.contact;
+        expect(total).toEqual({ sent: 1, invalid: 1, bot: 1, failed: 1 });
+        expect([...blobs.current!.data.keys()].join()).not.toContain('@');
     });
 });
 
