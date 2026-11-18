@@ -11,6 +11,7 @@ import { TextInput } from '../../components/ui/atoms/TextInput/TextInput.tsx';
 import { FormError } from '../../components/ui/molecules/FormStatus/FormStatus.tsx';
 import { signIn, type Enrolment } from '../api.ts';
 import { AdminMeta } from '../components/AdminMeta.tsx';
+import { SignInNavbar } from '../components/AdminNavbar.tsx';
 import { signInSchema, type SignInData } from '../schema.ts';
 
 /**
@@ -41,10 +42,12 @@ export const SignIn = () => {
     };
 
     return (
-        <>
+        // The page's full height in white, as the dashboard's frame is.
+        <div className='min-h-svh flex flex-col bg-white'>
             <AdminMeta title='Sign in' />
 
-            <main id='main' className='min-h-svh flex flex-col bg-white'>
+            <SignInNavbar />
+            <main id='main' className='flex-1 flex flex-col bg-white'>
                 <Section tone='light' width='text' spacing='lg' labelledBy='sign-in-title'>
                     <div className='w-full max-w-md mx-auto'>
                         <h1 id='sign-in-title' className='text-4xl font-extrabold mb-2'>
@@ -130,6 +133,6 @@ export const SignIn = () => {
                     </div>
                 </Section>
             </main>
-        </>
+        </div>
     );
 };

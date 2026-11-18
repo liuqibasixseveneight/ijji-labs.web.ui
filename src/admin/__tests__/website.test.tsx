@@ -4,7 +4,10 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { axeViolations } from '../../test/axe.ts';
+import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 import { adminRoutes } from '../routes.tsx';
+import { sectionLink } from './menu.ts';
 import {
     deployStatus,
     describeMetrics,
@@ -13,6 +16,13 @@ import {
     type Counts,
     type Website,
 } from '../website.ts';
+
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 const NOW = Date.UTC(2026, 10, 20, 12);
 const DAY = 24 * 60 * 60 * 1000;
@@ -190,18 +200,15 @@ describe('the website page', () => {
             await screen.findByRole('heading', { level: 1, name: 'Website' }),
         ).toBeInTheDocument();
         expect(document.title).toBe('Website · Admin · ijji labs');
-        expect(
-            within(screen.getByRole('navigation', { name: 'Admin' })).getByRole('link', {
-                name: 'Website',
-            }),
-        ).toHaveAttribute('aria-current', 'page');
         expect(await axeViolations(container)).toEqual([]);
+        // In the menu, marked as the page you're on.
+        expect(await sectionLink('Website')).toHaveAttribute('aria-current', 'page');
     });
 
     it('shows each page as up or down, with its uptime and recent checks', async () => {
         api(website());
         renderAdmin('/website');
-        await screen.findByRole('heading', { name: 'Uptime' });
+        await screen.findByRole('region', { name: 'Uptime' });
 
         const [home, privacy] = section('Uptime').getAllByRole('listitem');
         expect(home).toHaveTextContent('Up');
@@ -216,7 +223,7 @@ describe('the website page', () => {
     it('shows each page’s Lighthouse results: a ring, the other scores, plain-English timings and the trend', async () => {
         api(website());
         renderAdmin('/website');
-        await screen.findByRole('heading', { name: 'Lighthouse' });
+        await screen.findByRole('region', { name: 'Lighthouse' });
 
         // The page's block is named by its heading ("Home /"); its panels by page and device.
         const home = within(section('Lighthouse').getByRole('region', { name: 'Home /' }));
@@ -262,9 +269,7 @@ describe('the website page', () => {
             return Response.json({});
         });
         renderAdmin('/website');
-        const lighthouse = within(
-            (await screen.findByRole('heading', { name: 'Lighthouse' })).closest('section')!,
-        );
+        const lighthouse = within(await screen.findByRole('region', { name: 'Lighthouse' }));
 
         await user.click(lighthouse.getByRole('button', { name: 'Run all now' }));
 
@@ -308,9 +313,11 @@ describe('the website page', () => {
         expect(
             await panel.findByText('PageSpeed Insights’ quota is used up for now.'),
         ).toBeInTheDocument();
-        expect(screen.getByRole('status')).toHaveTextContent(
-            'That didn’t run: the panel says why.',
-        );
+        expect(
+            within(screen.getByRole('region', { name: 'Lighthouse' })).getByText(
+                'That didn’t run: the panel says why.',
+            ),
+        ).toHaveAttribute('role', 'status');
         // It can be tried again.
         expect(panel.getByRole('button', { name: 'Run Home, desktop' })).toBeEnabled();
     });
@@ -332,7 +339,7 @@ describe('the website page', () => {
     it('lists deploys with their state, linking to Netlify', async () => {
         api(website());
         renderAdmin('/website');
-        await screen.findByRole('heading', { name: 'Deploys' });
+        await screen.findByRole('region', { name: 'Deploys' });
 
         const [published, failed] = section('Deploys').getAllByRole('listitem');
         expect(published).toHaveTextContent('Published');
@@ -348,7 +355,7 @@ describe('the website page', () => {
     it('counts form posts for the last week and month, with a table behind the chart', async () => {
         api(website());
         renderAdmin('/website');
-        await screen.findByRole('heading', { name: 'Forms' });
+        await screen.findByRole('region', { name: 'Forms' });
 
         const forms = section('Forms');
         expect(forms.getByText('Last 7 days; 9 posts in 30 days.')).toBeInTheDocument();
@@ -381,7 +388,7 @@ describe('the website page', () => {
             }),
         );
         renderAdmin('/website');
-        await screen.findByRole('heading', { name: 'Deploys' });
+        await screen.findByRole('region', { name: 'Deploys' });
 
         expect(
             section('Deploys').getByText('NETLIFY_API_TOKEN isn’t set in Netlify yet.'),
@@ -398,7 +405,7 @@ describe('the website page', () => {
         api(null);
         renderAdmin('/website');
         expect(
-            await screen.findByText('Couldn’t load the website’s data. Reload to try again.'),
+            await screen.findByText('Couldn’t load the website’s data. Refresh to try again.'),
         ).toBeInTheDocument();
     });
 });
@@ -409,8 +416,13 @@ describe('the website card on the Overview', () => {
         vi.restoreAllMocks();
     });
 
-    const card = async () =>
-        within(within(await screen.findByRole('main')).getByRole('link', { name: /^Website/ }));
+    // The card shows at once with placeholder lines, then is drawn again with its data.
+    const card = async () => {
+        await screen.findByRole('main');
+        const link = () => within(screen.getByRole('main')).getByRole('link', { name: /^Website/ });
+        await waitFor(() => expect(link()).not.toHaveTextContent('Loading…'));
+        return within(link());
+    };
 
     it('says how many pages are down, the last deploy and the mobile score', async () => {
         api(website());
@@ -428,6 +440,8 @@ describe('the website card on the Overview', () => {
         const { unmount } = renderAdmin('/');
         expect((await card()).getByText('All up')).toBeInTheDocument();
         unmount();
+        // A minute's cache would show the same data again: start afresh.
+        clearCache();
 
         api(website({ uptime: { data: [], error: null }, deploys: { data: null, error: 'x' } }));
         renderAdmin('/');

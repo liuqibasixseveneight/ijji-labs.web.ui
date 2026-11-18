@@ -6,4 +6,5 @@ export const adminPaths = {
     deletionRequest: (id: string) => `/deletion-requests/${id}`,
     website: '/website',
     supabase: '/supabase',
+    app: '/ijji-tracker',
 } as const;

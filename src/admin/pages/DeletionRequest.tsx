@@ -40,9 +40,9 @@ const dateTimeFormat = new Intl.DateTimeFormat('en-GB', {
 const BackLink = () => (
     <Link
         to={adminPaths.deletionRequests}
-        className='inline-flex items-center gap-1 text-sm font-semibold text-neutral-700 hover:text-neutral-900 hover:underline underline-offset-4 mb-6'
+        className='inline-block text-sm mb-6 link-highlight link-marked'
     >
-        <span aria-hidden='true'>←</span> All deletion requests
+        <span aria-hidden='true'>← </span>All deletion requests
     </Link>
 );
 

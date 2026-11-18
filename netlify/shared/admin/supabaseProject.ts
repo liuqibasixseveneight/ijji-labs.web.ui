@@ -1,4 +1,5 @@
 import { z } from '../../../src/lib/zod.ts';
+import { scrub } from './scrub.ts';
 
 // IJJI Tracker's two Supabase projects, as the admin functions see them: production and
 // develop, each with its URL, service key and Management API access token (all secret,
@@ -109,11 +110,8 @@ export type DatabaseStats = {
 };
 
 const rpc = async (project: Project, name: 'admin_stats' | 'admin_db_stats', body: object) => {
-    if (!project.key) {
-        throw new Error(
-            `SUPABASE_${project.env.toUpperCase()}_SERVICE_KEY isn’t set in Netlify yet.`,
-        );
-    }
+    const keyName = `SUPABASE_${project.env.toUpperCase()}_SERVICE_KEY`;
+    if (!project.key) throw new Error(`${keyName} isn’t set in Netlify yet.`);
     const response = await fetch(`${project.url}/rest/v1/rpc/${name}`, {
         method: 'POST',
         headers: {
@@ -125,16 +123,43 @@ const rpc = async (project: Project, name: 'admin_stats' | 'admin_db_stats', bod
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(10_000),
     });
-    if (response.status === 404) {
-        throw new Error(`${name}() isn’t in this project yet: apply the admin_stats migration.`);
+    if (response.ok) return response.json();
+
+    // PostgREST says what went wrong as { code, message }: say it in words that point to the fix.
+    const error = (await response.json().catch(() => ({}))) as {
+        code?: unknown;
+        message?: unknown;
+    };
+    const code = typeof error.code === 'string' ? error.code : null;
+    console.error(`Supabase ${name}() answered ${response.status}`, code ?? '');
+    if (response.status === 404 || code === 'PGRST202') {
+        throw new Error(
+            `${name}() isn’t in this project yet: apply the admin_stats migration (npx supabase db push).`,
+        );
     }
-    if (!response.ok) throw new Error(`Supabase answered ${response.status}`);
-    return response.json();
+    if (response.status === 401 || response.status === 403 || code === '42501') {
+        throw new Error(
+            `Supabase refused the key: check ${keyName} is this project’s secret (service_role) key, not its publishable (anon) key.`,
+        );
+    }
+    const detail = typeof error.message === 'string' ? `: ${scrub(error.message, 160)}` : '';
+    throw new Error(`Supabase answered ${response.status}${code ? ` (${code})` : ''}${detail}`);
+};
+
+/** Checks a reply's shape, saying which part was off rather than throwing zod's details. */
+const shaped = <T>(schema: z.ZodType<T>, value: unknown, name: string): T => {
+    const result = schema.safeParse(value);
+    if (result.success) return result.data;
+    const where = result.error.issues[0]?.path.join('.') || 'the reply';
+    console.error(`Supabase ${name}() answered in an unexpected shape at`, where);
+    throw new Error(
+        `${name}() answered in an unexpected shape (at ${where}): is the migration up to date?`,
+    );
 };
 
 /** Users, sign-ups and sessions, as counts. The admin's own accounts are left out. */
 export const usageStats = async (project: Project, exclude: string[]): Promise<UsageStats> => {
-    const s = statsSchema.parse(await rpc(project, 'admin_stats', { exclude }));
+    const s = shaped(statsSchema, await rpc(project, 'admin_stats', { exclude }), 'admin_stats');
     return {
         from: s.from,
         users: s.users,
@@ -149,7 +174,7 @@ export const usageStats = async (project: Project, exclude: string[]): Promise<U
 
 /** The database's size against the free plan's limit, its tables, and its migrations. */
 export const databaseStats = async (project: Project): Promise<DatabaseStats> => {
-    const d = dbSchema.parse(await rpc(project, 'admin_db_stats', {}));
+    const d = shaped(dbSchema, await rpc(project, 'admin_db_stats', {}), 'admin_db_stats');
     return {
         bytes: d.database_bytes,
         limitBytes: FREE_DATABASE_BYTES,
