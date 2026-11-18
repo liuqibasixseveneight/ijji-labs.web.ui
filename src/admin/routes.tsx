@@ -1,6 +1,12 @@
 import { redirect, type ActionFunctionArgs, type RouteObject } from 'react-router-dom';
 
-import { changeDeletionRequest, getDeletionRequests, getMe, getWebsite } from './api.ts';
+import {
+    changeDeletionRequest,
+    getDeletionRequests,
+    getMe,
+    getSupabase,
+    getWebsite,
+} from './api.ts';
 import { AdminLayout } from './components/AdminLayout.tsx';
 import { STATUSES, type Status } from './deletionRequests.ts';
 import { adminPaths } from './paths.ts';
@@ -9,6 +15,8 @@ import { DeletionRequest } from './pages/DeletionRequest.tsx';
 import { DeletionRequests } from './pages/DeletionRequests.tsx';
 import { Overview } from './pages/Overview.tsx';
 import { SignIn } from './pages/SignIn.tsx';
+import { Supabase } from './pages/Supabase.tsx';
+import { environmentFrom } from './supabase.ts';
 import { Website } from './pages/Website.tsx';
 
 /**
@@ -22,6 +30,14 @@ export const requireAdmin = async () => {
 };
 
 export type AdminData = Awaited<ReturnType<typeof requireAdmin>>;
+
+/** The Overview's cards: the website, and the production Supabase project. */
+export const loadOverview = async () => {
+    const [website, supabase] = await Promise.all([getWebsite(), getSupabase('prod')]);
+    return { website, supabase };
+};
+
+export type OverviewData = Awaited<ReturnType<typeof loadOverview>>;
 
 /** Saves a status change from the deletion requests page; the page reloads its data after. */
 export const changeDeletionRequestAction = async ({ request }: ActionFunctionArgs) => {
@@ -49,9 +65,14 @@ export const adminRoutes: RouteObject[] = [
         loader: requireAdmin,
         element: <AdminLayout />,
         children: [
-            // The Overview and Website pages load the website's data; other pages don't.
-            { index: true, element: <Overview />, loader: getWebsite },
+            { index: true, element: <Overview />, loader: loadOverview },
             { path: adminPaths.website.slice(1), element: <Website />, loader: getWebsite },
+            {
+                // ?env=dev for the develop project; production otherwise.
+                path: adminPaths.supabase.slice(1),
+                element: <Supabase />,
+                loader: ({ request }) => getSupabase(environmentFrom(new URL(request.url).search)),
+            },
             {
                 path: adminPaths.deletionRequests.slice(1),
                 element: <DeletionRequests />,

@@ -5,4 +5,5 @@ export const adminPaths = {
     deletionRequests: '/deletion-requests',
     deletionRequest: (id: string) => `/deletion-requests/${id}`,
     website: '/website',
+    supabase: '/supabase',
 } as const;

@@ -7,17 +7,13 @@ import { AdminMeta } from '../components/AdminMeta.tsx';
 import { SignOutEverywhere } from '../components/SignOutEverywhere.tsx';
 import { daysLeft, describeDaysLeft, OPEN, urgency } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
-import type { AdminData } from '../routes.tsx';
+import type { AdminData, OverviewData } from '../routes.tsx';
+import { lastDaysOf, projectState } from '../supabase.ts';
 import { StatusBadge } from '../components/website/charts.tsx';
-import { deployStatus, scoreLevel, SCORE_LABELS, type Website } from '../website.ts';
+import { deployStatus, scoreLevel, SCORE_LABELS } from '../website.ts';
 
 /** The sections still to come, as each step of the dashboard is built. */
 const COMING = [
-    {
-        title: 'Supabase',
-        description:
-            'Users, sign-ups, database health, errors and advisors, for production and develop.',
-    },
     {
         title: 'IJJI Tracker',
         description: 'EAS builds and store submissions.',
@@ -80,7 +76,7 @@ const DeletionRequestsCard = () => {
 
 /** The website at a glance: are the pages up, the last deploy, the home page's mobile score. */
 const WebsiteCard = () => {
-    const website = useLoaderData() as Website | null;
+    const { website } = useLoaderData() as OverviewData;
     const checks = website?.uptime.data?.filter((c) => c.latest) ?? [];
     const down = checks.filter((c) => !c.latest!.ok);
     const deploy = website?.deploys.data?.[0];
@@ -148,6 +144,85 @@ const WebsiteCard = () => {
     );
 };
 
+/** Production Supabase at a glance: is it up, how many people, anything the advisor flags. */
+const SupabaseCard = () => {
+    const { supabase } = useLoaderData() as OverviewData;
+    const project = supabase?.project.data;
+    const usage = supabase?.usage.data;
+    const flagged = supabase?.security.data?.filter((lint) => lint.level !== 'INFO') ?? [];
+    const state = project ? projectState(project.status) : null;
+    const urgent = state?.level === 'critical' || flagged.some((lint) => lint.level === 'ERROR');
+
+    return (
+        <Link to={adminPaths.supabase} className='group block h-full'>
+            <ArtisticFrame
+                cutSize={28}
+                className={clsx(
+                    frame,
+                    urgent
+                        ? 'bg-red-100 group-hover:bg-red-200'
+                        : 'group-hover:bg-brand-primary group-focus-visible:bg-brand-primary',
+                )}
+            >
+                <div className={card}>
+                    <h2 className='text-lg font-bold flex items-center justify-between gap-4'>
+                        Supabase
+                        <span
+                            aria-hidden='true'
+                            className='transition-transform group-hover:translate-x-1'
+                        >
+                            →
+                        </span>
+                    </h2>
+                    {!supabase ? (
+                        <p className='text-neutral-700'>
+                            Couldn’t load it. Open the page to try again.
+                        </p>
+                    ) : (
+                        <ul className='flex flex-col gap-2 text-neutral-800'>
+                            <li className='flex flex-wrap items-center gap-2'>
+                                {state ? (
+                                    <StatusBadge {...state} />
+                                ) : (
+                                    <StatusBadge level='neutral' label='Not set up' />
+                                )}
+                                <span>Production</span>
+                            </li>
+                            {usage && (
+                                <li>
+                                    <span className='font-bold'>
+                                        {usage.users.toLocaleString('en-GB')}
+                                    </span>{' '}
+                                    {usage.users === 1 ? 'account' : 'accounts'},{' '}
+                                    {lastDaysOf(usage.signupsByDay, 7).toLocaleString('en-GB')} new
+                                    this week
+                                </li>
+                            )}
+                            {supabase.security.data && (
+                                <li className='flex flex-wrap items-center gap-2'>
+                                    {flagged.length ? (
+                                        <StatusBadge
+                                            level={
+                                                flagged.some((lint) => lint.level === 'ERROR')
+                                                    ? 'critical'
+                                                    : 'warning'
+                                            }
+                                            label={`${flagged.length} to look at`}
+                                        />
+                                    ) : (
+                                        <StatusBadge level='good' label='Nothing flagged' />
+                                    )}
+                                    <span>Security Advisor</span>
+                                </li>
+                            )}
+                        </ul>
+                    )}
+                </div>
+            </ArtisticFrame>
+        </Link>
+    );
+};
+
 /** The dashboard's home: what needs doing, and the sections still to come. */
 export const Overview = () => {
     const { me } = useRouteLoaderData('admin') as AdminData;
@@ -173,6 +248,9 @@ export const Overview = () => {
                     </li>
                     <li>
                         <WebsiteCard />
+                    </li>
+                    <li>
+                        <SupabaseCard />
                     </li>
                     {COMING.map(({ title, description }) => (
                         <li key={title}>
