@@ -1,23 +1,18 @@
 import type { ReactNode } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { clsx } from 'clsx';
 
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
 import { panel } from '../components/styles.ts';
-import { FormBars, Sparkline, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
+import { FormBars, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
+import { LighthouseResults } from '../components/website/Lighthouse.tsx';
 import { Row } from '../components/website/Row.tsx';
 import {
-    CATEGORIES,
-    CATEGORY_LABELS,
     deployStatus,
-    describeMetrics,
     FORM_LABELS,
     lastDays,
     OUTCOME_LABELS,
     OUTCOMES,
-    SCORE_LABELS,
-    scoreLevel,
     sum,
     type Part,
     type Website as WebsiteData,
@@ -29,7 +24,6 @@ const dateTime = new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
 });
-const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
 
 /**
  * A card on the page: its title, a line on what it shows, and either its contents or why its
@@ -75,25 +69,6 @@ const Card = <T,>({
 
 /** A tile's label: tighter than the eyebrow, so "Accessibility" fits a phone-width tile. */
 const tileLabel = 'text-[11px] font-bold tracking-wide uppercase text-neutral-600';
-
-/** A Lighthouse category's score, its band in words, as a small tile. */
-const ScoreTile = ({ label, score }: { label: string; score: number | null }) => (
-    <div className='rounded-xl bg-neutral-50 border border-neutral-200 p-3 flex flex-col gap-1.5'>
-        <span className={tileLabel}>{label}</span>
-        {score === null ? (
-            <span className='text-2xl font-extrabold text-neutral-500'>—</span>
-        ) : (
-            <>
-                <span className='text-2xl font-extrabold leading-none'>{score}</span>
-                <StatusBadge
-                    level={scoreLevel(score)}
-                    label={SCORE_LABELS[scoreLevel(score)]}
-                    className='self-start'
-                />
-            </>
-        )}
-    </div>
-);
 
 /**
  * The website at a glance: whether the key pages (including the store-listed app pages) are
@@ -171,87 +146,10 @@ export const Website = () => {
                         <Card
                             id='lighthouse-title'
                             title='Lighthouse'
-                            hint='Run daily from 03:00 UTC with PageSpeed Insights. 90 and over is good; the timings say why a score moved.'
+                            hint='Run daily from 03:00 UTC with PageSpeed Insights, or now. 90 and over is good; the timings show why a score moved.'
                             part={website.lighthouse}
-                            empty={(rows) =>
-                                rows.every((r) => !r.latest)
-                                    ? 'No scores yet: the first runs at 03:00 UTC.'
-                                    : null
-                            }
                         >
-                            {(rows) => (
-                                <ul className='divide-y divide-neutral-200'>
-                                    {rows.map((row) => {
-                                        const performance = row.history
-                                            .map((entry) => entry.scores.performance)
-                                            .filter((value): value is number => value !== null);
-                                        return (
-                                            <Row
-                                                key={`${row.path}-${row.strategy}`}
-                                                badge={
-                                                    <StatusBadge
-                                                        level='neutral'
-                                                        label={
-                                                            row.strategy === 'mobile'
-                                                                ? 'Mobile'
-                                                                : 'Desktop'
-                                                        }
-                                                    />
-                                                }
-                                                title={row.page}
-                                                meta={[
-                                                    row.latest
-                                                        ? `Run ${day.format(row.latest.at)}`
-                                                        : 'Not run yet',
-                                                    ...describeMetrics(row.latest?.metrics).map(
-                                                        (fact) => (
-                                                            <span
-                                                                className={clsx(
-                                                                    !fact.good &&
-                                                                        'font-semibold text-red-800',
-                                                                )}
-                                                            >
-                                                                {fact.label} {fact.value}
-                                                                {!fact.good && (
-                                                                    <span className='sr-only'>
-                                                                        {' '}
-                                                                        (slow)
-                                                                    </span>
-                                                                )}
-                                                            </span>
-                                                        ),
-                                                    ),
-                                                ]}
-                                                aside={
-                                                    performance.length > 1 && (
-                                                        <figure className='flex flex-col gap-1'>
-                                                            <Sparkline
-                                                                label={`${row.page}, ${row.strategy}, performance over 30 days`}
-                                                                values={performance}
-                                                            />
-                                                            <figcaption className='text-xs text-neutral-600'>
-                                                                Performance, 30 days
-                                                            </figcaption>
-                                                        </figure>
-                                                    )
-                                                }
-                                            >
-                                                <div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
-                                                    {CATEGORIES.map((category) => (
-                                                        <ScoreTile
-                                                            key={category}
-                                                            label={CATEGORY_LABELS[category]}
-                                                            score={
-                                                                row.latest?.scores[category] ?? null
-                                                            }
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </Row>
-                                        );
-                                    })}
-                                </ul>
-                            )}
+                            {(rows) => <LighthouseResults rows={rows} now={website.now} />}
                         </Card>
 
                         <Card
