@@ -11,6 +11,8 @@ import { COMBOS, fetchScores, KEEP, readScores, saveScores } from './lighthouse.
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 10, 20, 3);
 const SCORES = { performance: 92, accessibility: 100, 'best-practices': 100, seo: 100 };
+const METRICS = { fcp: 1800, lcp: 1800, tbt: 1180, cls: 0, si: 6300 };
+const RESULT = { scores: SCORES, metrics: METRICS };
 
 describe('Lighthouse scores', () => {
     beforeEach(() => {
@@ -36,16 +38,24 @@ describe('Lighthouse scores', () => {
                         accessibility: { score: 1 },
                         'best-practices': { score: null },
                     },
+                    audits: {
+                        'first-contentful-paint': { numericValue: 1812.4 },
+                        'total-blocking-time': { numericValue: 1180.2 },
+                        'cumulative-layout-shift': { numericValue: 0.00412 },
+                    },
                 },
             }),
         );
         vi.stubGlobal('fetch', fetch);
 
         expect(await fetchScores('https://ijji-labs.com/', 'mobile', 'KEY')).toEqual({
-            performance: 92,
-            accessibility: 100,
-            'best-practices': null,
-            seo: null,
+            scores: {
+                performance: 92,
+                accessibility: 100,
+                'best-practices': null,
+                seo: null,
+            },
+            metrics: { fcp: 1812, lcp: null, tbt: 1180, cls: 0.004, si: null },
         });
 
         const url = (fetch.mock.calls[0] as unknown as [URL])[0];
@@ -69,12 +79,20 @@ describe('Lighthouse scores', () => {
     });
 
     it('keep one entry a day, the latest, for 30 days', async () => {
-        for (let i = 35; i >= 0; i--) await saveScores('home-mobile', SCORES, NOW - i * DAY);
-        await saveScores('home-mobile', { ...SCORES, performance: 80 }, NOW + 60_000);
+        for (let i = 35; i >= 0; i--) await saveScores('home-mobile', RESULT, NOW - i * DAY);
+        await saveScores(
+            'home-mobile',
+            { scores: { ...SCORES, performance: 80 }, metrics: METRICS },
+            NOW + 60_000,
+        );
 
         const [home] = await readScores();
         expect(home.history).toHaveLength(KEEP);
-        expect(home.latest).toMatchObject({ date: '2026-11-20', scores: { performance: 80 } });
+        expect(home.latest).toMatchObject({
+            date: '2026-11-20',
+            scores: { performance: 80 },
+            metrics: { tbt: 1180 },
+        });
         expect(home).toMatchObject({ page: 'Home', path: '/', strategy: 'mobile' });
     });
 

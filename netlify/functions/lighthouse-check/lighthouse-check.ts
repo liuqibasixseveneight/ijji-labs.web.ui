@@ -28,13 +28,13 @@ export default async (_request: Request, context: Context) => {
     }
 
     try {
-        const scores = await fetchScores(
+        const result = await fetchScores(
             new URL(page.path, base).toString(),
             strategy,
             process.env.PSI_API_KEY || undefined,
         );
-        await saveScores(key, scores, now.getTime());
-        console.log(`Lighthouse ${key}:`, JSON.stringify(scores));
+        await saveScores(key, result, now.getTime());
+        console.log(`Lighthouse ${key}:`, JSON.stringify(result));
     } catch (error) {
         // Logged, not thrown: the next morning tries again, and the dashboard shows the last.
         console.error(`Lighthouse ${key} failed:`, error);

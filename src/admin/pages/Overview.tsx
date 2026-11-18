@@ -166,7 +166,8 @@ export const Overview = () => {
                     <SignOutEverywhere className='sm:hidden font-semibold text-neutral-800' />
                 </p>
 
-                <ul className='grid gap-4 sm:grid-cols-2'>
+                {/* Every card the same size: equal columns, and equal rows (auto-rows-fr). */}
+                <ul className='grid gap-4 sm:grid-cols-2 auto-rows-fr'>
                     <li>
                         <DeletionRequestsCard />
                     </li>

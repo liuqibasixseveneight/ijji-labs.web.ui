@@ -4,12 +4,14 @@ import { clsx } from 'clsx';
 
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
-import { eyebrow, panel } from '../components/styles.ts';
+import { panel } from '../components/styles.ts';
 import { FormBars, Sparkline, StatusBadge, UptimeStrip } from '../components/website/charts.tsx';
+import { Row } from '../components/website/Row.tsx';
 import {
     CATEGORIES,
     CATEGORY_LABELS,
     deployStatus,
+    describeMetrics,
     FORM_LABELS,
     lastDays,
     OUTCOME_LABELS,
@@ -27,8 +29,12 @@ const dateTime = new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
 });
+const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
 
-/** A card with its title, and either its contents or why its data couldn't be loaded. */
+/**
+ * A card on the page: its title, a line on what it shows, and either its contents or why its
+ * data couldn't be had. Every card on the page is built from this, so they all look alike.
+ */
 const Card = <T,>({
     id,
     title,
@@ -47,13 +53,15 @@ const Card = <T,>({
     const emptyMessage = part.data !== null && empty ? empty(part.data) : null;
     return (
         <section aria-labelledby={id} className={panel}>
-            <h2 id={id} className='text-xl font-bold'>
-                {title}
-            </h2>
-            <p className='text-sm text-neutral-600 mb-5'>{hint}</p>
+            <header className='mb-5 pb-4 border-b border-neutral-200'>
+                <h2 id={id} className='text-xl font-bold'>
+                    {title}
+                </h2>
+                <p className='text-sm text-neutral-600 mt-1'>{hint}</p>
+            </header>
             {part.data === null ? (
-                <p className='text-neutral-700'>
-                    <StatusBadge level='warning' label='Not available' className='mr-2' />
+                <p className='flex flex-wrap items-center gap-2 text-neutral-700'>
+                    <StatusBadge level='warning' label='Not available' />
                     {part.error}
                 </p>
             ) : emptyMessage ? (
@@ -65,9 +73,31 @@ const Card = <T,>({
     );
 };
 
+/** A tile's label: tighter than the eyebrow, so "Accessibility" fits a phone-width tile. */
+const tileLabel = 'text-[11px] font-bold tracking-wide uppercase text-neutral-600';
+
+/** A Lighthouse category's score, its band in words, as a small tile. */
+const ScoreTile = ({ label, score }: { label: string; score: number | null }) => (
+    <div className='rounded-xl bg-neutral-50 border border-neutral-200 p-3 flex flex-col gap-1.5'>
+        <span className={tileLabel}>{label}</span>
+        {score === null ? (
+            <span className='text-2xl font-extrabold text-neutral-500'>—</span>
+        ) : (
+            <>
+                <span className='text-2xl font-extrabold leading-none'>{score}</span>
+                <StatusBadge
+                    level={scoreLevel(score)}
+                    label={SCORE_LABELS[scoreLevel(score)]}
+                    className='self-start'
+                />
+            </>
+        )}
+    </div>
+);
+
 /**
  * The website at a glance: whether the key pages (including the store-listed app pages) are
- * up, Lighthouse scores, Netlify deploys and how the forms are used.
+ * up, Lighthouse scores and timings, Netlify deploys and how the forms are used.
  */
 export const Website = () => {
     const website = useLoaderData() as WebsiteData | null;
@@ -90,7 +120,7 @@ export const Website = () => {
                         <Card
                             id='uptime-title'
                             title='Uptime'
-                            hint='Checked every 10 minutes. Two failures in a row emails you. The app pages are linked from the App Store and Google Play.'
+                            hint='Checked every 10 minutes; two failures in a row emails you. The app pages are linked from the App Store and Google Play.'
                             part={website.uptime}
                             empty={(checks) =>
                                 checks.every((c) => !c.latest)
@@ -101,44 +131,38 @@ export const Website = () => {
                             {(checks) => (
                                 <ul className='divide-y divide-neutral-200'>
                                     {checks.map((check) => (
-                                        <li
+                                        <Row
                                             key={check.path}
-                                            className='py-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center'
-                                        >
-                                            <div className='min-w-0'>
-                                                <div className='flex flex-wrap items-center gap-2'>
-                                                    {check.latest ? (
-                                                        <StatusBadge
-                                                            level={
-                                                                check.latest.ok
-                                                                    ? 'good'
-                                                                    : 'critical'
-                                                            }
-                                                            label={check.latest.ok ? 'Up' : 'Down'}
-                                                        />
-                                                    ) : (
-                                                        <StatusBadge
-                                                            level='neutral'
-                                                            label='Not checked'
-                                                        />
-                                                    )}
-                                                    <span className='font-semibold'>
-                                                        {check.name}
-                                                    </span>
-                                                </div>
-                                                <p className='text-sm text-neutral-600 mt-1'>
-                                                    {check.path}
-                                                    {check.uptime24h !== null &&
-                                                        ` · ${check.uptime24h}% over 24h · ${check.uptime7d}% over 7 days`}
-                                                    {check.averageMs24h !== null &&
-                                                        ` · ${check.averageMs24h} ms average`}
-                                                    {check.latest &&
-                                                        !check.latest.ok &&
-                                                        ` · last answer: ${check.latest.status || 'none'}`}
-                                                </p>
-                                            </div>
-                                            <UptimeStrip recent={check.recent} />
-                                        </li>
+                                            badge={
+                                                check.latest ? (
+                                                    <StatusBadge
+                                                        level={
+                                                            check.latest.ok ? 'good' : 'critical'
+                                                        }
+                                                        label={check.latest.ok ? 'Up' : 'Down'}
+                                                    />
+                                                ) : (
+                                                    <StatusBadge
+                                                        level='neutral'
+                                                        label='Not checked'
+                                                    />
+                                                )
+                                            }
+                                            title={check.name}
+                                            meta={[
+                                                check.path,
+                                                check.uptime24h !== null &&
+                                                    `${check.uptime24h}% over 24h`,
+                                                check.uptime7d !== null &&
+                                                    `${check.uptime7d}% over 7 days`,
+                                                check.averageMs24h !== null &&
+                                                    `${check.averageMs24h} ms average`,
+                                                check.latest &&
+                                                    !check.latest.ok &&
+                                                    `last answer: ${check.latest.status || 'none'}`,
+                                            ]}
+                                            aside={<UptimeStrip recent={check.recent} />}
+                                        />
                                     ))}
                                 </ul>
                             )}
@@ -147,7 +171,7 @@ export const Website = () => {
                         <Card
                             id='lighthouse-title'
                             title='Lighthouse'
-                            hint='Run daily from 03:00 UTC with PageSpeed Insights. 90 and over is good.'
+                            hint='Run daily from 03:00 UTC with PageSpeed Insights. 90 and over is good; the timings say why a score moved.'
                             part={website.lighthouse}
                             empty={(rows) =>
                                 rows.every((r) => !r.latest)
@@ -156,87 +180,77 @@ export const Website = () => {
                             }
                         >
                             {(rows) => (
-                                <div className='overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0'>
-                                    <table className='w-full min-w-[40rem] text-sm'>
-                                        <thead>
-                                            <tr className='text-left'>
-                                                <th scope='col' className={clsx(eyebrow, 'pb-2')}>
-                                                    Page
-                                                </th>
-                                                {CATEGORIES.map((c) => (
-                                                    <th
-                                                        key={c}
-                                                        scope='col'
-                                                        className={clsx(eyebrow, 'pb-2')}
-                                                    >
-                                                        {CATEGORY_LABELS[c]}
-                                                    </th>
-                                                ))}
-                                                <th scope='col' className={clsx(eyebrow, 'pb-2')}>
-                                                    Performance, 30 days
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className='divide-y divide-neutral-200'>
-                                            {rows.map((row) => (
-                                                <tr key={`${row.path}-${row.strategy}`}>
-                                                    <th
-                                                        scope='row'
-                                                        className='py-3 pr-4 text-left font-semibold'
-                                                    >
-                                                        {row.page}
-                                                        <span className='block text-xs font-normal text-neutral-600'>
-                                                            {row.strategy === 'mobile'
+                                <ul className='divide-y divide-neutral-200'>
+                                    {rows.map((row) => {
+                                        const performance = row.history
+                                            .map((entry) => entry.scores.performance)
+                                            .filter((value): value is number => value !== null);
+                                        return (
+                                            <Row
+                                                key={`${row.path}-${row.strategy}`}
+                                                badge={
+                                                    <StatusBadge
+                                                        level='neutral'
+                                                        label={
+                                                            row.strategy === 'mobile'
                                                                 ? 'Mobile'
-                                                                : 'Desktop'}
-                                                            {row.latest && ` · ${row.latest.date}`}
-                                                        </span>
-                                                    </th>
-                                                    {CATEGORIES.map((c) => {
-                                                        const score = row.latest?.scores[c] ?? null;
-                                                        return (
-                                                            <td key={c} className='py-3 pr-4'>
-                                                                {score === null ? (
-                                                                    <span className='text-neutral-600'>
-                                                                        —
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className='flex flex-col items-start gap-1'>
-                                                                        <span className='text-lg font-bold'>
-                                                                            {score}
-                                                                        </span>
-                                                                        <StatusBadge
-                                                                            level={scoreLevel(
-                                                                                score,
-                                                                            )}
-                                                                            label={
-                                                                                SCORE_LABELS[
-                                                                                    scoreLevel(
-                                                                                        score,
-                                                                                    )
-                                                                                ]
-                                                                            }
-                                                                        />
+                                                                : 'Desktop'
+                                                        }
+                                                    />
+                                                }
+                                                title={row.page}
+                                                meta={[
+                                                    row.latest
+                                                        ? `Run ${day.format(row.latest.at)}`
+                                                        : 'Not run yet',
+                                                    ...describeMetrics(row.latest?.metrics).map(
+                                                        (fact) => (
+                                                            <span
+                                                                className={clsx(
+                                                                    !fact.good &&
+                                                                        'font-semibold text-red-800',
+                                                                )}
+                                                            >
+                                                                {fact.label} {fact.value}
+                                                                {!fact.good && (
+                                                                    <span className='sr-only'>
+                                                                        {' '}
+                                                                        (slow)
                                                                     </span>
                                                                 )}
-                                                            </td>
-                                                        );
-                                                    })}
-                                                    <td className='py-3'>
-                                                        <Sparkline
-                                                            label={`${row.page}, ${row.strategy}, performance over 30 days`}
-                                                            values={row.history
-                                                                .map((e) => e.scores.performance)
-                                                                .filter(
-                                                                    (v): v is number => v !== null,
-                                                                )}
+                                                            </span>
+                                                        ),
+                                                    ),
+                                                ]}
+                                                aside={
+                                                    performance.length > 1 && (
+                                                        <figure className='flex flex-col gap-1'>
+                                                            <Sparkline
+                                                                label={`${row.page}, ${row.strategy}, performance over 30 days`}
+                                                                values={performance}
+                                                            />
+                                                            <figcaption className='text-xs text-neutral-600'>
+                                                                Performance, 30 days
+                                                            </figcaption>
+                                                        </figure>
+                                                    )
+                                                }
+                                            >
+                                                <div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
+                                                    {CATEGORIES.map((category) => (
+                                                        <ScoreTile
+                                                            key={category}
+                                                            label={CATEGORY_LABELS[category]}
+                                                            score={
+                                                                row.latest?.scores[category] ?? null
+                                                            }
                                                         />
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                    ))}
+                                                </div>
+                                            </Row>
+                                        );
+                                    })}
+                                </ul>
                             )}
                         </Card>
 
@@ -249,53 +263,42 @@ export const Website = () => {
                         >
                             {(deploys) => (
                                 <ol className='divide-y divide-neutral-200'>
-                                    {deploys.map((deploy) => {
-                                        const status = deployStatus(deploy.state);
-                                        return (
-                                            <li
-                                                key={deploy.id}
-                                                className='py-3 flex flex-col gap-1'
-                                            >
-                                                <div className='flex flex-wrap items-center gap-2'>
-                                                    <StatusBadge
-                                                        level={status.level}
-                                                        label={status.label}
-                                                    />
-                                                    <a
-                                                        href={deploy.adminUrl}
-                                                        target='_blank'
-                                                        rel='noreferrer'
-                                                        className='font-semibold hover:underline underline-offset-4 [overflow-wrap:anywhere]'
-                                                    >
-                                                        {deploy.title ??
-                                                            deploy.commitRef?.slice(0, 7) ??
-                                                            deploy.id}
-                                                        <span className='sr-only'>
-                                                            {' '}
-                                                            (opens Netlify in a new tab)
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                                <p className='text-sm text-neutral-600'>
-                                                    {[
-                                                        deploy.context.replace(/-/g, ' '),
-                                                        deploy.branch,
-                                                        deploy.commitRef?.slice(0, 7),
-                                                        dateTime.format(new Date(deploy.createdAt)),
-                                                        deploy.deployTime !== null &&
-                                                            `${deploy.deployTime}s`,
-                                                    ]
-                                                        .filter(Boolean)
-                                                        .join(' · ')}
+                                    {deploys.map((deploy) => (
+                                        <Row
+                                            key={deploy.id}
+                                            badge={<StatusBadge {...deployStatus(deploy.state)} />}
+                                            title={
+                                                <a
+                                                    href={deploy.adminUrl}
+                                                    target='_blank'
+                                                    rel='noreferrer'
+                                                    className='hover:underline underline-offset-4'
+                                                >
+                                                    {deploy.title ??
+                                                        deploy.commitRef?.slice(0, 7) ??
+                                                        deploy.id}
+                                                    <span className='sr-only'>
+                                                        {' '}
+                                                        (opens Netlify in a new tab)
+                                                    </span>
+                                                </a>
+                                            }
+                                            meta={[
+                                                deploy.context.replace(/-/g, ' '),
+                                                deploy.branch,
+                                                deploy.commitRef?.slice(0, 7),
+                                                dateTime.format(new Date(deploy.createdAt)),
+                                                deploy.deployTime !== null &&
+                                                    `${deploy.deployTime}s`,
+                                            ]}
+                                        >
+                                            {deploy.errorMessage && (
+                                                <p className='text-sm text-red-800 [overflow-wrap:anywhere]'>
+                                                    {deploy.errorMessage}
                                                 </p>
-                                                {deploy.errorMessage && (
-                                                    <p className='text-sm text-red-800'>
-                                                        {deploy.errorMessage}
-                                                    </p>
-                                                )}
-                                            </li>
-                                        );
-                                    })}
+                                            )}
+                                        </Row>
+                                    ))}
                                 </ol>
                             )}
                         </Card>
@@ -313,12 +316,15 @@ export const Website = () => {
                                         const week = lastDays(byDay, 7);
                                         const month = lastDays(byDay, 30);
                                         return (
-                                            <div key={form} className='flex flex-col gap-4'>
+                                            <div key={form} className='flex flex-col gap-4 min-w-0'>
                                                 <h3 className='font-bold'>{FORM_LABELS[form]}</h3>
-                                                <dl className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+                                                <dl className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
                                                     {OUTCOMES.map((outcome) => (
-                                                        <div key={outcome}>
-                                                            <dt className={eyebrow}>
+                                                        <div
+                                                            key={outcome}
+                                                            className='rounded-xl bg-neutral-50 border border-neutral-200 p-3'
+                                                        >
+                                                            <dt className={tileLabel}>
                                                                 {OUTCOME_LABELS[outcome]}
                                                             </dt>
                                                             <dd className='text-2xl font-extrabold'>

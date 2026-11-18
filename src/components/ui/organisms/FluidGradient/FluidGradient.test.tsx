@@ -13,6 +13,10 @@ const scene = vi.hoisted(() => ({
 }));
 vi.mock('./utils/scene', () => scene);
 
+// jsdom has no WebGL: say what kind of renderer each test's device has.
+const renderer = vi.hoisted(() => ({ webglRenderer: vi.fn(() => 'hardware') }));
+vi.mock('./utils/renderer.ts', () => renderer);
+
 const setReducedMotion = (reduce: boolean) => {
     window.matchMedia = vi
         .fn()
@@ -93,4 +97,39 @@ describe('FluidGradient', () => {
 
         await vi.waitFor(() => expect(placeholder()).not.toBe(before));
     });
+
+    it.each(['software', 'none'])(
+        'keeps the still gradient when WebGL is %s (no graphics chip): no three.js, no blocking',
+        async (kind) => {
+            // Drawn on the CPU, the fluid blocked the main thread for seconds on Google's
+            // PageSpeed test phone (home mobile scored 69).
+            setReducedMotion(false);
+            renderer.webglRenderer.mockReturnValue(kind);
+            vi.useFakeTimers({ toFake: ['setTimeout', 'requestAnimationFrame'] });
+            const idle = window.requestIdleCallback;
+            // @ts-expect-error As on WebKit, so the start is timer-driven here.
+            delete window.requestIdleCallback;
+            vi.spyOn(window.IntersectionObserver.prototype, 'observe').mockImplementation(function (
+                this: IntersectionObserver,
+            ) {
+                (this as unknown as { callback: IntersectionObserverCallback }).callback(
+                    [{ isIntersecting: true } as IntersectionObserverEntry],
+                    this,
+                );
+            });
+
+            try {
+                render(<FluidGradient />);
+                await vi.advanceTimersToNextFrame();
+                await vi.advanceTimersToNextFrame();
+                await vi.advanceTimersByTimeAsync(300);
+                expect(renderer.webglRenderer).toHaveBeenCalled();
+                expect(scene.initializeScene).not.toHaveBeenCalled();
+            } finally {
+                window.requestIdleCallback = idle;
+                vi.useRealTimers();
+                renderer.webglRenderer.mockReturnValue('hardware');
+            }
+        },
+    );
 });
