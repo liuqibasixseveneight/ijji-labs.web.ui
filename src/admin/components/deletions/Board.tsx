@@ -7,12 +7,16 @@ import {
     daysLeft,
     describeDaysLeft,
     OPEN,
+    sortRequests,
     urgency,
     type DeletionRequest,
+    type Sort,
     type Status,
 } from '../../deletionRequests.ts';
 import { adminPaths } from '../../paths.ts';
 import { CopyButton } from '../CopyButton.tsx';
+import { secondaryAction } from '../styles.ts';
+import { Email } from '../Email.tsx';
 import { StatusSelect } from './StatusSelect.tsx';
 import { useMove } from './useMove.ts';
 
@@ -82,9 +86,9 @@ const Card = ({ request, now, moving }: CardProps) => {
                     <Link
                         to={adminPaths.deletionRequest(request.id)}
                         draggable={false}
-                        className="font-bold [overflow-wrap:anywhere] group-hover:underline underline-offset-4 after:absolute after:inset-0 after:content-['']"
+                        className="font-bold group-hover:underline underline-offset-4 after:absolute after:inset-0 after:content-['']"
                     >
-                        {request.email ?? 'Email removed'}
+                        {request.email ? <Email address={request.email} /> : 'Email removed'}
                     </Link>
                 </h3>
                 {request.email && (
@@ -122,16 +126,29 @@ const Card = ({ request, now, moving }: CardProps) => {
     );
 };
 
-type BoardProps = { requests: DeletionRequest[]; now: number };
+/** How many cards a column shows at first, and how many more each "Show more" adds. */
+export const PAGE_SIZE = 20;
+
+type BoardProps = {
+    requests: DeletionRequest[];
+    now: number;
+    sort: Sort;
+    /** A search is on: only columns with matches show. */
+    searching?: boolean;
+};
 
 /**
- * Every request as a card in its status's column. Move a card with its column select (any
+ * Every request as a card in its status's column, in the chosen order (closed columns latest
+ * first), the first {@link PAGE_SIZE} of each with a button to show more. Move a card with its column select (any
  * screen), or drag it to another column on a desktop; closing one asks first. On phones the
- * columns sit side by side and swipe, each nearly the screen's width.
+ * columns sit side by side and swipe, each nearly the screen's width; they snap to the
+ * page's 24px margin (scroll-padding), not the screen's edge.
  */
-export const Board = ({ requests, now }: BoardProps) => {
+export const Board = ({ requests, now, sort, searching = false }: BoardProps) => {
     const { move, pending } = useMove();
     const [over, setOver] = useState<Status | null>(null);
+    // How many cards each column shows: a long column doesn't render hundreds at once.
+    const [limits, setLimits] = useState<Partial<Record<Status, number>>>({});
 
     // A move in flight shows straight away in its new column.
     const shown = requests.map((request) =>
@@ -146,11 +163,29 @@ export const Board = ({ requests, now }: BoardProps) => {
         if (request && request.status !== status) move(id, status, { from: request.status });
     };
 
+    if (searching && !shown.length) {
+        return (
+            <p className='rounded-2xl bg-neutral-100 p-6 text-neutral-700'>
+                No requests match that search.
+            </p>
+        );
+    }
+
     return (
-        <div className='-mx-6 px-6 md:mx-0 md:px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 md:items-start md:overflow-visible md:pb-0'>
+        <div className='-mx-6 px-6 scroll-px-6 md:mx-0 md:px-0 md:scroll-px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 md:items-start md:overflow-visible md:pb-0'>
             {COLUMNS.map((column) => {
-                const cards = shown.filter((request) => request.status === column.status);
+                const cards = sortRequests(
+                    shown.filter((request) => request.status === column.status),
+                    sort,
+                );
+                const limit = limits[column.status] ?? PAGE_SIZE;
+                const visible = cards.slice(0, limit);
+                const hidden = cards.length - visible.length;
                 const headingId = `column-${column.status}`;
+
+                // While searching, only columns with matches: on a phone, the results are
+                // right there rather than in a column you'd have to swipe to.
+                if (searching && !cards.length) return null;
 
                 return (
                     <section
@@ -182,7 +217,7 @@ export const Board = ({ requests, now }: BoardProps) => {
 
                         {cards.length ? (
                             <ul className='flex flex-col gap-3'>
-                                {cards.map((request) => (
+                                {visible.map((request) => (
                                     <Card
                                         key={request.id}
                                         request={request}
@@ -193,6 +228,24 @@ export const Board = ({ requests, now }: BoardProps) => {
                             </ul>
                         ) : (
                             <p className='text-sm text-neutral-600 px-1 py-4'>None.</p>
+                        )}
+
+                        {hidden > 0 && (
+                            <button
+                                type='button'
+                                onClick={() =>
+                                    setLimits((current) => ({
+                                        ...current,
+                                        [column.status]: limit + PAGE_SIZE,
+                                    }))
+                                }
+                                className={secondaryAction}
+                            >
+                                Show {Math.min(hidden, PAGE_SIZE)} more{' '}
+                                <span className='font-normal text-neutral-600'>
+                                    ({hidden} hidden)
+                                </span>
+                            </button>
                         )}
                     </section>
                 );
