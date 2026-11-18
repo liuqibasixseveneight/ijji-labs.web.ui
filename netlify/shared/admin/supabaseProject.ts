@@ -1,7 +1,9 @@
 import { z } from '../../../src/lib/zod.ts';
 
 // IJJI Tracker's two Supabase projects, as the admin functions see them: production and
-// develop, each with its URL and service key (both secret, Functions scope only). The key is
+// develop, each with its URL, service key and Management API access token (all secret,
+// Functions scope only). Supabase's access tokens can be limited to one organisation, and
+// the two projects are in separate ones, so each has its own token. The key is
 // used for one thing: calling the counts-only admin_stats() and admin_db_stats() functions
 // (ijji-tracker.mobile: supabase/migrations/20261118120000_admin_stats.sql). Their results
 // are checked against a fixed shape and only those fields are passed on.
@@ -9,7 +11,15 @@ import { z } from '../../../src/lib/zod.ts';
 export const ENVIRONMENTS = ['prod', 'dev'] as const;
 export type Environment = (typeof ENVIRONMENTS)[number];
 
-export type Project = { env: Environment; url: string; ref: string; key: string | null };
+export type Project = {
+    env: Environment;
+    url: string;
+    ref: string;
+    key: string | null;
+    /** The project's Management API token, or null with `tokenName` saying what to set. */
+    token: string | null;
+    tokenName: string;
+};
 
 /** The free plan's database size limit, for the size meter. */
 export const FREE_DATABASE_BYTES = 500 * 1024 * 1024;
@@ -19,10 +29,10 @@ export const projectFor = (
     env: Environment,
     vars: Record<string, string | undefined> = process.env,
 ): Project | { error: string } => {
-    const [urlName, keyName] =
-        env === 'prod'
-            ? ['SUPABASE_PROD_URL', 'SUPABASE_PROD_SERVICE_KEY']
-            : ['SUPABASE_DEV_URL', 'SUPABASE_DEV_SERVICE_KEY'];
+    const prefix = env === 'prod' ? 'SUPABASE_PROD' : 'SUPABASE_DEV';
+    const urlName = `${prefix}_URL`;
+    const keyName = `${prefix}_SERVICE_KEY`;
+    const tokenName = `${prefix}_ACCESS_TOKEN`;
     const raw = vars[urlName];
     if (!raw) return { error: `${urlName} isn’t set in Netlify yet.` };
 
@@ -36,7 +46,15 @@ export const projectFor = (
     const ref = /^([a-z0-9]{20})\.supabase\.co$/.exec(url.hostname)?.[1];
     if (url.protocol !== 'https:' || !ref) return { error: `${urlName} isn’t a Supabase URL.` };
 
-    return { env, url: url.origin, ref, key: vars[keyName] || null };
+    return {
+        env,
+        url: url.origin,
+        ref,
+        key: vars[keyName] || null,
+        // One token for both still works, for an account-wide token.
+        token: vars[tokenName] || vars.SUPABASE_ACCESS_TOKEN || null,
+        tokenName,
+    };
 };
 
 const days = z.array(z.number().int().min(0)).length(90);

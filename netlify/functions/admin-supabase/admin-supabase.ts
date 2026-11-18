@@ -37,7 +37,7 @@ const missing = <T>(error: string): Part<T> => ({ data: null, error });
  * - Usage and database: counts from the project's own admin_stats() and admin_db_stats()
  *   (service key), with the admin's accounts left out.
  * - Status, service health, the Security and Performance Advisors, and the last 24 hours of
- *   API traffic: Supabase's Management API (access token), read-only.
+ *   API traffic: Supabase's Management API (the project's own access token), read-only.
  * Nothing here can identify a person: counts only, and anything from logs or advisors is
  * scrubbed of emails, ids, addresses and tokens.
  */
@@ -49,7 +49,6 @@ export default withAdmin(async (request, _session, env) => {
     const which = asked as Environment;
     const now = Date.now();
     const project = projectFor(which);
-    const token = process.env.SUPABASE_ACCESS_TOKEN;
 
     if ('error' in project) {
         const none = missing<never>(project.error);
@@ -67,7 +66,8 @@ export default withAdmin(async (request, _session, env) => {
         });
     }
 
-    const noToken = 'SUPABASE_ACCESS_TOKEN isn’t set in Netlify yet.';
+    const { token } = project;
+    const noToken = `${project.tokenName} isn’t set in Netlify yet.`;
     const status: Part<ProjectStatus> = token
         ? await part(() => projectStatus(token, project.ref))
         : missing(noToken);
