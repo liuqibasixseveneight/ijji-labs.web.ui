@@ -7,9 +7,14 @@ import { axeViolations } from '../../test/axe.ts';
 import { renderApp } from '../../test/renderApp.tsx';
 import { adminRoutes } from '../routes.tsx';
 import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 
-// The dashboard keeps loaded data in memory for a minute: each test starts without it.
-afterEach(() => clearCache());
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 type Reply = { status: number; body?: object };
 

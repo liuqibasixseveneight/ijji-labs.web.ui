@@ -5,9 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminRoutes } from '../routes.tsx';
 import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 
-// The dashboard keeps loaded data in memory for a minute: each test starts without it.
-afterEach(() => clearCache());
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 // How the dashboard feels to move around: pages appear at once with a skeleton, data is kept
 // for a minute, links load ahead on hover, and the session isn't fetched again on every move.

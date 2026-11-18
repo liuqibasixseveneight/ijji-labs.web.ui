@@ -15,9 +15,14 @@ import {
     type Supabase,
 } from '../supabase.ts';
 import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 
-// The dashboard keeps loaded data in memory for a minute: each test starts without it.
-afterEach(() => clearCache());
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 const NOW = Date.UTC(2026, 10, 18, 14);
 const REF = 'abcdefghijklmnopqrst';

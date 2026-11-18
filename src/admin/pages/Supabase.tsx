@@ -182,7 +182,7 @@ const CARD_IDS = [
     'traffic-title',
 ];
 
-/** An advisor's findings in a few words: "2 warnings, 1 info". */
+/** An advisor's findings in a few words: "2 warnings, 1 suggestion". */
 const describeLints = (lints: Lint[]) => {
     if (lints.length === 0) return 'No findings';
     const count = (level: Lint['level']) => lints.filter((lint) => lint.level === level).length;
@@ -190,7 +190,7 @@ const describeLints = (lints: Lint[]) => {
         [
             [count('ERROR'), 'error', 'errors'],
             [count('WARN'), 'warning', 'warnings'],
-            [count('INFO'), 'info', 'info'],
+            [count('INFO'), 'suggestion', 'suggestions'],
         ] as const
     )
         .filter(([n]) => n > 0)

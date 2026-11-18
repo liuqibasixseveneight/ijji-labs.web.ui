@@ -305,6 +305,49 @@ describe('the Supabase endpoint', () => {
         const body = await (await call()).json();
         expect(body.usage.error).toMatch(/apply the admin_stats migration/);
         expect(body.database.data).toBeNull();
+        // Which part was off, not zod's details.
+        expect(body.database.error).toBe(
+            'admin_db_stats() answered in an unexpected shape (at tables.0.name): is the migration up to date?',
+        );
+    });
+
+    it('says which key to check when Supabase refuses it', async () => {
+        upstream((url) =>
+            url.pathname.includes('/rpc/')
+                ? Response.json(
+                      { code: '42501', message: 'permission denied for function admin_stats' },
+                      { status: 401 },
+                  )
+                : undefined,
+        );
+        const body = await (await call()).json();
+        expect(body.usage.error).toBe(
+            'Supabase refused the key: check SUPABASE_PROD_SERVICE_KEY is this project’s secret (service_role) key, not its publishable (anon) key.',
+        );
+        // The access token's cards are unaffected.
+        expect(body.project.data).not.toBeNull();
+    });
+
+    it('knows a missing function by PostgREST’s code, and passes on anything else scrubbed', async () => {
+        upstream((url) => {
+            if (url.pathname.endsWith('/admin_stats')) {
+                return Response.json(
+                    { code: 'PGRST202', message: 'Could not find the function' },
+                    { status: 400 },
+                );
+            }
+            if (url.pathname.endsWith('/admin_db_stats')) {
+                return Response.json(
+                    { code: 'XX000', message: `boom for ${EMAIL}` },
+                    { status: 500 },
+                );
+            }
+        });
+        const body = await (await call()).json();
+        expect(body.usage.error).toMatch(
+            /apply the admin_stats migration \(npx supabase db push\)/,
+        );
+        expect(body.database.error).toBe('Supabase answered 500 (XX000): boom for [email]');
     });
 });
 

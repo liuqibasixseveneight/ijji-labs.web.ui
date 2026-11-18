@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { axeViolations } from '../../test/axe.ts';
 import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 import { adminRoutes } from '../routes.tsx';
 import {
     deployStatus,
@@ -15,8 +16,12 @@ import {
     type Website,
 } from '../website.ts';
 
-// The dashboard keeps loaded data in memory for a minute: each test starts without it.
-afterEach(() => clearCache());
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 const NOW = Date.UTC(2026, 10, 20, 12);
 const DAY = 24 * 60 * 60 * 1000;

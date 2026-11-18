@@ -95,7 +95,8 @@ export const CardBody = ({
         inert={collapsed}
         className={clsx(
             'grid transition-[grid-template-rows] duration-300 ease-out',
-            collapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+            // Closed, it clips to nothing; open, it doesn't clip (the inner box does, with room).
+            collapsed ? 'grid-rows-[0fr] overflow-hidden' : 'grid-rows-[1fr]',
         )}
     >
         {/* Clipped with a little room around, so focus rings at the edges aren't cut. */}

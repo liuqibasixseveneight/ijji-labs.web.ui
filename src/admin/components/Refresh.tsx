@@ -40,6 +40,7 @@ export const Refresh = <T,>({ loaded, cacheKey }: { loaded: Loaded<T>; cacheKey:
             </p>
             <button
                 type='button'
+                title='Refresh'
                 // Not `disabled` while busy: a disabled button drops keyboard focus.
                 aria-disabled={busy || undefined}
                 onClick={() => {
@@ -65,7 +66,8 @@ export const Refresh = <T,>({ loaded, cacheKey }: { loaded: Loaded<T>; cacheKey:
                     <path d='M21 12a9 9 0 1 1-2.64-6.36' />
                     <path d='M21 4v5h-5' />
                 </svg>
-                Refresh
+                {/* An icon alone on phones, so the page's controls fit one row; still named. */}
+                <span className='sr-only sm:not-sr-only'>Refresh</span>
             </button>
         </div>
     );

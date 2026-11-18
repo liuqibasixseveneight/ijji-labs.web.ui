@@ -18,9 +18,14 @@ import {
 import { Email } from '../components/Email.tsx';
 import { adminRoutes } from '../routes.tsx';
 import { clearCache } from '../cache.ts';
+import { resetCollapsed } from '../collapsed.ts';
 
-// The dashboard keeps loaded data in memory for a minute: each test starts without it.
-afterEach(() => clearCache());
+// The dashboard keeps loaded data for a minute, and remembers collapsed cards: each test
+// starts without either.
+afterEach(() => {
+    clearCache();
+    resetCollapsed();
+});
 
 const NOW = Date.UTC(2026, 10, 20, 12);
 const SQL_EDITOR = 'https://supabase.com/dashboard/project/prodref/sql/new';
