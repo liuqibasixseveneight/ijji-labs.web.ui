@@ -30,11 +30,15 @@ export type Metrics = Record<'fcp' | 'lcp' | 'tbt' | 'cls' | 'si', number | null
 export type LighthouseEntry = { date: string; at: number; scores: Scores; metrics?: Metrics };
 
 export type LighthouseRow = {
+    /** The run's name, as POST /api/admin/lighthouse takes it ("home-mobile"). */
+    key: string;
     page: string;
     path: string;
     strategy: 'mobile' | 'desktop';
     latest: LighthouseEntry | null;
     history: LighthouseEntry[];
+    /** When it may be run by hand again (10 minutes after the last); null if it may now. */
+    manualAvailableAt: number | null;
 };
 
 /**

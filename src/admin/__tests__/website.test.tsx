@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -50,9 +51,11 @@ const website = (overrides: Partial<Website> = {}): Website => ({
     lighthouse: {
         data: [
             {
+                key: 'home-mobile',
                 page: 'Home',
                 path: '/',
                 strategy: 'mobile',
+                manualAvailableAt: null,
                 latest: {
                     date: '2026-11-20',
                     at: NOW,
@@ -82,7 +85,15 @@ const website = (overrides: Partial<Website> = {}): Website => ({
                     },
                 ],
             },
-            { page: 'Home', path: '/', strategy: 'desktop', latest: null, history: [] },
+            {
+                key: 'home-desktop',
+                page: 'Home',
+                path: '/',
+                strategy: 'desktop',
+                manualAvailableAt: null,
+                latest: null,
+                history: [],
+            },
         ],
         error: null,
     },
@@ -140,12 +151,18 @@ const website = (overrides: Partial<Website> = {}): Website => ({
     ...overrides,
 });
 
-const api = (data: Website | null) =>
+const api = (
+    data: Website | null,
+    lighthouse: (key: string) => Response | Promise<Response> = () => Response.json({}),
+) =>
     vi.stubGlobal(
         'fetch',
-        vi.fn(async (url: string) => {
+        vi.fn(async (url: string, init?: RequestInit) => {
             if (url.endsWith('/me'))
                 return Response.json({ signedIn: true, expiresAt: NOW + 3600_000 });
+            if (url.endsWith('/lighthouse')) {
+                return lighthouse(JSON.parse(String(init?.body)).key);
+            }
             if (url.endsWith('/website')) {
                 return data ? Response.json(data) : Response.json({}, { status: 500 });
             }
@@ -231,7 +248,85 @@ describe('the website page', () => {
         // A page or device not run yet says so.
         const desktop = within(home.getByRole('region', { name: 'Home, desktop' }));
         expect(desktop.getByText('Not run yet')).toBeInTheDocument();
-        expect(desktop.getByText('The first run is at 03:00 UTC.')).toBeInTheDocument();
+        expect(
+            desktop.getByText(/The daily run is at 03:00 UTC, or run it now/),
+        ).toBeInTheDocument();
+    });
+
+    it('runs Lighthouse now, all at once, and shows the new scores as each finishes', async () => {
+        const user = userEvent.setup();
+        let finish: (() => void) | undefined;
+        const done = new Promise<void>((resolve) => (finish = resolve));
+        api(website(), async () => {
+            await done;
+            return Response.json({});
+        });
+        renderAdmin('/website');
+        const lighthouse = within(
+            (await screen.findByRole('heading', { name: 'Lighthouse' })).closest('section')!,
+        );
+
+        await user.click(lighthouse.getByRole('button', { name: 'Run all now' }));
+
+        // Both run side by side; each panel says so, and can't be started twice.
+        const posts = () =>
+            vi
+                .mocked(fetch)
+                .mock.calls.filter(([url]) => String(url).endsWith('/lighthouse'))
+                .map(([, init]) => JSON.parse(String(init?.body)).key);
+        expect(posts()).toEqual(['home-mobile', 'home-desktop']);
+        expect(lighthouse.getByRole('status')).toHaveTextContent('Running 2 side by side');
+        const mobile = lighthouse.getByRole('region', { name: 'Home, mobile' });
+        expect(mobile).toHaveAttribute('aria-busy', 'true');
+        expect(within(mobile).getByRole('button', { name: 'Running Home, mobile' })).toBeDisabled();
+        expect(lighthouse.getByRole('button', { name: 'Run all now' })).toBeDisabled();
+
+        const loads = () =>
+            vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/website')).length;
+        const before = loads();
+        finish!();
+
+        // Done: the website's data is reloaded for the new scores.
+        expect(await lighthouse.findByText('Done: the scores below are new.')).toBeInTheDocument();
+        await waitFor(() => expect(loads()).toBeGreaterThan(before));
+        expect(mobile).not.toHaveAttribute('aria-busy');
+    });
+
+    it('says why a run didn’t work, in its panel', async () => {
+        const user = userEvent.setup();
+        api(website(), () =>
+            Response.json(
+                { error: 'PageSpeed Insights’ quota is used up for now.' },
+                { status: 502 },
+            ),
+        );
+        renderAdmin('/website');
+        const panel = within(await screen.findByRole('region', { name: 'Home, desktop' }));
+
+        await user.click(panel.getByRole('button', { name: 'Run Home, desktop' }));
+
+        expect(
+            await panel.findByText('PageSpeed Insights’ quota is used up for now.'),
+        ).toBeInTheDocument();
+        expect(screen.getByRole('status')).toHaveTextContent(
+            'That didn’t run: the panel says why.',
+        );
+        // It can be tried again.
+        expect(panel.getByRole('button', { name: 'Run Home, desktop' })).toBeEnabled();
+    });
+
+    it('can’t run a page again within 10 minutes of its last run', async () => {
+        const data = website();
+        data.lighthouse.data![0].manualAvailableAt = NOW + 5 * 60_000;
+        api(data);
+        renderAdmin('/website');
+
+        const mobile = within(await screen.findByRole('region', { name: 'Home, mobile' }));
+        expect(mobile.getByRole('button', { name: 'Run Home, mobile' })).toBeDisabled();
+        expect(mobile.getByText(/Can run again/)).toBeInTheDocument();
+
+        // "Run all" runs the rest.
+        expect(screen.getByRole('button', { name: 'Run 1 now' })).toBeEnabled();
     });
 
     it('lists deploys with their state, linking to Netlify', async () => {
@@ -271,7 +366,15 @@ describe('the website page', () => {
                 deploys: { data: null, error: 'NETLIFY_API_TOKEN isn’t set in Netlify yet.' },
                 lighthouse: {
                     data: [
-                        { page: 'Home', path: '/', strategy: 'mobile', latest: null, history: [] },
+                        {
+                            key: 'home-mobile',
+                            page: 'Home',
+                            path: '/',
+                            strategy: 'mobile',
+                            manualAvailableAt: null,
+                            latest: null,
+                            history: [],
+                        },
                     ],
                     error: null,
                 },
@@ -283,9 +386,11 @@ describe('the website page', () => {
         expect(
             section('Deploys').getByText('NETLIFY_API_TOKEN isn’t set in Netlify yet.'),
         ).toBeInTheDocument();
+        // Nothing run yet: the panel says so, and can be run now.
+        expect(section('Lighthouse').getByText('Not run yet')).toBeInTheDocument();
         expect(
-            section('Lighthouse').getByText('No scores yet: the first runs at 03:00 UTC.'),
-        ).toBeInTheDocument();
+            section('Lighthouse').getByRole('button', { name: 'Run Home, mobile' }),
+        ).toBeEnabled();
         expect(section('Uptime').getAllByRole('listitem')).toHaveLength(2);
     });
 

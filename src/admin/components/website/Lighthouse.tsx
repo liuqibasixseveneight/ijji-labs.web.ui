@@ -1,5 +1,9 @@
+import { useEffect, useState } from 'react';
+import { useRevalidator } from 'react-router-dom';
 import { clsx } from 'clsx';
 
+import { runLighthouse } from '../../api.ts';
+import { secondaryAction } from '../styles.ts';
 import {
     CATEGORIES,
     CATEGORY_LABELS,
@@ -20,7 +24,44 @@ const BAND = {
     critical: { ring: '#d03b3b', text: 'text-red-800', icon: '✕' },
 } as const;
 
-const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const dayTime = new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+});
+const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+/** A run started from the dashboard: going, or failed with why. Gone once it's done. */
+type RunState = { status: 'running' } | { status: 'failed'; error: string };
+
+const Spinner = () => (
+    <svg aria-hidden='true' viewBox='0 0 24 24' className='w-4 h-4 animate-spin' fill='none'>
+        <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='3' opacity='0.25' />
+        <path
+            d='M21 12a9 9 0 0 0-9-9'
+            stroke='currentColor'
+            strokeWidth='3'
+            strokeLinecap='round'
+        />
+    </svg>
+);
+
+const RunIcon = () => (
+    <svg
+        aria-hidden='true'
+        viewBox='0 0 24 24'
+        className='w-4 h-4'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+    >
+        <path d='M21 12a9 9 0 1 1-2.64-6.36' />
+        <path d='M21 4v5h-5' />
+    </svg>
+);
 
 /** A score as Lighthouse draws it: a ring filled to the score, the number inside, the band below. */
 export const ScoreRing = ({ score, label }: { score: number | null; label: string }) => {
@@ -155,7 +196,19 @@ const DEVICE_ICONS = {
 };
 
 /** One page on one device: the ring, the other scores, the timings and the trend. */
-const DevicePanel = ({ row }: { row: LighthouseRow }) => {
+const DevicePanel = ({
+    row,
+    run,
+    coolingUntil,
+    onRun,
+}: {
+    row: LighthouseRow;
+    run: RunState | undefined;
+    /** Can't be run by hand again until then; null if it can. */
+    coolingUntil: number | null;
+    onRun: () => void;
+}) => {
+    const running = run?.status === 'running';
     const device = row.strategy === 'mobile' ? 'Mobile' : 'Desktop';
     const timings = describeMetrics(row.latest?.metrics);
     const trend = row.history
@@ -165,24 +218,73 @@ const DevicePanel = ({ row }: { row: LighthouseRow }) => {
     return (
         <section
             aria-label={`${row.page}, ${device.toLowerCase()}`}
+            aria-busy={running || undefined}
             // A container: what's inside lays out by the panel's width, not the screen's (the
             // panels are side by side from md, so a wide screen can still mean a narrow panel).
             className='@container rounded-2xl bg-neutral-50 border border-neutral-200 p-4 sm:p-5 flex flex-col gap-5 min-w-0'
         >
-            <header className='flex items-center justify-between gap-3'>
-                <h4 className='flex items-center gap-1.5 font-bold'>
-                    {DEVICE_ICONS[row.strategy]}
-                    {device}
-                </h4>
-                <span className='text-xs text-neutral-600'>
-                    {row.latest ? `Run ${day.format(row.latest.at)}` : 'Not run yet'}
-                </span>
+            <header className='flex items-start justify-between gap-3'>
+                <div className='min-w-0'>
+                    <h4 className='flex items-center gap-1.5 font-bold'>
+                        {DEVICE_ICONS[row.strategy]}
+                        {device}
+                    </h4>
+                    <p className='text-xs text-neutral-600 mt-0.5'>
+                        {running ? (
+                            'Running now…'
+                        ) : row.latest ? (
+                            <>
+                                Last run{' '}
+                                <span className='whitespace-nowrap'>
+                                    {dayTime.format(row.latest.at)}
+                                </span>
+                            </>
+                        ) : (
+                            'Not run yet'
+                        )}
+                        {!running && coolingUntil !== null && (
+                            <span className='block'>
+                                <span className='sr-only'>. </span>Can run again{' '}
+                                <span className='whitespace-nowrap'>
+                                    from {time.format(coolingUntil)}
+                                </span>
+                            </span>
+                        )}
+                    </p>
+                </div>
+                <button
+                    type='button'
+                    onClick={onRun}
+                    disabled={running || coolingUntil !== null}
+                    className={clsx(secondaryAction, 'shrink-0 px-2.5 py-1.5')}
+                >
+                    {running ? <Spinner /> : <RunIcon />}
+                    {/* The space is in the label: jsdom (and some readers) drop one leading the sr-only text. */}
+                    {running ? 'Running ' : 'Run '}
+                    <span className='sr-only'>
+                        {row.page}, {device.toLowerCase()}
+                    </span>
+                </button>
             </header>
 
+            {run?.status === 'failed' && (
+                <p className='text-sm text-red-800 font-medium flex gap-1.5'>
+                    <span aria-hidden='true'>✕</span>
+                    <span>{run.error}</span>
+                </p>
+            )}
+
             {!row.latest ? (
-                <p className='text-sm text-neutral-600'>The first run is at 03:00 UTC.</p>
+                <p className='text-sm text-neutral-600'>
+                    The daily run is at 03:00 UTC, or run it now: it takes about 20 seconds.
+                </p>
             ) : (
-                <>
+                <div
+                    className={clsx(
+                        'flex flex-col gap-5 transition-opacity',
+                        running && 'opacity-50',
+                    )}
+                >
                     <div className='flex flex-col items-stretch gap-4 @[20rem]:flex-row @[20rem]:items-center @[20rem]:gap-5'>
                         <ScoreRing score={row.latest.scores.performance} label='Performance' />
                         <dl className='flex-1 min-w-0 flex flex-col divide-y divide-neutral-200'>
@@ -264,7 +366,7 @@ const DevicePanel = ({ row }: { row: LighthouseRow }) => {
                         values={trend}
                         label={`${row.page}, ${device.toLowerCase()}, performance over ${trend.length} days`}
                     />
-                </>
+                </div>
             )}
         </section>
     );
@@ -272,9 +374,76 @@ const DevicePanel = ({ row }: { row: LighthouseRow }) => {
 
 /**
  * Every page's Lighthouse results: a block per page, its mobile and desktop panels side by
- * side from md (stacked on phones), mobile first as that's the one that matters most.
+ * side from md (stacked on phones), mobile first as that's the one that matters most. Each
+ * can be run now, or all at once: they run side by side (about 20 seconds each), and the
+ * page reloads its data as each finishes.
  */
-export const LighthouseResults = ({ rows }: { rows: LighthouseRow[] }) => {
+export const LighthouseResults = ({ rows, now }: { rows: LighthouseRow[]; now: number }) => {
+    const revalidator = useRevalidator();
+    const [runs, setRuns] = useState<Record<string, RunState>>({});
+    const [message, setMessage] = useState('');
+    // The time cool-downs are measured against: the data's, moved on when one ends.
+    const [clock, setClock] = useState(now);
+    const at = Math.max(now, clock);
+
+    const coolingUntil = (row: LighthouseRow) =>
+        row.manualAvailableAt !== null && row.manualAvailableAt > at ? row.manualAvailableAt : null;
+
+    // Wake when the next cool-down ends, so its button comes back without a reload.
+    const nextAvailable = Math.min(...rows.map((row) => coolingUntil(row) ?? Infinity));
+    useEffect(() => {
+        if (!Number.isFinite(nextAvailable)) return;
+        const timer = setTimeout(() => setClock(Date.now()), nextAvailable - Date.now() + 500);
+        return () => clearTimeout(timer);
+    }, [nextAvailable]);
+
+    const running = rows.filter((row) => runs[row.key]?.status === 'running');
+    const runnable = rows.filter(
+        (row) => runs[row.key]?.status !== 'running' && coolingUntil(row) === null,
+    );
+
+    const start = (chosen: LighthouseRow[]) => {
+        if (chosen.length === 0) return;
+        setRuns((current) => ({
+            ...current,
+            ...Object.fromEntries(chosen.map((row) => [row.key, { status: 'running' }])),
+        }));
+        setMessage(
+            chosen.length === 1
+                ? `Running ${chosen[0].page}, ${chosen[0].strategy}: about 20 seconds.`
+                : `Running ${chosen.length} side by side: about 20 seconds.`,
+        );
+
+        let failed = 0;
+        let left = chosen.length;
+        for (const row of chosen) {
+            void runLighthouse(row.key).then((outcome) => {
+                setRuns((current) => {
+                    const next = { ...current };
+                    if (outcome.ok) delete next[row.key];
+                    else next[row.key] = { status: 'failed', error: outcome.error };
+                    return next;
+                });
+                if (!outcome.ok) failed += 1;
+                left -= 1;
+                if (left === 0) {
+                    setMessage(
+                        failed === 0
+                            ? 'Done: the scores below are new.'
+                            : failed === chosen.length
+                              ? chosen.length === 1
+                                  ? 'That didn’t run: the panel says why.'
+                                  : 'None of them ran: their panels say why.'
+                              : failed === 1
+                                ? `1 of ${chosen.length} didn’t run: its panel says why.`
+                                : `${failed} of ${chosen.length} didn’t run: their panels say why.`,
+                    );
+                }
+                void revalidator.revalidate();
+            });
+        }
+    };
+
     const pages = [...new Set(rows.map((row) => row.path))].map((path) => {
         const mine = rows.filter((row) => row.path === path);
         return {
@@ -288,6 +457,25 @@ export const LighthouseResults = ({ rows }: { rows: LighthouseRow[] }) => {
 
     return (
         <div className='flex flex-col gap-8'>
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-3 sm:pl-4'>
+                <p role='status' className='text-sm text-neutral-700'>
+                    {message ||
+                        (runnable.length === 0
+                            ? 'Each page can be run again 10 minutes after its last run.'
+                            : 'Scores are from the daily run. Run them now for fresh ones.')}
+                </p>
+                <button
+                    type='button'
+                    onClick={() => start(runnable)}
+                    disabled={runnable.length === 0}
+                    className={clsx(secondaryAction, 'shrink-0')}
+                >
+                    {running.length > 0 ? <Spinner /> : <RunIcon />}
+                    {runnable.length === rows.length || runnable.length === 0
+                        ? 'Run all now'
+                        : `Run ${runnable.length} now`}
+                </button>
+            </div>
             {pages.map((page, index) => (
                 <section key={page.path} aria-labelledby={`lighthouse-page-${index}`}>
                     <h3
@@ -299,7 +487,13 @@ export const LighthouseResults = ({ rows }: { rows: LighthouseRow[] }) => {
                     </h3>
                     <div className='grid gap-3 md:grid-cols-2'>
                         {page.devices.map((row) => (
-                            <DevicePanel key={row.strategy} row={row} />
+                            <DevicePanel
+                                key={row.strategy}
+                                row={row}
+                                run={runs[row.key]}
+                                coolingUntil={coolingUntil(row)}
+                                onRun={() => start([row])}
+                            />
                         ))}
                     </div>
                 </section>

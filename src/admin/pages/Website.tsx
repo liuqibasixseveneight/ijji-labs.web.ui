@@ -146,15 +146,10 @@ export const Website = () => {
                         <Card
                             id='lighthouse-title'
                             title='Lighthouse'
-                            hint='Run daily from 03:00 UTC with PageSpeed Insights. 90 and over is good; the timings show why a score moved.'
+                            hint='Run daily from 03:00 UTC with PageSpeed Insights, or now. 90 and over is good; the timings show why a score moved.'
                             part={website.lighthouse}
-                            empty={(rows) =>
-                                rows.every((r) => !r.latest)
-                                    ? 'No scores yet: the first runs at 03:00 UTC.'
-                                    : null
-                            }
                         >
-                            {(rows) => <LighthouseResults rows={rows} />}
+                            {(rows) => <LighthouseResults rows={rows} now={website.now} />}
                         </Card>
 
                         <Card
