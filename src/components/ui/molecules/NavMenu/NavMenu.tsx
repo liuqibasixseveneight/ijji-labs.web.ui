@@ -7,7 +7,7 @@ import { NavMenuItem, RollingText } from '../../atoms';
 import type { NavMenuProps } from './types.ts';
 import { disableScrollLock, enableScrollLock } from './utils.ts';
 
-export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
+export const NavMenu = ({ id, isOpen, setIsOpen, links, label = 'Main', footer }: NavMenuProps) => {
     const [hoveredItem, setHoveredItem] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const { pathname } = useLocation();
@@ -25,7 +25,9 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
     }, [isOpen]);
 
     // The big number behind the list: the row being pointed at, or else the page you're on.
-    const current = links.findIndex((link) => link.to === pathname);
+    const current = links.findIndex((link) =>
+        link.end === false ? pathname.startsWith(link.to) : link.to === pathname,
+    );
     const ghost = hoveredItem ?? (current === -1 ? null : current);
 
     return (
@@ -49,7 +51,7 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
                     {ghost !== null ? links[ghost].num : ''}
                 </span>
 
-                <nav aria-label='Main' className='relative flex-1 flex flex-col justify-center'>
+                <nav aria-label={label} className='relative flex-1 flex flex-col justify-center'>
                     <ul className='flex flex-col border-b border-white/5'>
                         {links.map((link, index) => (
                             <NavMenuItem
@@ -72,15 +74,19 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links }: NavMenuProps) => {
                         isOpen ? 'opacity-100' : 'opacity-0',
                     )}
                 >
-                    <a
-                        href={`mailto:${site.email}`}
-                        // overflow-hidden: the rolling copy waiting below is clipped from view,
-                        // but would still count towards the menu's scroll height.
-                        className='group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
-                    >
-                        <RollingText>{site.email}</RollingText>
-                    </a>
-                    <span>{site.location}</span>
+                    {footer ?? (
+                        <>
+                            <a
+                                href={`mailto:${site.email}`}
+                                // overflow-hidden: the rolling copy waiting below is clipped from
+                                // view, but would still count towards the menu's scroll height.
+                                className='group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
+                            >
+                                <RollingText>{site.email}</RollingText>
+                            </a>
+                            <span>{site.location}</span>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

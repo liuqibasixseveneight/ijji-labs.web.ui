@@ -3,6 +3,8 @@ export interface NavMenuItemLink {
     to: string;
     num: string;
     description: string;
+    /** False keeps the row current on the pages beneath it too (/deletion-requests/:id). */
+    end?: boolean;
 }
 
 export interface NavMenuItemProps {

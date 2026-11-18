@@ -4,27 +4,39 @@ import { clsx } from 'clsx';
 import { ArtisticFrame } from '../../components/ui/atoms/ArtisticFrame/ArtisticFrame.tsx';
 import { Section } from '../../components/ui/atoms/Section/Section.tsx';
 import { AdminMeta } from '../components/AdminMeta.tsx';
-import { SignOutEverywhere } from '../components/SignOutEverywhere.tsx';
 import { daysLeft, describeDaysLeft, OPEN, urgency } from '../deletionRequests.ts';
 import { adminPaths } from '../paths.ts';
-import type { AdminData, OverviewData } from '../routes.tsx';
-import { lastDaysOf, projectState } from '../supabase.ts';
+import { prefetchOn, type OverviewData } from '../data.ts';
+import type { AdminData } from '../routes.tsx';
+import {
+    buildStatus,
+    latestBuilds,
+    PLATFORM_LABELS,
+    PLATFORMS,
+    submissionStatus,
+    type AppData,
+} from '../app.ts';
+import { lastDaysOf, projectState, type Supabase } from '../supabase.ts';
+import { Deferred } from '../components/Deferred.tsx';
+import { Bone } from '../components/Skeleton.tsx';
 import { StatusBadge } from '../components/website/charts.tsx';
-import { deployStatus, scoreLevel, SCORE_LABELS } from '../website.ts';
-
-/** The sections still to come, as each step of the dashboard is built. */
-const COMING = [
-    {
-        title: 'IJJI Tracker',
-        description: 'EAS builds and store submissions.',
-    },
-];
+import { deployStatus, scoreLevel, SCORE_LABELS, type Website } from '../website.ts';
 
 const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 
 /** The site's card shape: rounded on the left, the top-right corner cut, as on InfoCard. */
 const frame = 'h-full bg-neutral-100 transition-colors';
 const card = 'flex flex-col gap-2 p-6 md:p-8 h-full';
+
+/** A card's lines while its data loads: the card itself shows (and links) at once. */
+const LoadingLines = () => (
+    <div className='flex flex-col gap-2.5 pt-1'>
+        <Bone className='h-5 w-40 max-w-full' />
+        <Bone className='h-5 w-48 max-w-full' />
+        <Bone className='h-5 w-36 max-w-full' />
+        <span className='sr-only'>Loading…</span>
+    </div>
+);
 
 /** Deletion requests at a glance: how many are open, and how long the next one has. */
 const DeletionRequestsCard = () => {
@@ -75,8 +87,7 @@ const DeletionRequestsCard = () => {
 };
 
 /** The website at a glance: are the pages up, the last deploy, the home page's mobile score. */
-const WebsiteCard = () => {
-    const { website } = useLoaderData() as OverviewData;
+const WebsiteCard = ({ website }: { website: Website | null | undefined }) => {
     const checks = website?.uptime.data?.filter((c) => c.latest) ?? [];
     const down = checks.filter((c) => !c.latest!.ok);
     const deploy = website?.deploys.data?.[0];
@@ -85,7 +96,11 @@ const WebsiteCard = () => {
             ?.scores.performance ?? null;
 
     return (
-        <Link to={adminPaths.website} className='group block h-full'>
+        <Link
+            to={adminPaths.website}
+            {...prefetchOn(adminPaths.website)}
+            className='group block h-full'
+        >
             <ArtisticFrame
                 cutSize={28}
                 className={clsx(
@@ -105,7 +120,9 @@ const WebsiteCard = () => {
                             →
                         </span>
                     </h2>
-                    {!website ? (
+                    {website === undefined ? (
+                        <LoadingLines />
+                    ) : !website ? (
                         <p className='text-neutral-700'>
                             Couldn’t load it. Open the page to try again.
                         </p>
@@ -145,8 +162,7 @@ const WebsiteCard = () => {
 };
 
 /** Production Supabase at a glance: is it up, how many people, anything the advisor flags. */
-const SupabaseCard = () => {
-    const { supabase } = useLoaderData() as OverviewData;
+const SupabaseCard = ({ supabase }: { supabase: Supabase | null | undefined }) => {
     const project = supabase?.project.data;
     const usage = supabase?.usage.data;
     const flagged = supabase?.security.data?.filter((lint) => lint.level !== 'INFO') ?? [];
@@ -154,7 +170,11 @@ const SupabaseCard = () => {
     const urgent = state?.level === 'critical' || flagged.some((lint) => lint.level === 'ERROR');
 
     return (
-        <Link to={adminPaths.supabase} className='group block h-full'>
+        <Link
+            to={adminPaths.supabase}
+            {...prefetchOn(adminPaths.supabase)}
+            className='group block h-full'
+        >
             <ArtisticFrame
                 cutSize={28}
                 className={clsx(
@@ -174,7 +194,9 @@ const SupabaseCard = () => {
                             →
                         </span>
                     </h2>
-                    {!supabase ? (
+                    {supabase === undefined ? (
+                        <LoadingLines />
+                    ) : !supabase ? (
                         <p className='text-neutral-700'>
                             Couldn’t load it. Open the page to try again.
                         </p>
@@ -223,9 +245,84 @@ const SupabaseCard = () => {
     );
 };
 
-/** The dashboard's home: what needs doing, and the sections still to come. */
+/** IJJI Tracker at a glance: the newest production build on each store, and the last submission. */
+const AppCard = ({ app }: { app: AppData | null | undefined }) => {
+    const builds = app?.builds.data;
+    const latest = builds ? latestBuilds(builds) : null;
+    const production = PLATFORMS.map((platform) => ({
+        platform,
+        build: latest?.('production', platform) ?? null,
+    }));
+    const submission = app?.submissions.data?.[0];
+    const failed =
+        production.some(({ build }) => build?.status === 'ERRORED') ||
+        submission?.status === 'ERRORED';
+
+    return (
+        <Link to={adminPaths.app} {...prefetchOn(adminPaths.app)} className='group block h-full'>
+            <ArtisticFrame
+                cutSize={28}
+                className={clsx(
+                    frame,
+                    failed
+                        ? 'bg-red-100 group-hover:bg-red-200'
+                        : 'group-hover:bg-brand-primary group-focus-visible:bg-brand-primary',
+                )}
+            >
+                <div className={card}>
+                    <h2 className='text-lg font-bold flex items-center justify-between gap-4'>
+                        IJJI Tracker
+                        <span
+                            aria-hidden='true'
+                            className='transition-transform group-hover:translate-x-1'
+                        >
+                            →
+                        </span>
+                    </h2>
+                    {app === undefined ? (
+                        <LoadingLines />
+                    ) : !app || !builds ? (
+                        <p className='text-neutral-700'>
+                            {app?.builds.error ?? 'Couldn’t load it. Open the page to try again.'}
+                        </p>
+                    ) : (
+                        <ul className='flex flex-col gap-2 text-neutral-800'>
+                            {production.map(({ platform, build }) => (
+                                <li key={platform} className='flex flex-wrap items-center gap-2'>
+                                    {build ? (
+                                        <StatusBadge {...buildStatus(build.status)} />
+                                    ) : (
+                                        <StatusBadge level='neutral' label='None yet' />
+                                    )}
+                                    <span>
+                                        {PLATFORM_LABELS[platform]} production
+                                        {build?.appVersion && ` ${build.appVersion}`}
+                                    </span>
+                                </li>
+                            ))}
+                            {submission && (
+                                <li className='flex flex-wrap items-center gap-2'>
+                                    <StatusBadge {...submissionStatus(submission.status)} />
+                                    <span>
+                                        Last submission,{' '}
+                                        {submission.platform === 'IOS'
+                                            ? 'App Store'
+                                            : 'Google Play'}
+                                    </span>
+                                </li>
+                            )}
+                        </ul>
+                    )}
+                </div>
+            </ArtisticFrame>
+        </Link>
+    );
+};
+
+/** The dashboard's home: what needs doing, and each section at a glance. */
 export const Overview = () => {
     const { me } = useRouteLoaderData('admin') as AdminData;
+    const { website, supabase, app } = useLoaderData() as OverviewData;
 
     return (
         <>
@@ -235,10 +332,8 @@ export const Overview = () => {
                 <h1 id='overview-title' className='text-4xl font-extrabold mb-2'>
                     Overview
                 </h1>
-                <p className='text-neutral-600 mb-10 flex flex-wrap gap-x-3 gap-y-1'>
-                    <span>Signed in until {timeFormat.format(me.expiresAt)}.</span>
-                    {/* In the header from sm up. */}
-                    <SignOutEverywhere className='sm:hidden font-semibold text-neutral-800' />
+                <p className='text-neutral-600 mb-10'>
+                    Signed in until {timeFormat.format(me.expiresAt)}.
                 </p>
 
                 {/* Every card the same size: equal columns, and equal rows (auto-rows-fr). */}
@@ -247,24 +342,23 @@ export const Overview = () => {
                         <DeletionRequestsCard />
                     </li>
                     <li>
-                        <WebsiteCard />
+                        <Deferred loaded={website} fallback={<WebsiteCard website={undefined} />}>
+                            {(data) => <WebsiteCard website={data} />}
+                        </Deferred>
                     </li>
                     <li>
-                        <SupabaseCard />
+                        <Deferred
+                            loaded={supabase}
+                            fallback={<SupabaseCard supabase={undefined} />}
+                        >
+                            {(data) => <SupabaseCard supabase={data} />}
+                        </Deferred>
                     </li>
-                    {COMING.map(({ title, description }) => (
-                        <li key={title}>
-                            <ArtisticFrame cutSize={28} className={frame}>
-                                <div className={card}>
-                                    <h2 className='text-lg font-bold'>{title}</h2>
-                                    <p className='text-neutral-600'>{description}</p>
-                                    <p className='text-sm font-semibold text-neutral-600 mt-auto'>
-                                        Not set up yet
-                                    </p>
-                                </div>
-                            </ArtisticFrame>
-                        </li>
-                    ))}
+                    <li>
+                        <Deferred loaded={app} fallback={<AppCard app={undefined} />}>
+                            {(data) => <AppCard app={data} />}
+                        </Deferred>
+                    </li>
                 </ul>
             </Section>
         </>

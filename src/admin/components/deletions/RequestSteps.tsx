@@ -120,7 +120,7 @@ export const RequestSteps = ({
                                 type='button'
                                 disabled={busy}
                                 onClick={() => onMove('rejected')}
-                                className='font-semibold underline underline-offset-4 cursor-pointer'
+                                className='link-highlight link-marked cursor-pointer'
                             >
                                 Reject it
                             </button>
