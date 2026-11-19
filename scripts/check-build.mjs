@@ -61,11 +61,23 @@ for (const file of ['sitemap.xml', 'robots.txt', 'llms.txt', 'llms-full.txt']) {
     if (/\/admin\b/.test(read(file))) problems.push(`${file} mentions /admin`);
 }
 
+// 4. Every pre-rendered page has its CSS inlined (scripts/prerender.mjs), not linked: a linked
+// stylesheet blocks the first paint while it downloads.
+const pages = filesIn(dist).filter(
+    (file) => file.endsWith('.html') && !file.includes(`${path.sep}admin${path.sep}`),
+);
+for (const file of pages) {
+    const html = fs.readFileSync(file, 'utf8');
+    const name = path.relative(dist, file);
+    if (/<link rel="stylesheet"/.test(html)) problems.push(`${name} links its stylesheet`);
+    if (!html.includes('<style>')) problems.push(`${name} has no inlined CSS`);
+}
+
 if (problems.length) {
     console.error(`Build check failed:\n- ${problems.join('\n- ')}`);
     process.exit(1);
 }
 
 console.log(
-    `Build check passed: ${seen.size} public scripts free of admin code, no secret names, no /admin listed`,
+    `Build check passed: ${seen.size} public scripts free of admin code, no secret names, no /admin listed, CSS inlined in ${pages.length} pages`,
 );
