@@ -4,6 +4,7 @@ import { clsx } from 'clsx';
 
 import { site } from '../../../../content/site.ts';
 import { NavMenuItem, RollingText } from '../../atoms';
+import { sweepUnderline } from '../../atoms/TextLink/sweepUnderline.ts';
 import type { NavMenuProps } from './types.ts';
 import { disableScrollLock, enableScrollLock } from './utils.ts';
 
@@ -76,13 +77,20 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links, label = 'Main', footer }
                 >
                     {footer ?? (
                         <>
+                            {/* The footer's link style: yellow and rolling, with the line
+                            sweeping in underneath. The line is on the link; the clipping (the
+                            rolling copy waiting below would otherwise count towards the menu's
+                            scroll height) is on the text inside, so it doesn't clip the line. */}
                             <a
                                 href={`mailto:${site.studioEmail}`}
-                                // overflow-hidden: the rolling copy waiting below is clipped from
-                                // view, but would still count towards the menu's scroll height.
-                                className='group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
+                                className={clsx(
+                                    'group text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors',
+                                    sweepUnderline,
+                                )}
                             >
-                                <RollingText>{site.studioEmail}</RollingText>
+                                <span className='block overflow-hidden'>
+                                    <RollingText>{site.studioEmail}</RollingText>
+                                </span>
                             </a>
                             <span>{site.location}</span>
                         </>
