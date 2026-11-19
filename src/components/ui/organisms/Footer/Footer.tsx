@@ -97,7 +97,8 @@ export const Footer = () => (
         <div className='max-w-380 px-6 md:px-8 mx-auto'>
             <section
                 aria-labelledby='footer-invitation'
-                className='flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between py-16 md:py-20 border-b border-white/10'
+                // The email centred against the heading and its line, as a heading-and-action row.
+                className='flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between py-16 md:py-20 border-b border-white/10'
             >
                 <div className='max-w-2xl'>
                     <h2
@@ -114,7 +115,8 @@ export const Footer = () => (
                 {/* The footer's own link style, larger: white, turning yellow and rolling. */}
                 <a
                     href={`mailto:${site.studioEmail}`}
-                    className='group self-start lg:self-auto inline-flex items-center gap-2.5 max-w-full text-xl md:text-2xl font-bold text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
+                    // On the text's baseline: the arrow sits on it as a typed one would, sized to the letters.
+                    className='group self-start lg:self-auto inline-flex items-baseline gap-[0.3em] max-w-full text-xl md:text-2xl font-bold text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
                 >
                     {/* Not clipped: overflow would hide the line below the text. */}
                     <span className={clsx(underline, '[overflow-wrap:anywhere]')}>
@@ -124,7 +126,7 @@ export const Footer = () => (
                         aria-hidden='true'
                         viewBox='0 0 14 14'
                         fill='none'
-                        className='shrink-0 w-4 h-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:-translate-y-0.5'
+                        className='shrink-0 w-[0.55em] h-[0.55em] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:-translate-y-0.5'
                     >
                         <path
                             d='M1 13L13 1M13 1H4M13 1V10'
