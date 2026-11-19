@@ -36,3 +36,6 @@ storybook-static
 *storybook.log
 
 dist-server
+
+# Claude Code’s local settings (launch configs and the like): never committed.
+.claude/
