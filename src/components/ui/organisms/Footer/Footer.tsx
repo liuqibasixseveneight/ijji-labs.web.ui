@@ -4,16 +4,8 @@ import { clsx } from 'clsx';
 
 import { site } from '../../../../content/site.ts';
 import { Logo, RollingText } from '../../atoms';
+import { sweepUnderline as underline } from '../../atoms/TextLink/sweepUnderline.ts';
 import { footerLinks, legalLinks } from './footerLinks.ts';
-
-/**
- * The footer's hover line: a thin yellow line along the text's foot that sweeps in from the
- * left on hover or keyboard focus (and stays, on the page you're on). Put it on the link, or
- * on the text inside one marked `group`: `group-hover:` only matches inside the group, so both
- * are here.
- */
-const underline =
-    'relative after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:bg-brand-primary after:origin-left after:scale-x-0 after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:scale-x-100 focus-visible:after:scale-x-100 group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100';
 
 /** A column's heading: small, spaced capitals, as the site's eyebrows. */
 const ColumnHeading = ({ children }: { children: string }) => (

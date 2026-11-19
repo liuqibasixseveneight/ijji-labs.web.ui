@@ -19,7 +19,9 @@ export const SignOutEverywhere = ({ className }: { className?: string }) => {
             // Styled where it's used (the menu's footer). Its label rolls, as the site's links do.
             className={clsx('group cursor-pointer', className)}
         >
-            <RollingText>Sign out everywhere</RollingText>
+            <span className='block overflow-hidden'>
+                <RollingText>Sign out everywhere</RollingText>
+            </span>
         </button>
     );
 };

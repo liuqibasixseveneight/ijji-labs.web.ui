@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { Link, useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { clsx } from 'clsx';
 
 import { Button } from '../../components/ui/atoms/Button/Button.tsx';
 import { HamburgerIcon } from '../../components/ui/atoms/HamburgerIcon/HamburgerIcon.tsx';
 import type { NavMenuItemLink } from '../../components/ui/atoms/NavMenuItem/types.ts';
 import { RollingText } from '../../components/ui/atoms/RollingText/RollingText.tsx';
+import { sweepUnderline } from '../../components/ui/atoms/TextLink/sweepUnderline.ts';
 import { NavMenu, useNavMenu } from '../../components/ui/molecules/NavMenu/index.ts';
 import { signOut } from '../api.ts';
 import { prefetchPage } from '../data.ts';
@@ -16,9 +18,15 @@ import { SignOutEverywhere } from './SignOutEverywhere.tsx';
 const MENU_ID = 'admin-menu';
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-/** The menu footer's links: white, turning yellow and rolling, as on the site's menu. */
-const footerLink =
-    'group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors cursor-pointer';
+/**
+ * The menu footer's links, as on the site's menu: white, turning yellow and rolling, with the
+ * yellow line sweeping in underneath. Their text is clipped inside (see SignOutEverywhere), so
+ * the line below isn't.
+ */
+const footerLink = clsx(
+    'group text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors cursor-pointer',
+    sweepUnderline,
+);
 
 /**
  * The dashboard's wordmark, "ijji labs | admin": the site's logo, a thin rule, and "admin" set
@@ -148,7 +156,9 @@ export const AdminNavbar = () => {
                         <span>Signed in until {time.format(me.expiresAt)}</span>
                         <span className='flex flex-wrap gap-x-6 gap-y-2'>
                             <button type='button' onClick={leave} className={footerLink}>
-                                <RollingText>Sign out</RollingText>
+                                <span className='block overflow-hidden'>
+                                    <RollingText>Sign out</RollingText>
+                                </span>
                             </button>
                             <SignOutEverywhere className={footerLink} />
                         </span>
