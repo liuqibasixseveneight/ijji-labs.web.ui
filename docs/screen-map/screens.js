@@ -122,7 +122,7 @@ window.SCREEN_MAP = {
             title: 'Footer',
             route: 'Bottom of every page',
             how: 'Always there',
-            note: 'Opens with an invitation: “Have a website in mind?” and the studio’s email in large type (a mailto link). Then the logo and tagline, the Studio links, Contact (email and location), and the policies with their marks: ijji labs (website privacy), then each app (privacy, terms, support, delete account), so a reviewer can find them from any page. Last, the copyright and Back to top (scrolls up and moves focus to the page), over the wordmark set large and faint. The current page’s Studio link stays yellow.',
+            note: 'Opens with an invitation: “Have a website in mind?”, the reply time, and the studio’s email (a mailto link). Then one row of columns, each with the same heading and link style: the logo, tagline and location; Studio (the main links); ijji labs (website privacy); and each app (privacy, terms, support, delete account), so a reviewer can find the policies from any page. Last, the copyright and Back to top (scrolls up and moves focus to the page). The current page’s link stays yellow.',
             exits: [
                 { tap: 'ijji labs (logo)', to: 'home', kind: 'page' },
                 { tap: 'About', to: 'about', kind: 'page' },
