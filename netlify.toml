@@ -2,6 +2,11 @@
     command = "npm run build"
     publish = "dist"
     functions = "netlify/functions"
+    # Skip the build (and its credits) when nothing deployed has changed since the last one:
+    # only tests, stories, docs, Markdown or CI config. `git diff --quiet` exits 0 (skip)
+    # when the paths it watches are unchanged; any other change, or no earlier build to
+    # compare with, builds as usual. In these pathspecs `*` also matches across folders.
+    ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':!*.test.ts' ':!*.test.tsx' ':!*__tests__*' ':!*.stories.tsx' ':!.storybook/*' ':!src/test/*' ':!docs/*' ':!*.md' ':!.github/*' ':!.claude/*'"
 
 # `npm run preview:netlify` builds the site and serves it as Netlify will, with these headers
 # and both functions, on http://localhost:8888. Plain `npm run dev` has no functions, so the
@@ -13,13 +18,14 @@
 # Adding a page means adding it to the routes (and so to the prerender list), not here.
 
 # Security headers for every response. The CSP allows only this site's own scripts,
-# styles (inline style attributes are used for the cut corners), fonts and forms, plus
-# project images from Unsplash. Check the browser console for CSP errors after adding a
-# third party.
+# styles (inlined into each page by the prerender, and inline style attributes for the cut
+# corners), fonts (the wordmark's 2.5 KB subset travels inside the stylesheet as a data:
+# URI) and forms, plus project images from Unsplash. Check the browser console for CSP
+# errors after adding a third party.
 [[headers]]
     for = "/*"
     [headers.values]
-        Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+        Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         X-Content-Type-Options = "nosniff"
         Referrer-Policy = "strict-origin-when-cross-origin"
         Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"

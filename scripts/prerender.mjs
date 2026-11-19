@@ -13,9 +13,9 @@ const { render, prerenderPaths, sitemapEntries, llmsTxt, llmsFullTxt, webManifes
     pathToFileURL(path.join(serverDir, 'entry-server.js')).href
 );
 
-// Preload the body font (Latin subset), so text appears in the right typeface without waiting
-// for the stylesheet to be read. Newsreader (logo only) isn't preloaded: it would compete
-// with each page's main image.
+// Preload the body font (Latin subset), so the browser fetches it straight away rather than
+// when it meets the stylesheet's @font-face. Newsreader, the wordmark's font, needs no
+// preload: it's a 2.5 KB subset inside the stylesheet itself (see index.css).
 const assets = fs.readdirSync(path.join(dist, 'assets'));
 const FONTS = [/^space-grotesk-latin-wght-normal-.*\.woff2$/];
 const preloads = FONTS.map((pattern) => {
@@ -24,8 +24,19 @@ const preloads = FONTS.map((pattern) => {
     return `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin>`;
 }).join('\n');
 
-const template = fs
-    .readFileSync(path.join(dist, 'index.html'), 'utf8')
+// The stylesheet, inlined into each page rather than linked: a linked stylesheet blocks the
+// first paint until it has downloaded (on a phone, a round trip of several hundred ms). It's
+// small (about 12 KB compressed), and the CSP allows inline styles.
+const STYLESHEET = /<link rel="stylesheet"[^>]*href="\/assets\/([^"]+\.css)"[^>]*>/;
+const indexHtml = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
+const stylesheet = indexHtml.match(STYLESHEET);
+if (!stylesheet) throw new Error('No stylesheet in dist/index.html to inline');
+const css = fs.readFileSync(path.join(dist, 'assets', stylesheet[1]), 'utf8');
+if (css.includes('</style'))
+    throw new Error('The stylesheet contains </style: it can’t be inlined');
+
+const template = indexHtml
+    .replace(stylesheet[0], () => `<style>${css}</style>`)
     .replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n${preloads}`);
 
 // Tags a page puts in <head> through PageMeta. React leaves them in the rendered markup;

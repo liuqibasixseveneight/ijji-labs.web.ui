@@ -77,12 +77,12 @@ export const NavMenu = ({ id, isOpen, setIsOpen, links, label = 'Main', footer }
                     {footer ?? (
                         <>
                             <a
-                                href={`mailto:${site.email}`}
+                                href={`mailto:${site.studioEmail}`}
                                 // overflow-hidden: the rolling copy waiting below is clipped from
                                 // view, but would still count towards the menu's scroll height.
                                 className='group overflow-hidden text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
                             >
-                                <RollingText>{site.email}</RollingText>
+                                <RollingText>{site.studioEmail}</RollingText>
                             </a>
                             <span>{site.location}</span>
                         </>
