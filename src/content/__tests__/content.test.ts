@@ -41,12 +41,13 @@ describe('content', () => {
         expect(promises.filter((text) => !text.includes(site.replyTime))).toEqual([]);
     });
 
-    it('gives only the one contact email address', () => {
+    // support@ for the apps and the policies; hello@ for the studio's enquiries.
+    it('gives only the two contact addresses, each from site.ts', () => {
         const emails = allText(content).flatMap(
             (text) => text.match(/[\w.+-]+@[\w-]+\.[\w.]+/g) ?? [],
         );
 
-        expect(new Set(emails)).toEqual(new Set([site.email]));
+        expect(new Set(emails)).toEqual(new Set([site.email, site.studioEmail]));
     });
 });
 

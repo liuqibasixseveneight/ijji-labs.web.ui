@@ -4,8 +4,16 @@ import { clsx } from 'clsx';
 
 import { site } from '../../../../content/site.ts';
 import { Logo, RollingText } from '../../atoms';
-import { markerLink, markerLinkRollIn } from '../../atoms/TextLink/markerLink.ts';
 import { footerLinks, legalLinks } from './footerLinks.ts';
+
+/**
+ * The footer's hover line: a thin yellow line along the text's foot that sweeps in from the
+ * left on hover or keyboard focus (and stays, on the page you're on). Put it on the link, or
+ * on the text inside one marked `group`: `group-hover:` only matches inside the group, so both
+ * are here.
+ */
+const underline =
+    'relative after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:bg-brand-primary after:origin-left after:scale-x-0 after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:scale-x-100 focus-visible:after:scale-x-100 group-hover:after:scale-x-100 group-focus-visible:after:scale-x-100';
 
 /** A column's heading: small, spaced capitals, as the site's eyebrows. */
 const ColumnHeading = ({ children }: { children: string }) => (
@@ -33,7 +41,8 @@ const FooterLink = ({
             className={({ isActive }) =>
                 clsx(
                     'group inline-block text-sm transition-colors duration-300 hover:text-brand-primary focus-visible:text-brand-primary',
-                    isActive ? 'text-brand-primary' : 'text-white/70',
+                    underline,
+                    isActive ? 'text-brand-primary after:scale-x-100' : 'text-white/70',
                 )
             }
         >
@@ -66,7 +75,9 @@ const BackToTop = () => (
         }}
         className='group inline-flex items-center gap-2 text-white/70 hover:text-brand-primary focus-visible:text-brand-primary transition-colors cursor-pointer'
     >
-        <RollingText>Back to top</RollingText>
+        <span className={underline}>
+            <RollingText>Back to top</RollingText>
+        </span>
         <svg
             aria-hidden='true'
             viewBox='0 0 14 14'
@@ -104,17 +115,33 @@ export const Footer = () => (
                         Have a website in mind?
                     </h2>
                     <p className='mt-4 text-white/60'>
-                        Tell us about your business and what you need. We reply {site.replyTime}.
+                        Tell us about your business or project, and what you need. We reply{' '}
+                        {site.replyTime}.
                     </p>
                 </div>
+                {/* The footer's own link style, larger: white, turning yellow and rolling. */}
                 <a
-                    href={`mailto:${site.email}`}
-                    className={clsx(
-                        markerLink('dark'),
-                        'group self-start lg:self-auto px-1 -mx-1 text-xl md:text-2xl font-bold [--marker-rest:0.14] [overflow-wrap:anywhere]',
-                    )}
+                    href={`mailto:${site.studioEmail}`}
+                    className='group self-start lg:self-auto inline-flex items-center gap-2.5 max-w-full text-xl md:text-2xl font-bold text-white hover:text-brand-primary focus-visible:text-brand-primary transition-colors'
                 >
-                    <RollingText rollInClassName={markerLinkRollIn}>{site.email}</RollingText>
+                    {/* Not clipped: overflow would hide the line below the text. */}
+                    <span className={clsx(underline, '[overflow-wrap:anywhere]')}>
+                        <RollingText>{site.studioEmail}</RollingText>
+                    </span>
+                    <svg
+                        aria-hidden='true'
+                        viewBox='0 0 14 14'
+                        fill='none'
+                        className='shrink-0 w-4 h-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:-translate-y-0.5'
+                    >
+                        <path
+                            d='M1 13L13 1M13 1H4M13 1V10'
+                            stroke='currentColor'
+                            strokeWidth='1.5'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                        />
+                    </svg>
                 </a>
             </section>
 
