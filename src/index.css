@@ -1,15 +1,29 @@
 /**
-  FONTS (self-hosted from @fontsource, no third-party requests):
-  NEWSREADER      - HEADINGS
-  SPACE GROTESK   - BODY TEXT
+  FONTS (self-hosted, no third-party requests):
+  NEWSREADER      - THE WORDMARK, THE HOME HERO AND THE STUDIO MARK
+  SPACE GROTESK   - EVERYTHING ELSE (from @fontsource)
  */
-@import '@fontsource-variable/newsreader/wght.css';
 @import '@fontsource-variable/space-grotesk/wght.css';
 @import 'tailwindcss';
 
+/*
+  Newsreader is only ever "ijji labs", "admin" and "ij", at extrabold. So it's a 2.5 KB subset
+  of just those letters at that weight (scripts/subset-newsreader.py), not the 58 KB variable
+  font, and the prerender preloads it on every page: the logo and the home hero's "ijji" (the
+  page's largest paint) don't wait on it. Set other text in Newsreader and its letters must be
+  added to the subset, or they'll fall back to serif.
+*/
+@font-face {
+    font-family: 'Newsreader Logo';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('./assets/fonts/newsreader-logo.woff2') format('woff2');
+}
+
 @theme {
     /* FONTS */
-    --font-newsreader: 'Newsreader Variable', 'Newsreader', serif; /* HEADINGS */
+    --font-newsreader: 'Newsreader Logo', serif; /* THE WORDMARK (a subset: see above) */
     --font-space-grotesk: 'Space Grotesk Variable', 'Space Grotesk', sans-serif; /* BODY TEXT */
 
     /* BRAND */

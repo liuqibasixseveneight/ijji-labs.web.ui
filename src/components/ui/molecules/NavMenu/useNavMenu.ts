@@ -11,6 +11,7 @@ export const useNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const location = useLocation();
+    const lastPathname = useRef(location.pathname);
 
     const handleRouteChange = useEffectEvent(() => {
         const target = location.hash && document.getElementById(location.hash.slice(1));
@@ -18,7 +19,12 @@ export const useNavMenu = () => {
         if (target) target.scrollIntoView();
         else window.scrollTo(0, 0);
 
-        setIsOpen(false);
+        // Close the menu only when the page has changed: on first load this runs too, and it
+        // mustn't shut a menu opened in the moment before it did.
+        if (lastPathname.current !== location.pathname) {
+            lastPathname.current = location.pathname;
+            setIsOpen(false);
+        }
     });
 
     useEffect(() => {

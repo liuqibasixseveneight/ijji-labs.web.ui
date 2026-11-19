@@ -8,7 +8,10 @@ export const site = {
     /** Who is responsible for personal data, as the policies name them. */
     controller: 'ijji labs, a sole trader based in Leeds, United Kingdom',
     location: 'Leeds, United Kingdom',
+    /** For the apps and the policies: support, privacy and deletion requests. */
     email: 'support@ijji-labs.com',
+    /** For the studio: website enquiries, as the footer and the menu give it. */
+    studioEmail: 'hello@ijji-labs.com',
     /** How quickly we answer messages, everywhere it's promised. */
     replyTime: 'within one business day',
     /** How long a web request to delete an app account can take. */

@@ -39,9 +39,11 @@ for (const file of fs.readdirSync(dir).filter((f) => /\.(jpe?g|png)$/i.test(f)))
 }
 
 // App icons (src/assets/images/apps/<slug>.png, square, 1024px, copied from the app's own
-// project) show at 80-160px, so they get small sizes, plus a 512px PNG in public/ for the
-// app's structured data, which needs a URL that never changes.
-const ICON_WIDTHS = [160, 320, 480];
+// project) show at 32-160px. Sizes up to 960px keep them sharp on 3x and 4x screens and when
+// zoomed. They're encoded for quality over size: an icon's dark gradient and lime glow band
+// and blur at photo settings, and at these sizes the extra bytes are small. Plus a 512px PNG
+// in public/ for the app's structured data, which needs a URL that never changes.
+const ICON_WIDTHS = [160, 320, 480, 640, 960];
 const appsDir = path.join(dir, 'apps');
 
 for (const file of fs.readdirSync(appsDir).filter((f) => /\.png$/i.test(f))) {
@@ -52,18 +54,20 @@ for (const file of fs.readdirSync(appsDir).filter((f) => /\.png$/i.test(f))) {
         const resized = source.clone().resize({ width: w });
         await resized
             .clone()
-            .avif({ quality: 60, effort: 6 })
+            // Full colour detail (4:4:4): the default halves it, smearing the lime ring's edge.
+            .avif({ quality: 80, effort: 9, chromaSubsampling: '4:4:4' })
             .toFile(path.join(out, `app-${slug}-${w}.avif`));
         await resized
             .clone()
-            .webp({ quality: 82 })
+            .webp({ quality: 92, smartSubsample: true, effort: 6 })
             .toFile(path.join(out, `app-${slug}-${w}.webp`));
     }
 
     await source
         .clone()
         .resize({ width: 320 })
-        .png({ compressionLevel: 9, palette: true })
+        // Full colour, not a 256-colour palette, which bands the gradient.
+        .png({ compressionLevel: 9 })
         .toFile(path.join(out, `app-${slug}-320.png`));
 
     const publicDir = path.resolve(import.meta.dirname, '../public/apps', slug);
@@ -71,7 +75,7 @@ for (const file of fs.readdirSync(appsDir).filter((f) => /\.png$/i.test(f))) {
     await source
         .clone()
         .resize({ width: 512 })
-        .png({ compressionLevel: 9, palette: true })
+        .png({ compressionLevel: 9 })
         .toFile(path.join(publicDir, 'icon.png'));
 
     console.log(`apps/${file}: ${ICON_WIDTHS.join(', ')}w, public/apps/${slug}/icon.png`);
