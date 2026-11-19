@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 import { useHydrated } from '../../../../lib/useHydrated.ts';
-import { ROLL_MOTION } from '../RollingText/RollingText.tsx';
+import { ROLL_IN, ROLL_MOTION, ROLL_OUT } from '../RollingText/RollingText.tsx';
 import { markerLink } from '../TextLink/markerLink.ts';
 import type { MoreLinkProps } from './types.ts';
 
@@ -53,23 +53,13 @@ export const MoreLink = ({ to, children, tone = 'dark', className }: MoreLinkPro
             )}
         >
             <span className='relative block overflow-hidden'>
-                <span
-                    className={clsx(
-                        ROW,
-                        ROLL,
-                        'group-hover:-translate-y-full group-focus-visible:-translate-y-full',
-                    )}
-                >
+                <span className={clsx(ROW, ROLL, ROLL_OUT)}>
                     <Row>{children}</Row>
                 </span>
                 {hydrated && (
                     <span
                         aria-hidden='true'
-                        className={clsx(
-                            ROW,
-                            ROLL,
-                            'absolute inset-0 translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0',
-                        )}
+                        className={clsx(ROW, ROLL, 'absolute inset-0', ROLL_IN)}
                     >
                         <Row>{children}</Row>
                     </span>

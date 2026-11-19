@@ -12,6 +12,18 @@ import type { RollingTextProps } from './types.ts';
 export const ROLL_MOTION =
     'transition-transform duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] will-change-transform';
 
+/**
+ * How far the text rolls: its own height plus 0.25em. Letters' ink can reach past the line
+ * box, most of all with tight leading (the menu's labels, at 1.05, put descenders about
+ * 0.03em below it), so rolling exactly one line left the bottoms of g, j, p, q and y showing
+ * along the top. The extra clears the clip (which itself reaches 0.1em past the line box,
+ * so descenders aren't shaved at rest) with room to spare. MoreLink uses the same values.
+ */
+export const ROLL_OUT =
+    'group-hover:translate-y-[calc(-100%_-_0.25em)] group-focus-visible:translate-y-[calc(-100%_-_0.25em)]';
+export const ROLL_IN =
+    'translate-y-[calc(100%_+_0.25em)] group-hover:translate-y-0 group-focus-visible:translate-y-0';
+
 const roll = `inline-block ${ROLL_MOTION}`;
 
 /**
@@ -28,23 +40,13 @@ export const RollingText = ({ children, className, rollInClassName }: RollingTex
     const hydrated = useHydrated();
 
     return (
-        <span className={clsx('relative inline-block [clip-path:inset(0)]', className)}>
-            <span
-                className={clsx(
-                    roll,
-                    'group-hover:-translate-y-full group-focus-visible:-translate-y-full',
-                )}
-            >
-                {children}
-            </span>
+        // Clipped 0.1em beyond the line box, top and bottom, so descenders and accents show.
+        <span className={clsx('relative inline-block [clip-path:inset(-0.1em_0)]', className)}>
+            <span className={clsx(roll, ROLL_OUT)}>{children}</span>
             {hydrated && (
                 <span
                     aria-hidden='true'
-                    className={clsx(
-                        roll,
-                        'absolute inset-0 translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0',
-                        rollInClassName,
-                    )}
+                    className={clsx(roll, 'absolute inset-0', ROLL_IN, rollInClassName)}
                 >
                     {children}
                 </span>
