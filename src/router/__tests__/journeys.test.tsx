@@ -303,7 +303,7 @@ describe('jump links stay on the page', () => {
             path: '/services',
             links: ['Websites', 'Handover & Training', 'Post-Launch Support', 'FAQ'],
         },
-        { path: '/projects', links: ['CluedIn', 'Dedalus', 'DXC Technology', 'Our approach'] },
+        { path: '/projects', links: ['CluedIn', 'Dedalus', 'DXC Technology', 'Our process'] },
         { path: tracker.root, links: ['What it does', 'Privacy and support'] },
     ])('$path', ({ path, links }) => {
         renderApp(path);
