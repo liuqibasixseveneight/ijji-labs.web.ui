@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 
 import { siteGraph } from '../../../content/structuredData.ts';
-import { Footer, Navbar, StructuredData, type Palette } from '../../ui';
+import { BackToTop, Footer, Navbar, StructuredData, type Palette } from '../../ui';
 import type { HomeContextProps } from '../../pages/Home/types.ts';
 
 export const RootLayout = () => {
@@ -47,6 +47,7 @@ export const RootLayout = () => {
             </main>
 
             <Footer />
+            <BackToTop />
         </div>
     );
 };

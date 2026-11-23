@@ -1,4 +1,5 @@
 export * from './AppMark';
+export * from './BackToTop';
 export * from './ArtisticFrame';
 export * from './BadgeLink';
 export * from './Button';

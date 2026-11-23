@@ -24,6 +24,16 @@ export const startSmoothScroll = () => {
     requestAnimationFrame(raf);
 };
 
+/** Glides back to the top of the page (jumps, for people who ask for less motion). */
+export const scrollToTop = () => {
+    if (lenis) {
+        lenis.scrollTo(0);
+        return;
+    }
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+};
+
 /**
  * Click handler for an in-page link (`href='#our-story'`): glides to the section rather than
  * jumping, landing below the navbar (Lenis and the browser both honour `scroll-margin-top`).
