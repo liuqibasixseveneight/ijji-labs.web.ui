@@ -4,8 +4,9 @@ import { useId } from 'react';
  * IJJI Tracker's icon, drawn as vectors so it stays sharp at any size, screen density or zoom.
  * Measured from the app's own 1024px icon.png (src/assets/images/apps/ijji-tracker.png): a
  * dark diagonal gradient, a grey track, and a lime ring three-quarters round with round caps,
- * shading from light at the top to deeper at the end, with a faint glow. The PNG still
- * serves structured data and anywhere an image file is needed.
+ * shading from light at the top to deeper at the end. The PNG's glow is left out: at icon
+ * sizes it hazes the ring's edge. The PNG still serves structured data and anywhere an image
+ * file is needed.
  */
 export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
     // Unique per icon, so two on one page don't share gradients; plain characters only, as
@@ -61,9 +62,6 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                     <stop offset='0' stopColor='#B3E716' />
                     <stop offset='1' stopColor='#A8E000' />
                 </linearGradient>
-                <filter id={`${id}-glow`} x='-20%' y='-20%' width='140%' height='140%'>
-                    <feGaussianBlur stdDeviation='16' />
-                </filter>
                 {/* A hair of softness on the ring and track, as the app's own icon has: drawn
                     perfectly crisp, they look cut out at icon sizes. */}
                 <filter
@@ -74,7 +72,7 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                     height='1024'
                     filterUnits='userSpaceOnUse'
                 >
-                    <feGaussianBlur stdDeviation='3' />
+                    <feGaussianBlur stdDeviation='2' />
                 </filter>
             </defs>
 
@@ -84,18 +82,9 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                 cy='512'
                 r='262'
                 fill='none'
-                stroke='#303237'
+                stroke='#34363B'
                 strokeWidth='88'
                 filter={`url(#${id}-soft)`}
-            />
-            <path
-                d='M512 250A262 262 0 1 1 250 512'
-                fill='none'
-                stroke='#B8EB21'
-                strokeWidth='88'
-                strokeLinecap='round'
-                opacity='0.22'
-                filter={`url(#${id}-glow)`}
             />
             <g fill='none' strokeWidth='88' strokeLinecap='round' filter={`url(#${id}-soft)`}>
                 <path d='M512 774A262 262 0 0 1 250 512' stroke={`url(#${id}-c)`} />

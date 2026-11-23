@@ -33,7 +33,8 @@ export const AppMark = ({ slug, size = 'md', priority = false }: AppMarkProps) =
     return (
         <span
             className={clsx(
-                'inline-block shrink-0 overflow-hidden ring-1 ring-white/10 shadow-[0_20px_60px_-20px_rgba(190,240,40,0.35)]',
+                // No glow under the tile: it hazes the icon's edges.
+                'inline-block shrink-0 overflow-hidden ring-1 ring-white/10',
                 SIZES[size].frame,
             )}
         >
