@@ -64,10 +64,30 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                 <filter id={`${id}-glow`} x='-20%' y='-20%' width='140%' height='140%'>
                     <feGaussianBlur stdDeviation='16' />
                 </filter>
+                {/* A hair of softness on the ring and track, as the app's own icon has: drawn
+                    perfectly crisp, they look cut out at icon sizes. */}
+                <filter
+                    id={`${id}-soft`}
+                    x='0'
+                    y='0'
+                    width='1024'
+                    height='1024'
+                    filterUnits='userSpaceOnUse'
+                >
+                    <feGaussianBlur stdDeviation='3' />
+                </filter>
             </defs>
 
             <rect width='1024' height='1024' fill={`url(#${id}-bg)`} />
-            <circle cx='512' cy='512' r='262' fill='none' stroke='#303237' strokeWidth='88' />
+            <circle
+                cx='512'
+                cy='512'
+                r='262'
+                fill='none'
+                stroke='#303237'
+                strokeWidth='88'
+                filter={`url(#${id}-soft)`}
+            />
             <path
                 d='M512 250A262 262 0 1 1 250 512'
                 fill='none'
@@ -77,7 +97,7 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                 opacity='0.22'
                 filter={`url(#${id}-glow)`}
             />
-            <g fill='none' strokeWidth='88' strokeLinecap='round'>
+            <g fill='none' strokeWidth='88' strokeLinecap='round' filter={`url(#${id}-soft)`}>
                 <path d='M512 774A262 262 0 0 1 250 512' stroke={`url(#${id}-c)`} />
                 <path d='M774 512A262 262 0 0 1 512 774' stroke={`url(#${id}-b)`} />
                 <path d='M512 250A262 262 0 0 1 774 512' stroke={`url(#${id}-a)`} />
