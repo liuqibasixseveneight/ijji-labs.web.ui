@@ -68,7 +68,11 @@ export const Navbar = ({ isGradientDark }: NavbarProps) => {
                     className='absolute inset-0 -z-10 bg-ui-background-secondary opacity-0'
                 />
                 <div className='flex-1 flex items-center justify-between h-full w-full max-w-380 mx-auto px-6 md:px-8'>
-                    <Logo isMenuOpen={isOpen} isWhite={isWhite} />
+                    <Logo
+                        isMenuOpen={isOpen}
+                        isWhite={isWhite}
+                        onNavigate={() => setIsOpen(false)}
+                    />
 
                     <div className='flex items-center justify-center gap-4 md:gap-10'>
                         <Button

@@ -6,6 +6,7 @@ import { site } from '../../../../content/site.ts';
 import { Logo, RollingText } from '../../atoms';
 import { sweepUnderline as underline } from '../../atoms/TextLink/sweepUnderline.ts';
 import { footerLinks, legalLinks } from './footerLinks.ts';
+import { scrollToTop } from '../../../../lib/smoothScroll.ts';
 
 /** A column's heading: small, spaced capitals, as the site's eyebrows. */
 const ColumnHeading = ({ children }: { children: string }) => (
@@ -57,12 +58,11 @@ const Column = ({ title, children }: { title: string; children: ReactNode }) => 
  * Back to the top of the page, and to its main content for keyboard and screen reader users
  * (focus goes there too). Smooth unless the device asks for less motion.
  */
-const BackToTop = () => (
+const FooterBackToTop = () => (
     <button
         type='button'
         onClick={() => {
-            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+            scrollToTop();
             document.getElementById('main')?.focus({ preventScroll: true });
         }}
         className='group inline-flex items-center gap-2 text-white/70 hover:text-brand-primary focus-visible:text-brand-primary transition-colors cursor-pointer'
@@ -175,7 +175,7 @@ export const Footer = () => (
 
             <div className='flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between py-6 text-sm text-white/60'>
                 <p>&copy; 2026 {site.name}</p>
-                <BackToTop />
+                <FooterBackToTop />
             </div>
         </div>
     </footer>

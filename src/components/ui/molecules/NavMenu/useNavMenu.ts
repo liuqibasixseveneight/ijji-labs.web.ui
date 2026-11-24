@@ -1,6 +1,8 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { jumpTo } from '../../../../lib/smoothScroll.ts';
+
 /**
  * The full-screen menu's behaviour, shared by the site's navbar and the admin dashboard's:
  * - A new page starts at the top (or at the section its link names, as in
@@ -16,8 +18,7 @@ export const useNavMenu = () => {
     const handleRouteChange = useEffectEvent(() => {
         const target = location.hash && document.getElementById(location.hash.slice(1));
 
-        if (target) target.scrollIntoView();
-        else window.scrollTo(0, 0);
+        jumpTo(target || undefined);
 
         // Close the menu only when the page has changed: on first load this runs too, and it
         // mustn't shut a menu opened in the moment before it did.

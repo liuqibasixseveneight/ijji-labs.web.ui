@@ -1,7 +1,9 @@
 import { clsx } from 'clsx';
+import type { ComponentType } from 'react';
 
 import { appIcons } from '../../../../assets/images';
 import { ResponsiveImage } from '../ResponsiveImage/ResponsiveImage.tsx';
+import { IjjiTrackerIcon } from './IjjiTrackerIcon.tsx';
 import type { AppMarkProps } from './types.ts';
 
 const SIZES = {
@@ -14,22 +16,39 @@ const SIZES = {
 } as const;
 
 /**
+ * Apps whose icon is drawn as vectors, so it's sharp at every size and screen. An app without
+ * one shows its icon.png through `appIcons`.
+ */
+const VECTOR_ICONS: Record<string, ComponentType<{ className?: string }>> = {
+    'ijji-tracker': IjjiTrackerIcon,
+};
+
+/**
  * An app's own icon, in the rounded app-icon shape. Decorative: the app's name is always
  * written beside it.
  */
-export const AppMark = ({ slug, size = 'md', priority = false }: AppMarkProps) => (
-    <span
-        className={clsx(
-            'inline-block shrink-0 overflow-hidden ring-1 ring-white/10 shadow-[0_20px_60px_-20px_rgba(190,240,40,0.35)]',
-            SIZES[size].frame,
-        )}
-    >
-        <ResponsiveImage
-            image={appIcons[slug]}
-            alt=''
-            sizes={SIZES[size].sizes}
-            priority={priority}
-            className='block w-full h-full'
-        />
-    </span>
-);
+export const AppMark = ({ slug, size = 'md', priority = false }: AppMarkProps) => {
+    const Vector = VECTOR_ICONS[slug];
+
+    return (
+        <span
+            className={clsx(
+                // No glow under the tile: it hazes the icon's edges.
+                'inline-block shrink-0 overflow-hidden ring-1 ring-white/10',
+                SIZES[size].frame,
+            )}
+        >
+            {Vector ? (
+                <Vector className='block w-full h-full' />
+            ) : (
+                <ResponsiveImage
+                    image={appIcons[slug]}
+                    alt=''
+                    sizes={SIZES[size].sizes}
+                    priority={priority}
+                    className='block w-full h-full'
+                />
+            )}
+        </span>
+    );
+};

@@ -12,30 +12,27 @@ import {
 
 export const HomeAbout = () => (
     <>
+        {/* One dark band: the heading, the photo, then who we are. The text keeps a comfortable
+        line length. */}
         <Section tone='dark' labelledBy='home-about-title'>
             <SectionIntro id='home-about-title' title='About us' />
-            <ArtisticFrame className='w-full'>
+            <ArtisticFrame className='w-full mb-16'>
                 <ResponsiveImage
                     image={aboutImageOne}
                     alt='Shared computer office working space'
                     className='block w-full h-auto max-h-[65vh] object-cover'
                 />
             </ArtisticFrame>
-        </Section>
-
-        {/* Full width, so it lines up with the sections around it; the text itself keeps a
-        comfortable line length. */}
-        <Section tone='light'>
             <div className='flex flex-col max-w-260'>
-                <SectionIntro tone='light' size='heading' level={3} title={homeCopy.about.title} />
+                <SectionIntro size='heading' level={3} title={homeCopy.about.title} />
                 <div className='flex flex-col gap-8'>
                     {homeCopy.about.paragraphs.map((paragraph) => (
-                        <p key={paragraph} className='text-xl'>
+                        <p key={paragraph} className='text-xl text-white/70'>
                             {paragraph}
                         </p>
                     ))}
                 </div>
-                <MoreLink to={paths.about} tone='light' className='mt-10'>
+                <MoreLink to={paths.about} className='mt-10'>
                     More about us
                 </MoreLink>
             </div>
