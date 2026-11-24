@@ -22,7 +22,7 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
             const y = window.scrollY;
             const isPastFirstScreen = y > window.innerHeight * 0.8;
             const isAtBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
-            const isWide = window.matchMedia('(min-width: 768px)').matches;
+            const isWide = window.matchMedia?.('(min-width: 768px)').matches ?? true;
             if (isWide || y < lastY - 4 || isAtBottom || !isPastFirstScreen) {
                 setIsShown(isPastFirstScreen);
             } else if (y > lastY + 4) {

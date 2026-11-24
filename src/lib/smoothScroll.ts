@@ -30,7 +30,7 @@ export const scrollToTop = () => {
         lenis.scrollTo(0);
         return;
     }
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
 };
 
@@ -55,7 +55,7 @@ export const scrollToHash = (event: MouseEvent<HTMLAnchorElement>) => {
     if (lenis) {
         lenis.scrollTo(target);
     } else {
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
         target.scrollIntoView?.({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     }
 
