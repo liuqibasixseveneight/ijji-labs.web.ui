@@ -171,6 +171,11 @@ body {
     outline-offset: 3px;
 }
 
+/* A section focused by a jump link (or <main> by the skip link) isn't a control: no ring. */
+[tabindex='-1']:focus-visible {
+    outline: none;
+}
+
 /* Policies and other long reads print cleanly: no navbar, menu or footer, black on white. */
 @media print {
     [data-print='hide'] {

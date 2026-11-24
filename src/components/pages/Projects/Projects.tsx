@@ -15,7 +15,7 @@ import * as ld from '../../../content/structuredData.ts';
 
 const LINKS = [
     ...projects.map((project) => ({ label: project.name, href: `#${project.anchor}` })),
-    { label: 'Our approach', href: '#our-approach' },
+    { label: 'Our process', href: '#our-approach' },
 ];
 
 export const Projects = () => (
