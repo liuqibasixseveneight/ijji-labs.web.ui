@@ -21,7 +21,8 @@ export const AppCard = ({ app, headingLevel = 3 }: AppCardProps) => {
                 </div>
             </ArtisticFrame>
 
-            <div className='flex flex-col gap-4'>
+            {/* As wide as its content, so the button centres under the text, not the column. */}
+            <div className='flex flex-col gap-4 w-full max-w-lg'>
                 <p className='text-sm sm:text-base text-neutral-400 uppercase font-semibold'>
                     Our app
                 </p>

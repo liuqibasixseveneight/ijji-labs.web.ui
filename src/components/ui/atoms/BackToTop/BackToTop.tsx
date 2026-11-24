@@ -6,10 +6,11 @@ import { useHydrated } from '../../../../lib/useHydrated.ts';
 import type { BackToTopProps } from './types.ts';
 
 /**
- * A small round button in the bottom-right corner that glides back to the top of the page.
- * Past the first screen it shows while scrolling up or at the end of the page, and steps
- * aside (inert) while scrolling down or near the top. Pressing it moves focus to the top of the page too, so the next Tab starts there.
- * Browser-only: it isn't in the pre-rendered HTML.
+ * A small round button in the bottom-right corner that glides back to the top of the page,
+ * and moves focus there too, so the next Tab starts at the top. It shows once the first
+ * screen has scrolled away. On a phone, where it would sit over the content's own controls,
+ * it steps aside while scrolling down and comes back on the way up or at the end of the page.
+ * Hidden, it's inert. Browser-only: it isn't in the pre-rendered HTML.
  */
 export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
     const isHydrated = useHydrated();
@@ -21,9 +22,8 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
             const y = window.scrollY;
             const isPastFirstScreen = y > window.innerHeight * 0.8;
             const isAtBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
-            // Out of the way while reading down the page (it would cover the content's own
-            // controls on a phone); back when heading up, or at the end of the page.
-            if (y < lastY - 4 || isAtBottom || !isPastFirstScreen) {
+            const isWide = window.matchMedia('(min-width: 768px)').matches;
+            if (isWide || y < lastY - 4 || isAtBottom || !isPastFirstScreen) {
                 setIsShown(isPastFirstScreen);
             } else if (y > lastY + 4) {
                 setIsShown(false);

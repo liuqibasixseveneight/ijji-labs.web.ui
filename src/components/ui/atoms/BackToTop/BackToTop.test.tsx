@@ -32,7 +32,17 @@ describe('BackToTop', () => {
         expect(screen.getByRole('button', { name: 'Back to top' })).toHaveAttribute('inert');
     });
 
-    it('steps aside while scrolling down, and comes back on the way up', () => {
+    it('stays once the first screen has scrolled away, on a wider screen', () => {
+        window.matchMedia = vi.fn().mockReturnValue({ matches: true });
+        render(<BackToTop />);
+
+        scrollTo(1200);
+        scrollTo(1400);
+
+        expect(screen.getByRole('button', { name: 'Back to top' })).not.toHaveAttribute('inert');
+    });
+
+    it('on a phone, steps aside while scrolling down, and comes back on the way up', () => {
         render(<BackToTop />);
         const button = screen.getByRole('button', { name: 'Back to top' });
 
