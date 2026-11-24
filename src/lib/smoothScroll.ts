@@ -24,16 +24,38 @@ export const startSmoothScroll = () => {
     requestAnimationFrame(raf);
 };
 
-/** Tells Lenis where the page really is, so its next glide starts from here. */
-const resync = (instance: Lenis) =>
-    instance.scrollTo(window.scrollY, { immediate: true, force: true });
+/**
+ * Ends any glide and tells Lenis where the page really is, so what comes next starts from
+ * here. (Lenis keeps its own idea of the position: it misses jumps made while it was busy,
+ * and mid-glide it can think it's still where it set off.)
+ */
+const resync = (instance: Lenis) => {
+    instance.stop();
+    instance.start();
+};
+
+/**
+ * Puts a new page at its top, or at a section (`target`), at once. Through Lenis when it's
+ * running, which also stops any glide still going: a plain window.scrollTo is ignored while
+ * Lenis glides (say, the wheel's last flick when a link is clicked), and the glide would then
+ * carry the new page down to where the old one was heading.
+ */
+export const jumpTo = (target?: HTMLElement) => {
+    if (lenis) {
+        resync(lenis);
+        // Measure the page first: on a first load Lenis can still think it's empty, and would
+        // clamp a section's position to 0.
+        lenis.resize();
+        lenis.scrollTo(target ?? 0, { immediate: true, force: true });
+        return;
+    }
+    if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+};
 
 /** Glides back to the top of the page (jumps, for people who ask for less motion). */
 export const scrollToTop = () => {
     if (lenis) {
-        // Resync first: Lenis keeps its own idea of where the page is, and misses a jump made
-        // while it was busy (an instant scroll, a page change), so it could think it's already
-        // at the top and do nothing.
         resync(lenis);
         lenis.scrollTo(0);
         return;
