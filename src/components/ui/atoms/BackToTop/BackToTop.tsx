@@ -47,39 +47,48 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
     };
 
     return (
-        <button
-            type='button'
-            aria-label='Back to top'
-            onClick={handleClick}
-            inert={!isShown}
+        // Fixed to the bottom of the screen, but inside the same width and gutters as the
+        // content (Section's 'wide'), so the button lines up with the page's right edge.
+        <div
             data-print='hide'
-            className={clsx(
-                'group fixed z-5 right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] md:right-8 md:bottom-8',
-                'flex items-center justify-center w-12 h-12 rounded-full cursor-pointer',
-                'bg-brand-primary text-ui-background-primary border border-ui-background-primary',
-                'shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)] transition-[opacity,translate] duration-300',
-                // A dark ring inside a white halo, so focus shows on dark and light sections.
-                'focus-visible:outline-ui-background-primary focus-visible:shadow-[0_0_0_7px_white]',
-                isShown
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-3 pointer-events-none',
-            )}
+            className='fixed z-5 inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] md:bottom-8 pointer-events-none'
         >
-            <svg
-                viewBox='0 0 24 24'
-                width='20'
-                height='20'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2.25'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                aria-hidden
-                className='transition-transform duration-300 group-hover:-translate-y-0.5'
-            >
-                <path d='M12 19V5' />
-                <path d='m5 12 7-7 7 7' />
-            </svg>
-        </button>
+            <div className='mx-auto w-full max-w-380 px-6 md:px-8 flex justify-end'>
+                <button
+                    type='button'
+                    aria-label='Back to top'
+                    onClick={handleClick}
+                    inert={!isShown}
+                    className={clsx(
+                        // Quiet, as the page's badge links: dark, a hairline border, a pale arrow
+                        // that brightens on hover. Dark, so it reads on dark and white sections.
+                        'group flex items-center justify-center w-11 h-11 rounded-full cursor-pointer',
+                        'bg-ui-background-primary border border-white/20 text-white/70',
+                        'hover:border-white/50 hover:text-white transition-[opacity,translate,color,border-color] duration-300',
+                        // The ring sits on the button's own dark edge, so it shows on white too.
+                        'focus-visible:outline-offset-0',
+                        isShown
+                            ? 'opacity-100 translate-y-0 pointer-events-auto'
+                            : 'opacity-0 translate-y-2 pointer-events-none',
+                    )}
+                >
+                    <svg
+                        viewBox='0 0 24 24'
+                        width='16'
+                        height='16'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='1.75'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        aria-hidden
+                        className='transition-transform duration-300 group-hover:-translate-y-0.5'
+                    >
+                        <path d='M12 19V5' />
+                        <path d='m5 12 7-7 7 7' />
+                    </svg>
+                </button>
+            </div>
+        </div>
     );
 };
