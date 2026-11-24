@@ -1,13 +1,23 @@
 import { clsx } from 'clsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 import { scrollToTop } from '../../../../lib/smoothScroll.ts';
 import { useHydrated } from '../../../../lib/useHydrated.ts';
+import { RollingText } from '../RollingText/RollingText.tsx';
 import type { BackToTopProps } from './types.ts';
 
+// The cut corner, as the site's Button draws it: a custom property, so hover can deepen it.
+const CUT_STYLE = {
+    '--cut-rest': '10px',
+    clipPath: 'polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%)',
+} as CSSProperties;
+
 /**
- * A small round button in the bottom-right corner that glides back to the top of the page,
- * and moves focus there too, so the next Tab starts at the top. It shows once the first
+ * The site's yellow, corner-cut button, small, in the bottom-right corner: it glides back to
+ * the top of the page,
+ * and moves focus there too, so the next Tab starts at the top. "Back to top" shows from
+ * tablets up; on a phone it's the arrow alone (the words stay for screen readers). It shows
+ * once the first
  * screen has scrolled away. On a phone, where it would sit over the content's own controls,
  * it steps aside while scrolling down and comes back on the way up or at the end of the page.
  * Hidden, it's inert. Browser-only: it isn't in the pre-rendered HTML.
@@ -56,37 +66,50 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
             <div className='mx-auto w-full max-w-380 px-6 md:px-8 flex justify-end'>
                 <button
                     type='button'
-                    aria-label='Back to top'
                     onClick={handleClick}
                     inert={!isShown}
                     className={clsx(
-                        // Quiet, as the page's badge links: dark, a hairline border, a pale arrow
-                        // that brightens on hover. Dark, so it reads on dark and white sections.
-                        'group flex items-center justify-center w-11 h-11 rounded-full cursor-pointer',
-                        'bg-ui-background-primary border border-white/20 text-white/70',
-                        'hover:border-white/50 hover:text-white transition-[opacity,translate,color,border-color] duration-300',
-                        // The ring sits on the button's own dark edge, so it shows on white too.
-                        'focus-visible:outline-offset-0',
+                        'group pointer-events-auto rounded-l-4xl cursor-pointer',
+                        'transition-[opacity,translate] duration-300',
+                        // The shape below is clipped, which would clip a focus ring too, so the
+                        // ring is the button's: dark in a white halo, to show on any section.
+                        'focus-visible:outline-ui-background-primary focus-visible:outline-offset-2 focus-visible:shadow-[0_0_0_6px_white]',
                         isShown
-                            ? 'opacity-100 translate-y-0 pointer-events-auto'
+                            ? 'opacity-100 translate-y-0'
                             : 'opacity-0 translate-y-2 pointer-events-none',
                     )}
                 >
-                    <svg
-                        viewBox='0 0 24 24'
-                        width='16'
-                        height='16'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.75'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        aria-hidden
-                        className='transition-transform duration-300 group-hover:-translate-y-0.5'
+                    {/* As the site's Button: yellow, rounded on the left, the top-right corner
+                        cut, deepening on hover or focus, and the label rolling up. */}
+                    <span
+                        style={CUT_STYLE}
+                        className={clsx(
+                            'flex items-center justify-center gap-2 h-11 px-4 md:pl-5 md:pr-6 rounded-l-4xl',
+                            'bg-brand-primary text-ui-background-primary',
+                            'whitespace-nowrap font-extrabold tracking-widest uppercase text-xs',
+                            '[--cut:var(--cut-rest)] group-hover:[--cut:calc(var(--cut-rest)*1.8)] group-focus-visible:[--cut:calc(var(--cut-rest)*1.8)]',
+                            '[transition:clip-path_500ms_cubic-bezier(0.22,1,0.36,1),scale_150ms_ease] group-active:scale-[0.97]',
+                        )}
                     >
-                        <path d='M12 19V5' />
-                        <path d='m5 12 7-7 7 7' />
-                    </svg>
+                        <svg
+                            viewBox='0 0 24 24'
+                            width='16'
+                            height='16'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='2.25'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            aria-hidden
+                            className='shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5'
+                        >
+                            <path d='M12 19V5' />
+                            <path d='m5 12 7-7 7 7' />
+                        </svg>
+                        <span className='sr-only md:not-sr-only'>
+                            <RollingText>Back to top</RollingText>
+                        </span>
+                    </span>
                 </button>
             </div>
         </div>
