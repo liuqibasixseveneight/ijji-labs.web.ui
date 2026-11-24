@@ -83,13 +83,15 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
                     inert={!isVisible}
                     className={clsx(
                         'group pointer-events-auto rounded-l-4xl cursor-pointer',
-                        'transition-[opacity,translate] duration-300',
+                        // Rises and settles in with the site's ease-out (as the Button's corner),
+                        // and slips away a little quicker, easing in, so leaving never lingers.
+                        'transition-[opacity,translate,scale]',
                         // The shape below is clipped, which would clip a focus ring too, so the
                         // ring is the button's: dark in a white halo, to show on any section.
                         'focus-visible:outline-ui-background-primary focus-visible:outline-offset-2 focus-visible:shadow-[0_0_0_6px_white]',
                         isVisible
-                            ? 'opacity-100 translate-y-0'
-                            : 'opacity-0 translate-y-2 pointer-events-none',
+                            ? 'opacity-100 translate-y-0 scale-100 duration-600 ease-[cubic-bezier(0.22,1,0.36,1)]'
+                            : 'opacity-0 translate-y-4 scale-95 duration-300 ease-[cubic-bezier(0.55,0,1,0.45)] pointer-events-none',
                     )}
                 >
                     {/* As the site's Button: yellow, rounded on the left, the top-right corner
