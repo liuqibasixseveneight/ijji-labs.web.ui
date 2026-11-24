@@ -24,9 +24,17 @@ export const startSmoothScroll = () => {
     requestAnimationFrame(raf);
 };
 
+/** Tells Lenis where the page really is, so its next glide starts from here. */
+const resync = (instance: Lenis) =>
+    instance.scrollTo(window.scrollY, { immediate: true, force: true });
+
 /** Glides back to the top of the page (jumps, for people who ask for less motion). */
 export const scrollToTop = () => {
     if (lenis) {
+        // Resync first: Lenis keeps its own idea of where the page is, and misses a jump made
+        // while it was busy (an instant scroll, a page change), so it could think it's already
+        // at the top and do nothing.
+        resync(lenis);
         lenis.scrollTo(0);
         return;
     }
@@ -53,6 +61,7 @@ export const scrollToHash = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
 
     if (lenis) {
+        resync(lenis);
         lenis.scrollTo(target);
     } else {
         const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;

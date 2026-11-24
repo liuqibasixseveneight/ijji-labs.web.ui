@@ -97,6 +97,16 @@ describe('the navbar', () => {
         expect(router.state.location.pathname).toBe('/');
     });
 
+    it('logo, on Home itself, glides back to the top and puts focus there', async () => {
+        const { user } = renderApp('/');
+        vi.mocked(window.scrollTo).mockClear();
+
+        await user.click(navbar().getByRole('link', { name: 'ijji labs home' }));
+
+        expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+        expect(screen.getByRole('main')).toHaveFocus();
+    });
+
     it('Get in touch opens Contact, on every screen size', async () => {
         const { user, router } = renderApp('/');
 
@@ -144,6 +154,16 @@ describe('the footer', () => {
         await user.click(footer().getByRole('link', { name: 'ijji labs home' }));
 
         expect(router.state.location.pathname).toBe('/');
+    });
+
+    it('logo, on Home itself, glides back to the top', async () => {
+        const { user } = renderApp('/');
+        vi.mocked(window.scrollTo).mockClear();
+
+        await user.click(footer().getByRole('link', { name: 'ijji labs home' }));
+
+        expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+        expect(screen.getByRole('main')).toHaveFocus();
     });
 });
 
