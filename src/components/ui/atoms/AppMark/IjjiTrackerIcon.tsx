@@ -62,35 +62,26 @@ export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
                     <stop offset='0' stopColor='#B3E716' />
                     <stop offset='1' stopColor='#A8E000' />
                 </linearGradient>
-                {/* A hair of softness on the ring and track, as the app's own icon has: drawn
-                    perfectly crisp, they look cut out at icon sizes. */}
-                <filter
-                    id={`${id}-soft`}
-                    x='0'
-                    y='0'
-                    width='1024'
-                    height='1024'
-                    filterUnits='userSpaceOnUse'
-                >
-                    <feGaussianBlur stdDeviation='2' />
-                </filter>
             </defs>
 
             <rect width='1024' height='1024' fill={`url(#${id}-bg)`} />
-            <circle
-                cx='512'
-                cy='512'
-                r='262'
-                fill='none'
-                stroke='#34363B'
-                strokeWidth='88'
-                filter={`url(#${id}-soft)`}
-            />
-            <g fill='none' strokeWidth='88' strokeLinecap='round' filter={`url(#${id}-soft)`}>
-                <path d='M512 774A262 262 0 0 1 250 512' stroke={`url(#${id}-c)`} />
-                <path d='M774 512A262 262 0 0 1 512 774' stroke={`url(#${id}-b)`} />
-                <path d='M512 250A262 262 0 0 1 774 512' stroke={`url(#${id}-a)`} />
-            </g>
+            {/* A hair of softness on the edges, as the app's own icon has (drawn perfectly crisp,
+                the ring looks cut out at icon sizes): each stroke sits on a slightly wider, faint
+                copy of itself. Plain strokes, not an SVG blur filter, which can crash Firefox's
+                graphics process on some drivers and take its WebGL (the home hero) with it. */}
+            {[
+                { width: 94, opacity: 0.35 },
+                { width: 88, opacity: 1 },
+            ].map(({ width, opacity }) => (
+                <g key={width} fill='none' strokeWidth={width} opacity={opacity}>
+                    <circle cx='512' cy='512' r='262' stroke='#34363B' />
+                    <g strokeLinecap='round'>
+                        <path d='M512 774A262 262 0 0 1 250 512' stroke={`url(#${id}-c)`} />
+                        <path d='M774 512A262 262 0 0 1 512 774' stroke={`url(#${id}-b)`} />
+                        <path d='M512 250A262 262 0 0 1 774 512' stroke={`url(#${id}-a)`} />
+                    </g>
+                </g>
+            ))}
         </svg>
     );
 };
