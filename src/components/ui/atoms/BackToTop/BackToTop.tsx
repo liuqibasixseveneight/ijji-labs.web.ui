@@ -19,21 +19,21 @@ const CUT_STYLE = {
  * tablets up; on a phone it's the arrow alone (the words stay for screen readers). It shows
  * once the first
  * screen has scrolled away. On a phone, where it would sit over the content's own controls,
- * it steps aside while scrolling down and comes back on the way up or at the end of the page.
- * Hidden, it's inert. Browser-only: it isn't in the pre-rendered HTML.
+ * it steps aside while scrolling down and comes back on the way up. It also steps aside
+ * while the footer is on screen, which has its own Back to top. Hidden, it's inert. Browser-only: it isn't in the pre-rendered HTML.
  */
 export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
     const isHydrated = useHydrated();
     const [isShown, setIsShown] = useState(false);
+    const [isFooterInView, setIsFooterInView] = useState(false);
 
     useEffect(() => {
         let lastY = window.scrollY;
         const update = () => {
             const y = window.scrollY;
             const isPastFirstScreen = y > window.innerHeight * 0.8;
-            const isAtBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
             const isWide = window.matchMedia?.('(min-width: 768px)').matches ?? true;
-            if (isWide || y < lastY - 4 || isAtBottom || !isPastFirstScreen) {
+            if (isWide || y < lastY - 4 || !isPastFirstScreen) {
                 setIsShown(isPastFirstScreen);
             } else if (y > lastY + 4) {
                 setIsShown(false);
@@ -49,7 +49,20 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
         };
     }, []);
 
+    // The footer has its own Back to top, so this one steps aside while any of it shows.
+    useEffect(() => {
+        const footer = document.querySelector('footer');
+        if (!footer || typeof IntersectionObserver === 'undefined') return;
+        const observer = new IntersectionObserver(([entry]) =>
+            setIsFooterInView(entry.isIntersecting),
+        );
+        observer.observe(footer);
+        return () => observer.disconnect();
+    }, []);
+
     if (!isHydrated) return null;
+
+    const isVisible = isShown && !isFooterInView;
 
     const handleClick = () => {
         scrollToTop();
@@ -67,14 +80,14 @@ export const BackToTop = ({ focusTargetId = 'main' }: BackToTopProps) => {
                 <button
                     type='button'
                     onClick={handleClick}
-                    inert={!isShown}
+                    inert={!isVisible}
                     className={clsx(
                         'group pointer-events-auto rounded-l-4xl cursor-pointer',
                         'transition-[opacity,translate] duration-300',
                         // The shape below is clipped, which would clip a focus ring too, so the
                         // ring is the button's: dark in a white halo, to show on any section.
                         'focus-visible:outline-ui-background-primary focus-visible:outline-offset-2 focus-visible:shadow-[0_0_0_6px_white]',
-                        isShown
+                        isVisible
                             ? 'opacity-100 translate-y-0'
                             : 'opacity-0 translate-y-2 pointer-events-none',
                     )}

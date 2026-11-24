@@ -23,7 +23,12 @@ describe('BackToTop', () => {
         });
     });
 
-    afterEach(() => windowScrollTo.mockReset());
+    const Observer = window.IntersectionObserver;
+
+    afterEach(() => {
+        windowScrollTo.mockReset();
+        window.IntersectionObserver = Observer;
+    });
 
     it('stays out of reach near the top of the page', () => {
         render(<BackToTop />);
@@ -56,16 +61,39 @@ describe('BackToTop', () => {
         expect(button).toHaveAttribute('inert');
     });
 
-    it('shows at the end of the page', () => {
-        Object.defineProperty(document.documentElement, 'scrollHeight', {
-            value: 2000,
-            configurable: true,
-        });
-        render(<BackToTop />);
-
+    it('steps aside while the footer, with its own Back to top, is on screen', () => {
+        let reportFooter: IntersectionObserverCallback = () => {};
+        window.IntersectionObserver = class {
+            constructor(callback: IntersectionObserverCallback) {
+                reportFooter = callback;
+            }
+            observe() {}
+            disconnect() {}
+        } as unknown as typeof IntersectionObserver;
+        window.matchMedia = vi.fn().mockReturnValue({ matches: true });
+        render(
+            <>
+                <footer />
+                <BackToTop />
+            </>,
+        );
+        const button = screen.getByRole('button', { name: 'Back to top' });
         scrollTo(1200);
+        expect(button).not.toHaveAttribute('inert');
 
-        expect(screen.getByRole('button', { name: 'Back to top' })).not.toHaveAttribute('inert');
+        const seeFooter = (isIntersecting: boolean) =>
+            act(() =>
+                reportFooter(
+                    [{ isIntersecting } as IntersectionObserverEntry],
+                    {} as IntersectionObserver,
+                ),
+            );
+
+        seeFooter(true);
+        expect(button).toHaveAttribute('inert');
+
+        seeFooter(false);
+        expect(button).not.toHaveAttribute('inert');
     });
 
     it('glides to the top and moves focus there', () => {
