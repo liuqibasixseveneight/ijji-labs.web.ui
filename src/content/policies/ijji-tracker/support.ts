@@ -8,7 +8,7 @@ const app = paths.app('ijji-tracker');
 export const ijjiTrackerSupport: PolicyDocument = {
     title: 'IJJI Tracker support',
     summary: `Answers to the questions we hear most, and how to reach us. We reply ${site.replyTime}.`,
-    effectiveDate: '2026-11-16',
+    effectiveDate: '2026-11-25',
     sections: [
         {
             id: 'contact',
@@ -71,7 +71,7 @@ export const ijjiTrackerSupport: PolicyDocument = {
                 {
                     question: 'Will my sessions move to a new phone?',
                     answer: [
-                        'Yes. Sign in on the new phone and your activities and sessions are there. Reminders and display preferences live on each phone, so set those up again.',
+                        'Yes. Sign in on the new phone and your activities, sessions and weekly target are there. Reminders and display preferences live on each phone, so set those up again.',
                     ],
                 },
                 {

@@ -4,9 +4,8 @@ import { useId } from 'react';
  * IJJI Tracker's icon, drawn as vectors so it stays sharp at any size, screen density or zoom.
  * Measured from the app's own 1024px icon.png (src/assets/images/apps/ijji-tracker.png): a
  * dark diagonal gradient, a grey track, and a lime ring three-quarters round with round caps,
- * shading from light at the top to deeper at the end. The PNG's glow is left out: at icon
- * sizes it hazes the ring's edge. The PNG still serves structured data and anywhere an image
- * file is needed.
+ * shading from light at the top to deeper at the end. The PNG serves structured data and
+ * anywhere an image file is needed.
  */
 export const IjjiTrackerIcon = ({ className }: { className?: string }) => {
     // Unique per icon, so two on one page don't share gradients; plain characters only, as
