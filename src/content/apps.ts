@@ -42,9 +42,9 @@ export const apps: AppEntry[] = [
                     'A nudge to start, on the days and at the times that suit you. Set on your phone, with nothing sent from a server.',
             },
             {
-                title: 'Progress and achievements',
+                title: 'Weeks on target',
                 description:
-                    'Streaks, personal bests and achievements that reward showing up, not just big numbers.',
+                    'Choose how many days a week you want to show up. Personal bests and achievements reward the habit, and a missed week never takes one away.',
             },
             {
                 title: 'Your data, yours',

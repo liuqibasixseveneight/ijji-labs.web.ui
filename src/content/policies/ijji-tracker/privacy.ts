@@ -14,7 +14,7 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
     title: 'IJJI Tracker privacy policy',
     summary:
         'What IJJI Tracker keeps about you, why, where, for how long, and how to see it, take it with you or delete it.',
-    effectiveDate: '2026-11-18',
+    effectiveDate: '2026-11-25',
     sections: [
         {
             id: 'in-short',
@@ -66,7 +66,7 @@ export const ijjiTrackerPrivacy: PolicyDocument = {
                         [
                             [{ strong: 'What you track' }],
                             [
-                                'Your activities (name, icon, colour and any weekly goal) and your sessions (when they started and ended, how long they ran, Pomodoro rounds and any notes you add).',
+                                'Your activities (name, icon, colour and any weekly goal), how many days a week you aim to track something, and your sessions (when they started and ended, how long they ran, Pomodoro rounds and any notes you add).',
                             ],
                             [
                                 'To keep your history and show your totals, goals, streaks and achievements, on any phone you sign in on.',
